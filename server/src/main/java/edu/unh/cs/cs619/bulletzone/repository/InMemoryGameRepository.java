@@ -57,6 +57,7 @@ public class InMemoryGameRepository implements GameRepository {
                 this.create();
             }
 
+            //If tank is already in the game
             if( (tank = game.getTank(ip)) != null){
                 return tank;
             }
@@ -111,11 +112,35 @@ public class InMemoryGameRepository implements GameRepository {
                 throw new TankDoesNotExistException(tankId);
             }
 
+            //Make sure tank can only move every 0.5 seconds
             long millis = System.currentTimeMillis();
             if(millis < tank.getLastMoveTime())
                 return false;
 
             tank.setLastMoveTime(millis+tank.getAllowedMoveInterval());
+
+            //Direction constraints, tank only turn 90 degrees
+            switch (tank.getDirection()) {
+                case Up:
+                    if (direction == Direction.Down) {
+                        return false;
+                    }
+                    break;
+                case Down:
+                    if (direction == Direction.Up) {
+                        return false;
+                    }
+                    break;
+                case Left:
+                    if (direction == Direction.Right) {
+                        return false;
+                    }
+                case Right:
+                    if (direction == Direction.Left) {
+                        return false;
+                    }
+                    break;
+            }
 
             /*try {
                 Thread.sleep(500);
@@ -125,7 +150,7 @@ public class InMemoryGameRepository implements GameRepository {
 
             tank.setDirection(direction);
 
-            return true; // TODO check
+            return true;
         }
     }
 
@@ -142,12 +167,25 @@ public class InMemoryGameRepository implements GameRepository {
                 throw new TankDoesNotExistException(tankId);
             }
 
+            //Make sure tank can only move every 0.5 seconds
             long millis = System.currentTimeMillis();
             if(millis < tank.getLastMoveTime())
                 return false;
 
             tank.setLastMoveTime(millis + tank.getAllowedMoveInterval());
 
+            //Direction constraints, tank cannot move sideways
+            if (tank.getDirection() == Direction.Up || tank.getDirection() == Direction.Down) {
+                if (!(direction == Direction.Up || direction == Direction.Down)) {
+                    return false;
+                }
+            } else {
+                if (!(direction == Direction.Right || direction == Direction.Left)) {
+                    return false;
+                }
+            }
+
+            //Move the tank from parent to nextField
             FieldHolder parent = tank.getParent();
 
             FieldHolder nextField = parent.getNeighbor(direction);
@@ -156,13 +194,6 @@ public class InMemoryGameRepository implements GameRepository {
             boolean isCompleted;
             if (!nextField.isPresent()) {
                 // If the next field is empty move the user
-
-                /*try {
-                    Thread.sleep(500);
-                } catch(InterruptedException ex) {
-                    Thread.currentThread().interrupt();
-                }*/
-
                 parent.clearField();
                 nextField.setFieldEntity(tank);
                 tank.setParent(nextField);
@@ -193,7 +224,7 @@ public class InMemoryGameRepository implements GameRepository {
                 return false;
 
             long millis = System.currentTimeMillis();
-            if(millis < tank.getLastFireTime()/*>tank.getAllowedFireInterval()*/){
+            if(millis < tank.getLastFireTime()){
                 return false;
             }
 
@@ -207,7 +238,7 @@ public class InMemoryGameRepository implements GameRepository {
                 bulletType = 1;
             }
 
-            tank.setLastFireTime(millis + bulletDelay[bulletType - 1]);
+            tank.setLastFireTime(millis + bulletDelay[bulletType - 1] + tank.getAllowedFireInterval());
 
             int bulletId=0;
             if(trackActiveBullets[0]==0){
