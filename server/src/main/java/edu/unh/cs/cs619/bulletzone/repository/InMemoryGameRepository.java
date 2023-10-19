@@ -11,6 +11,7 @@ import edu.unh.cs.cs619.bulletzone.model.Bullet;
 import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
 import edu.unh.cs.cs619.bulletzone.model.Game;
+import edu.unh.cs.cs619.bulletzone.model.GameConstraints;
 import edu.unh.cs.cs619.bulletzone.model.IllegalTransitionException;
 import edu.unh.cs.cs619.bulletzone.model.LimitExceededException;
 import edu.unh.cs.cs619.bulletzone.model.Tank;
@@ -112,35 +113,18 @@ public class InMemoryGameRepository implements GameRepository {
                 throw new TankDoesNotExistException(tankId);
             }
 
-            //Make sure tank can only move every 0.5 seconds
+
             long millis = System.currentTimeMillis();
-            if(millis < tank.getLastMoveTime())
+            //Constraint checking
+            if (!GameConstraints.checkMoveInterval(tank, millis)) {
                 return false;
-
-            tank.setLastMoveTime(millis+tank.getAllowedMoveInterval());
-
-            //Direction constraints, tank only turn 90 degrees
-            switch (tank.getDirection()) {
-                case Up:
-                    if (direction == Direction.Down) {
-                        return false;
-                    }
-                    break;
-                case Down:
-                    if (direction == Direction.Up) {
-                        return false;
-                    }
-                    break;
-                case Left:
-                    if (direction == Direction.Right) {
-                        return false;
-                    }
-                case Right:
-                    if (direction == Direction.Left) {
-                        return false;
-                    }
-                    break;
             }
+            if (!GameConstraints.checkTurnConstraints(tank, direction)) {
+                return false;
+            }
+
+            //Set new Timestamp
+            tank.setLastMoveTime(millis+tank.getAllowedMoveInterval());
 
             /*try {
                 Thread.sleep(500);
@@ -169,21 +153,15 @@ public class InMemoryGameRepository implements GameRepository {
 
             //Make sure tank can only move every 0.5 seconds
             long millis = System.currentTimeMillis();
-            if(millis < tank.getLastMoveTime())
+            if (!GameConstraints.checkMoveInterval(tank, millis)) {
                 return false;
-
-            tank.setLastMoveTime(millis + tank.getAllowedMoveInterval());
-
-            //Direction constraints, tank cannot move sideways
-            if (tank.getDirection() == Direction.Up || tank.getDirection() == Direction.Down) {
-                if (!(direction == Direction.Up || direction == Direction.Down)) {
-                    return false;
-                }
-            } else {
-                if (!(direction == Direction.Right || direction == Direction.Left)) {
-                    return false;
-                }
             }
+            if (!GameConstraints.checkMoveConstraints(tank, direction)) {
+                return false;
+            }
+
+            //Set new timestamp
+            tank.setLastMoveTime(millis + tank.getAllowedMoveInterval());
 
             //Move the tank from parent to nextField
             FieldHolder parent = tank.getParent();
@@ -220,13 +198,11 @@ public class InMemoryGameRepository implements GameRepository {
                 throw new TankDoesNotExistException(tankId);
             }
 
-            if(tank.getNumberOfBullets() >= tank.getAllowedNumberOfBullets())
+            if(GameConstraints.checkBulletsFull(tank))
                 return false;
 
             long millis = System.currentTimeMillis();
-            if(millis < tank.getLastFireTime()){
-                return false;
-            }
+            GameConstraints.checkFireInterval(tank, millis);
 
             //Log.i(TAG, "Cannot find user with id: " + tankId);
             Direction direction = tank.getDirection();
@@ -238,6 +214,7 @@ public class InMemoryGameRepository implements GameRepository {
                 bulletType = 1;
             }
 
+            //Set new timestamp
             tank.setLastFireTime(millis + bulletDelay[bulletType - 1] + tank.getAllowedFireInterval());
 
             int bulletId=0;
