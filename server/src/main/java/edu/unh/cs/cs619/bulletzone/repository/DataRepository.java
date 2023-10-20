@@ -8,6 +8,8 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
 
 import edu.unh.cs.cs619.bulletzone.datalayer.BulletZoneData;
+import edu.unh.cs.cs619.bulletzone.datalayer.account.BankAccount;
+import edu.unh.cs.cs619.bulletzone.datalayer.item.GameItemRepository;
 import edu.unh.cs.cs619.bulletzone.datalayer.user.GameUser;
 import edu.unh.cs.cs619.bulletzone.model.Bullet;
 import edu.unh.cs.cs619.bulletzone.model.Direction;
@@ -40,9 +42,9 @@ public class DataRepository {
 
     DataRepository() {
         //TODO: Replace database name, username, and password with what's appropriate for your group
-//        String url = "jdbc:mysql://stman1.cs.unh.edu:3306/cs6190";
-//        String username = "mdp";
-//        String password = "Drag56kes";
+        String url = "jdbc:mysql://stman1.cs.unh.edu:3306/cs61906";
+        String username = "Oberon";
+        String password = "619Project2";
 //
 //        bzdata = new BulletZoneData(url, username, password);
         bzdata = new BulletZoneData(); //just use in-memory database
@@ -59,6 +61,13 @@ public class DataRepository {
     public GameUser validateUser(String username, String password, boolean create) {
         //TODO: something that invokes users.createUser(name, password) or
         //      users.validateLogin(name, password) as appropriate, maybe does other bookkeeping
-        return null;
+        if (create) {
+            GameUser newUser = bzdata.users.createUser(username, username, password);
+            BankAccount bankAcc = bzdata.accounts.create();
+            bankAcc.setOwner(newUser);
+            bzdata.accounts.modifyBalance(bankAcc, 1000);
+            return newUser;
+        }
+        return bzdata.users.validateLogin(username, password);
     }
 }
