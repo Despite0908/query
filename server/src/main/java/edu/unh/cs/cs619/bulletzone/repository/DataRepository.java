@@ -42,17 +42,21 @@ public class DataRepository {
 
     DataRepository() {
         //TODO: Replace database name, username, and password with what's appropriate for your group
-        String url = "jdbc:mysql://stman1.cs.unh.edu:3306/cs61906";
-        String username = "Oberon";
-        String password = "619Project2";
+        String url = "stman1.cs.unh.edu";
+        String username = "oberon";
+        String password = "pibyad2ObIb";
 //
 //        bzdata = new BulletZoneData(url, username, password);
         bzdata = new BulletZoneData(); //just use in-memory database
     }
 
     /**
-     * Stub for a method that would create a user or validate the user. [You don't have
-     * to do it this way--feel free to make other methods if you like!]
+     * Stub for a method that would create a user or validate the user. If a create boolean of
+     * true is passed into this function, it calls createUser() with the username and password
+     * parameters, creates a new bank account, and gives them a starting bank account of 1000
+     * credits. The validateUser function as well as the createUser function both return null
+     * already if there are issues creating or validating a user, so directly returning what they
+     * return in their functions handles errors.
      * @param username Username for the user to create or validate
      * @param password Password for the user
      * @param create true if the user should be created, or false otherwise

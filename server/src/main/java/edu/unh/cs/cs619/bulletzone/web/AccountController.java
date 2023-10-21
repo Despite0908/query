@@ -33,7 +33,11 @@ public class AccountController {
     }
 
     /**
-     * Handles a PUT request to register a new user account
+     * Handles a PUT request to register a new user account. This calls the validateUser function on
+     * the DataRepository variable we have in this class called "data". The function is called
+     * inside a BooleanWrapper ResponseEntity so that the creation of the new user will either be
+     * shown as completed (true) or failed (false). Because this function is looking to register a
+     * new user, we are passing a boolean of true as the create parameter of validateUser. 
      *
      * @param name The username
      * @param password The password
@@ -49,16 +53,19 @@ public class AccountController {
         // Return the response (true if account created)
 //        /*
         return new ResponseEntity<BooleanWrapper>(new BooleanWrapper(
-                (data.validateUser(name, password, true) != null)
-
 //                TODO: something that invokes users.createUser(name, password) and does
 //                      other setup in the DataRepository (actually calls data.validateUser(...))
+                (data.validateUser(name, password, true) != null)
                 ),
                 HttpStatus.CREATED);
     }
 
     /**
-     * Handles a PUT request to login a user
+     * Handles a PUT request to login a user. This calls the validateUser() function on the
+     * DataRepository variable we have called "data" and is called inside of a LongWrapper
+     * ResponseEntity so that the ResponseEntity will contain the (possible) userID of the user
+     * logging in. It will hold null otherwise. Because we are logging in rather than registering a
+     * new account, a boolean of false is passed into the validateUser parameter for create.
      *
      * @param name The username
      * @param password The password
@@ -74,9 +81,9 @@ public class AccountController {
         // Return the response (return user ID if valid login)
 
         return new ResponseEntity<LongWrapper>(new LongWrapper(
-                data.validateUser(name, password, false).getId()
 //                TODO: something that invokes users.validateLogin(name, password) in
 //                      the DataRepository (actually calls data.validateUser(...))
+                data.validateUser(name, password, false).getId()
                 ),
                 HttpStatus.OK);
     }
