@@ -54,11 +54,25 @@ public class InMemoryGameRepository implements GameRepository {
     private int bulletDelay[]={500,1000,1500};
     private int trackActiveBullets[]={0,0};
 
+    private int tankSpawn[] = null;
+
     private String mapPath = "src/main/Maps/DefaultMap.json";
 
     public void setMapPath(String map) {
         String mapPrefix = "src/main/Maps/";
         mapPath = mapPrefix + map;
+    }
+
+    public void setTankSpawn(int x, int y) {
+        if (x >= FIELD_DIM || y >= FIELD_DIM) {
+            return;
+        }
+        if (tankSpawn == null) {
+            tankSpawn = new int[]{x, y};
+        } else {
+            tankSpawn[0] = x;
+            tankSpawn[1] = y;
+        }
     }
 
     @Override
@@ -80,19 +94,25 @@ public class InMemoryGameRepository implements GameRepository {
             tank.setLife(TANK_LIFE);
 
             Random random = new Random();
-            int x;
-            int y;
 
             // This may run for forever.. If there is no free space. XXX
+            boolean firstTry = true;
             for (; ; ) {
-                x = random.nextInt(FIELD_DIM);
-                y = random.nextInt(FIELD_DIM);
-                FieldHolder fieldElement = game.getHolderGrid().get(x * FIELD_DIM + y);
+                if (firstTry && tankSpawn == null) {
+                    tankSpawn = new int[2];
+                    tankSpawn[0] = random.nextInt(FIELD_DIM);
+                    tankSpawn[1] = random.nextInt(FIELD_DIM);
+                } else if (!firstTry && tankSpawn != null) {
+                    tankSpawn[0] = random.nextInt(FIELD_DIM);
+                    tankSpawn[1] = random.nextInt(FIELD_DIM);
+                }
+                FieldHolder fieldElement = game.getHolderGrid().get(tankSpawn[0] * FIELD_DIM + tankSpawn[1]);
                 if (!fieldElement.isPresent()) {
                     fieldElement.setFieldEntity(tank);
                     tank.setParent(fieldElement);
                     break;
                 }
+                firstTry = false;
             }
 
             game.addTank(ip, tank);

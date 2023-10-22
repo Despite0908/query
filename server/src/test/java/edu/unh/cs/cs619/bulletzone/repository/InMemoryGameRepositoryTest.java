@@ -38,6 +38,16 @@ public class InMemoryGameRepositoryTest {
         Assert.assertNotNull(tank.getParent());
     }
 
+    @Test
+    public void join_InjectTankSpawn_TankSpawnsAt12x12() {
+        repo.setMapPath("BlankMap.json");
+        repo.setTankSpawn(12, 12);
+        Tank tank = repo.join("");
+        Assert.assertNotNull(tank);
+        Assert.assertTrue(tank.getId() >= 0);
+        Assert.assertTrue(tank.getIntValue() == repo.getGrid()[12][12]);
+    }
+
     //Basic Turns
     @Test
     public void turn_turnRight_returnsTrueAndTankRight() throws Exception {
