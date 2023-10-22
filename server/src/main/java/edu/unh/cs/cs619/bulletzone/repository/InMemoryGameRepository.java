@@ -24,6 +24,11 @@ import edu.unh.cs.cs619.bulletzone.model.Wall;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * Class that changes the model based on requests passed from client. Only directly game-related
+ * functions are handled here.
+ */
+
 @Component
 public class InMemoryGameRepository implements GameRepository {
 
@@ -58,11 +63,20 @@ public class InMemoryGameRepository implements GameRepository {
 
     private String mapPath = "src/main/Maps/DefaultMap.json";
 
+    /**
+     * Sets the map to load game from.
+     * @param map Only file name needed, not path
+     */
     public void setMapPath(String map) {
         String mapPrefix = "src/main/Maps/";
         mapPath = mapPrefix + map;
     }
 
+    /**
+     * USED FOR TESTING PURPOSES ONLY. Sets tank spawn to a specific cell.
+     * @param x Row for tank to spawn in
+     * @param y Column for tank to spawn in.
+     */
     public void setTankSpawn(int x, int y) {
         if (x >= FIELD_DIM || y >= FIELD_DIM) {
             return;
@@ -75,6 +89,11 @@ public class InMemoryGameRepository implements GameRepository {
         }
     }
 
+    /**
+     * Adds a player to the current game. If there is no game occurring, it creates one.
+     * @param ip IP address of the player joining.
+     * @return Returns the Tank object for the tank added to the game.
+     */
     @Override
     public Tank join(String ip) {
         synchronized (this.monitor) {
@@ -121,6 +140,11 @@ public class InMemoryGameRepository implements GameRepository {
         }
     }
 
+    /**
+     * Returns an integer array representation of the field grid. If there is no
+     * current game, it creates one.
+     * @return An array representation of the field grid.
+     */
     @Override
     public int[][] getGrid() {
         synchronized (this.monitor) {
@@ -131,6 +155,15 @@ public class InMemoryGameRepository implements GameRepository {
         return game.getGrid2D();
     }
 
+    /**
+     * Checks constraints and turns a tank.
+     * @param tankId Tank to be turned
+     * @param direction Direction to turn the tank
+     * @return Returns false if constraints are violated. Returns true if turn is successful.
+     * @throws TankDoesNotExistException Throws if there is no thank corresponding to tankID.
+     * @throws IllegalTransitionException Throws if a tank tries to turn in an illegal manner.
+     * @throws LimitExceededException I honestly don't know on this one.
+     */
     @Override
     public boolean turn(long tankId, Direction direction)
             throws TankDoesNotExistException, IllegalTransitionException, LimitExceededException {
@@ -144,13 +177,13 @@ public class InMemoryGameRepository implements GameRepository {
                 throw new TankDoesNotExistException(tankId);
             }
 
-
+            GameConstraints constraints = new GameConstraints(tank);
             long millis = System.currentTimeMillis();
             //Constraint checking
-            if (!GameConstraints.checkMoveInterval(tank, millis)) {
+            if (!constraints.checkMoveInterval(millis)) {
                 return false;
             }
-            if (!GameConstraints.checkTurnConstraints(tank, direction)) {
+            if (!constraints.checkTurnConstraints(direction)) {
                 return false;
             }
 
@@ -169,6 +202,15 @@ public class InMemoryGameRepository implements GameRepository {
         }
     }
 
+    /**
+     * Checks constraints and moves a tank
+     * @param tankId Tank to be moved
+     * @param direction direction to move tank in
+     * @return Returns false if constraints are violated. Returns true if move is successful.
+     * @throws TankDoesNotExistException Throws if there is no thank corresponding to tankID.
+     * @throws IllegalTransitionException I'm not sure here because this exception is specifically about turns.
+     * @throws LimitExceededException Don't know here
+     */
     @Override
     public boolean move(long tankId, Direction direction)
             throws TankDoesNotExistException, IllegalTransitionException, LimitExceededException {
@@ -182,12 +224,14 @@ public class InMemoryGameRepository implements GameRepository {
                 throw new TankDoesNotExistException(tankId);
             }
 
+            GameConstraints constraints = new GameConstraints(tank);
+
             //Make sure tank can only move every 0.5 seconds
             long millis = System.currentTimeMillis();
-            if (!GameConstraints.checkMoveInterval(tank, millis)) {
+            if (!constraints.checkMoveInterval(millis)) {
                 return false;
             }
-            if (!GameConstraints.checkMoveConstraints(tank, direction)) {
+            if (!constraints.checkMoveConstraints(direction)) {
                 return false;
             }
 
@@ -198,8 +242,10 @@ public class InMemoryGameRepository implements GameRepository {
             FieldHolder parent = tank.getParent();
 
             FieldHolder nextField = parent.getNeighbor(direction);
-            checkNotNull(parent.getNeighbor(direction), "Neightbor is not available");
+            checkNotNull(parent.getNeighbor(direction), "Neighbor is not available");
 
+
+            //TODO: POSSIBLY FACTOR OUT TO GameConstraints??
             boolean isCompleted;
             if (!nextField.isPresent()) {
                 // If the next field is empty move the user
@@ -216,6 +262,14 @@ public class InMemoryGameRepository implements GameRepository {
         }
     }
 
+    /**
+     * Checks constraints, fires bullet, then sets timer to move bullet.
+     * @param tankId Tank to fire bullet from
+     * @param bulletType Type of bullet to be fired.
+     * @return Returns true if bullet fired successfully. Returns false if constraint violated.
+     * @throws TankDoesNotExistException Throws if there is no thank corresponding to tankID.
+     * @throws LimitExceededException Don't know on this one
+     */
     @Override
     public boolean fire(long tankId, int bulletType)
             throws TankDoesNotExistException, LimitExceededException {
@@ -229,11 +283,18 @@ public class InMemoryGameRepository implements GameRepository {
                 throw new TankDoesNotExistException(tankId);
             }
 
-            if(GameConstraints.checkBulletsFull(tank))
+            GameConstraints constraints = new GameConstraints(tank);
+
+            if(constraints.checkBulletsFull())
                 return false;
 
             long millis = System.currentTimeMillis();
-            GameConstraints.checkFireInterval(tank, millis);
+            if (!constraints.checkFireInterval(millis)) {
+                return false;
+            }
+
+            //Set new timestamp
+            tank.setLastFireTime(millis + bulletDelay[bulletType - 1] + tank.getAllowedFireInterval());
 
             //Log.i(TAG, "Cannot find user with id: " + tankId);
             Direction direction = tank.getDirection();
@@ -244,9 +305,6 @@ public class InMemoryGameRepository implements GameRepository {
                 System.out.println("Bullet type must be 1, 2 or 3, set to 1 by default.");
                 bulletType = 1;
             }
-
-            //Set new timestamp
-            tank.setLastFireTime(millis + bulletDelay[bulletType - 1] + tank.getAllowedFireInterval());
 
             int bulletId=0;
             if(trackActiveBullets[0]==0){
@@ -325,6 +383,11 @@ public class InMemoryGameRepository implements GameRepository {
         }
     }
 
+    /**
+     * Removes tank
+     * @param tankId Tank to be removed
+     * @throws TankDoesNotExistException Throws if there is no thank corresponding to tankID.
+     */
     @Override
     public void leave(long tankId)
             throws TankDoesNotExistException {
@@ -342,6 +405,9 @@ public class InMemoryGameRepository implements GameRepository {
         }
     }
 
+    /**
+     * Creates a game according to mapPath
+     */
     public void create() {
         if (game != null) {
             return;
