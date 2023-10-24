@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClientException;
 
 import javax.servlet.http.HttpServletRequest;
-import com.google.common.base.Preconditions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.IllegalTransitionException;
@@ -27,6 +29,7 @@ import edu.unh.cs.cs619.bulletzone.repository.GameRepository;
 import edu.unh.cs.cs619.bulletzone.util.BooleanWrapper;
 import edu.unh.cs.cs619.bulletzone.util.GridWrapper;
 import edu.unh.cs.cs619.bulletzone.util.LongWrapper;
+import edu.unh.cs.cs619.bulletzone.util.StringArrayWrapper;
 
 @RestController
 @RequestMapping(value = "/games")
@@ -66,6 +69,15 @@ class GamesController {
     @ResponseBody
     ResponseEntity<GridWrapper> grid() {
         return new ResponseEntity<GridWrapper>(new GridWrapper(gameRepository.getGrid()), HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "{millis}/event", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public
+    @ResponseBody
+    ResponseEntity<StringArrayWrapper> event() {
+        //TODO: STUB
+        return new ResponseEntity<StringArrayWrapper>(new StringArrayWrapper(new String[1]), HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "{tankId}/turn/{direction}", produces = MediaType.APPLICATION_JSON_VALUE)

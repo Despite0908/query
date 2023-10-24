@@ -197,6 +197,7 @@ public class InMemoryGameRepository implements GameRepository {
             }*/
 
             tank.setDirection(direction);
+            //TODO: ADD MOVE EVENT
 
             return true;
         }
@@ -254,6 +255,7 @@ public class InMemoryGameRepository implements GameRepository {
                 tank.setParent(nextField);
 
                 isCompleted = true;
+                //TODO: ADD MOVE EVENT
             } else {
                 isCompleted = false;
             }
@@ -350,6 +352,7 @@ public class InMemoryGameRepository implements GameRepository {
                                         t.getParent().clearField();
                                         t.setParent(null);
                                         game.removeTank(t.getId());
+                                        //TODO: ADD TANK HIT EVENT
                                     }
                                 }
                                 else if ( nextField.getEntity() instanceof  Wall){
@@ -357,6 +360,7 @@ public class InMemoryGameRepository implements GameRepository {
                                     if (w.getIntValue() >1000 && w.getIntValue()<=2000 ){
                                         game.getHolderGrid().get(w.getPos()).clearField();
                                     }
+                                    //TODO: ADD WALL HIT EVENT
                                 }
                             if (isVisible) {
                                 // Remove bullet from field
@@ -374,6 +378,7 @@ public class InMemoryGameRepository implements GameRepository {
 
                             nextField.setFieldEntity(bullet);
                             bullet.setParent(nextField);
+                            //TODO: ADD BULLET MOVEMENT EVENT
                         }
                     }
                 }
