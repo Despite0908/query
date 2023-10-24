@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+
 import edu.unh.cs.cs619.bulletzone.repository.DataRepository;
 import edu.unh.cs.cs619.bulletzone.util.BooleanWrapper;
 import edu.unh.cs.cs619.bulletzone.util.LongWrapper;
+import edu.unh.cs.cs619.bulletzone.datalayer.user.GameUser;
 
 @RestController
 @RequestMapping(value = "/games/account")
@@ -23,6 +25,7 @@ public class AccountController {
     private static final Logger log = LoggerFactory.getLogger(AccountController.class);
 
     private final DataRepository data;
+    private GameUser gu;
 
     @Autowired
     public AccountController(DataRepository repo) {
@@ -30,7 +33,11 @@ public class AccountController {
     }
 
     /**
-     * Handles a PUT request to register a new user account
+     * Handles a PUT request to register a new user account. This calls the validateUser function on
+     * the DataRepository variable we have in this class called "data". The function is called
+     * inside a BooleanWrapper ResponseEntity so that the creation of the new user will either be
+     * shown as completed (true) or failed (false). Because this function is looking to register a
+     * new user, we are passing a boolean of true as the create parameter of validateUser. 
      *
      * @param name The username
      * @param password The password
@@ -44,18 +51,21 @@ public class AccountController {
         // Log the request
         log.debug("Register '" + name + "' with password '" + password + "'");
         // Return the response (true if account created)
-        /*
+//        /*
         return new ResponseEntity<BooleanWrapper>(new BooleanWrapper(
-                TODO: something that invokes users.createUser(name, password) and does
-                      other setup in the DataRepository (actually calls data.validateUser(...))
+//                TODO: something that invokes users.createUser(name, password) and does
+//                      other setup in the DataRepository (actually calls data.validateUser(...))
+                (data.validateUser(name, password, true) != null)
                 ),
                 HttpStatus.CREATED);
-         */
-        return null;
     }
 
     /**
-     * Handles a PUT request to login a user
+     * Handles a PUT request to login a user. This calls the validateUser() function on the
+     * DataRepository variable we have called "data" and is called inside of a LongWrapper
+     * ResponseEntity so that the ResponseEntity will contain the (possible) userID of the user
+     * logging in. It will hold null otherwise. Because we are logging in rather than registering a
+     * new account, a boolean of false is passed into the validateUser parameter for create.
      *
      * @param name The username
      * @param password The password
@@ -69,14 +79,13 @@ public class AccountController {
         // Log the request
         log.debug("Login '" + name + "' with password '" + password + "'");
         // Return the response (return user ID if valid login)
-        /*
+
         return new ResponseEntity<LongWrapper>(new LongWrapper(
-                TODO: something that invokes users.validateLogin(name, password) in
-                      the DataRepository (actually calls data.validateUser(...))
+//                TODO: something that invokes users.validateLogin(name, password) in
+//                      the DataRepository (actually calls data.validateUser(...))
+                data.validateUser(name, password, false).getId()
                 ),
                 HttpStatus.OK);
-         */
-        return null;
     }
 
 }

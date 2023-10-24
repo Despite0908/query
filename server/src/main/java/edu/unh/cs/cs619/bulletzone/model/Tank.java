@@ -30,7 +30,7 @@ public class Tank extends FieldEntity {
         numberOfBullets = 0;
         allowedNumberOfBullets = 2;
         lastFireTime = 0;
-        allowedFireInterval = 1500;
+        allowedFireInterval = 500;
         lastMoveTime = 0;
         allowedMoveInterval = 500;
     }

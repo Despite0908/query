@@ -25,6 +25,7 @@ public enum Direction {
 
             default:
                 // TODO Log unknown direction
+//                Log.d("Unknown direction", "Direction equal to: " + direction);
                 break;
         }
 

@@ -2,6 +2,9 @@ package edu.unh.cs.cs619.bulletzone;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
@@ -55,6 +58,8 @@ public class ClientActivity extends Activity {
     @Bean
     BZRestErrorhandler bzRestErrorhandler;
 
+    TankController tankControl;
+
     /**
      * Remote tank identifier
      */
@@ -63,6 +68,7 @@ public class ClientActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        tankControl = TankController.getInstance(this, restClient);
     }
 
     @Override
@@ -116,40 +122,37 @@ public class ClientActivity extends Activity {
         mGridAdapter.updateList(gw.getGrid());
     }
 
-    @Click({R.id.buttonUp, R.id.buttonDown, R.id.buttonLeft, R.id.buttonRight})
+    @Click({R.id.buttonUp, R.id.buttonDown})
+    @Background
     protected void onButtonMove(View view) {
         final int viewId = view.getId();
-        byte direction = 0;
-
-        switch (viewId) {
-            case R.id.buttonUp:
-                direction = 0;
-                break;
-            case R.id.buttonDown:
-                direction = 4;
-                break;
-            case R.id.buttonLeft:
-                direction = 6;
-                break;
-            case R.id.buttonRight:
-                direction = 2;
-                break;
-            default:
-                Log.e(TAG, "Unknown movement button id: " + viewId);
-                break;
-        }
-        this.moveAsync(tankId, direction);
+        tankControl.moveTank(viewId, tankId);
+//        this.moveAsync(tankId, tankControl.moveTank(viewId));
     }
 
+    @Click({R.id.buttonLeft})
     @Background
-    void moveAsync(long tankId, byte direction) {
-        restClient.move(tankId, direction);
+    protected void onButtonTurnLeft() {
+        tankControl.turnLeft(tankId);
+//        this.turnAsync(tankId, tankControl.turnLeft());
     }
 
+    @Click({R.id.buttonRight})
     @Background
-    void turnAsync(long tankId, byte direction) {
-        restClient.turn(tankId, direction);
+    protected void onButtonTurnRight(View view) {
+        tankControl.turnRight(tankId);
+//        this.turnAsync(tankId, tankControl.turnRight());
     }
+
+//    @Background
+//    void moveAsync(long tankId, byte direction) {
+//        restClient.move(tankId, direction);
+//    }
+
+//    @Background
+//    void turnAsync(long tankId, byte direction) {
+//        restClient.turn(tankId, direction);
+//    }
 
     @Click(R.id.buttonFire)
     @Background
@@ -177,4 +180,16 @@ public class ClientActivity extends Activity {
         BackgroundExecutor.cancelAll("grid_poller_task", true);
         restClient.leave(tankId);
     }
+
+    private final SensorEventListener sensorListener = new SensorEventListener() {
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            onButtonFire();
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+        }
+    };
 }

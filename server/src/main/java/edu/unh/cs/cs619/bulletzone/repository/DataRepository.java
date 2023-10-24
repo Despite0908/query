@@ -8,6 +8,8 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
 
 import edu.unh.cs.cs619.bulletzone.datalayer.BulletZoneData;
+import edu.unh.cs.cs619.bulletzone.datalayer.account.BankAccount;
+import edu.unh.cs.cs619.bulletzone.datalayer.item.GameItemRepository;
 import edu.unh.cs.cs619.bulletzone.datalayer.user.GameUser;
 import edu.unh.cs.cs619.bulletzone.model.Bullet;
 import edu.unh.cs.cs619.bulletzone.model.Direction;
@@ -40,17 +42,21 @@ public class DataRepository {
 
     DataRepository() {
         //TODO: Replace database name, username, and password with what's appropriate for your group
-//        String url = "jdbc:mysql://stman1.cs.unh.edu:3306/cs6190";
-//        String username = "mdp";
-//        String password = "Drag56kes";
+        String url = "stman1.cs.unh.edu";
+        String username = "oberon";
+        String password = "pibyad2ObIb";
 //
 //        bzdata = new BulletZoneData(url, username, password);
         bzdata = new BulletZoneData(); //just use in-memory database
     }
 
     /**
-     * Stub for a method that would create a user or validate the user. [You don't have
-     * to do it this way--feel free to make other methods if you like!]
+     * Stub for a method that would create a user or validate the user. If a create boolean of
+     * true is passed into this function, it calls createUser() with the username and password
+     * parameters, creates a new bank account, and gives them a starting bank account of 1000
+     * credits. The validateUser function as well as the createUser function both return null
+     * already if there are issues creating or validating a user, so directly returning what they
+     * return in their functions handles errors.
      * @param username Username for the user to create or validate
      * @param password Password for the user
      * @param create true if the user should be created, or false otherwise
@@ -59,6 +65,13 @@ public class DataRepository {
     public GameUser validateUser(String username, String password, boolean create) {
         //TODO: something that invokes users.createUser(name, password) or
         //      users.validateLogin(name, password) as appropriate, maybe does other bookkeeping
-        return null;
+        if (create) {
+            GameUser newUser = bzdata.users.createUser(username, username, password);
+            BankAccount bankAcc = bzdata.accounts.create();
+            bankAcc.setOwner(newUser);
+            bzdata.accounts.modifyBalance(bankAcc, 1000);
+            return newUser;
+        }
+        return bzdata.users.validateLogin(username, password);
     }
 }
