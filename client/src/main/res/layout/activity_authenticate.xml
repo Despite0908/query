@@ -5,7 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="#FF000000"
     tools:context=".AuthenticateActivity">
+
 
     <TextView
         android:id="@+id/login_title"
@@ -22,12 +24,14 @@
     <TextView
         android:id="@+id/status_message"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="250dp"
         android:gravity="center"
-        android:text=""
-        android:textColor="@android:color/holo_red_dark"
+        android:text="Welcome to Bullet Zone!"
+        android:fontFamily="sans-serif-light"
+        android:textSize="30sp"
+        android:textColor="@color/hover_gray"
         android:ems="16"
-        android:textStyle="bold" />
+        android:textStyle="normal" />
 
     <Space
         android:layout_width="match_parent"
@@ -35,6 +39,8 @@
 
     <EditText
         android:id="@+id/username_editText"
+        android:textColorHint="@color/hint_color"
+        android:textColor="@color/editText_textColor"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:ems="11"
@@ -44,6 +50,8 @@
 
     <EditText
         android:id="@+id/password_editText"
+        android:textColorHint="@color/hint_color"
+        android:textColor="@color/editText_textColor"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -64,9 +72,13 @@
 
         <Button
             android:id="@+id/register_button"
+            android:background="@color/color_selector"
+            android:textColor="@color/text_color"
+            style="@android:style/Widget.Button"
             android:layout_width="130dp"
             android:layout_height="50dp"
             android:text="Register" />
+
 
         <Space
             android:layout_height="match_parent"
@@ -74,6 +86,9 @@
 
         <Button
             android:id="@+id/login_button"
+            android:background="@color/color_selector"
+            android:textColor="@color/text_color"
+            style="@android:style/Widget.Button"
             android:layout_width="130dp"
             android:layout_height="50dp"
             android:text="Login" />
