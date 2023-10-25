@@ -12,7 +12,7 @@ import edu.unh.cs.cs619.bulletzone.model.Tank;
  */
 public class BulletMoveEvent implements GridEvent{
     long millis;
-    int tankID;
+    long tankID;
     Direction direction;
     int intVal;
     int[][] grid;
@@ -24,7 +24,7 @@ public class BulletMoveEvent implements GridEvent{
      * @param intVal Integer value of the bullet. See {@link Bullet#getIntValue() getIntValue} for value.
      * @param grid
      */
-    public BulletMoveEvent(int tankID, Direction direction, int intVal, int[][] grid) {
+    public BulletMoveEvent(long tankID, Direction direction, int intVal, int[][] grid) {
         this.millis = System.currentTimeMillis();
         this.tankID = tankID;
         this.direction = direction;
@@ -40,11 +40,11 @@ public class BulletMoveEvent implements GridEvent{
     @Override
     public String toJSON() {
         JSONObject eventJSON = new JSONObject();
-        eventJSON.append("millis", millis);
-        eventJSON.append("eventType", "bulletMove");
-        eventJSON.append("tankID", tankID);
-        eventJSON.append("direction", Direction.toByte(direction));
-        eventJSON.append("intVal", intVal);
+        eventJSON.put("millis", millis);
+        eventJSON.put("eventType", "bulletMove");
+        eventJSON.put("tankID", tankID);
+        eventJSON.put("direction", Direction.toByte(direction));
+        eventJSON.put("intVal", intVal);
         int newPos = 0;
         boolean found = false;
         for (int i = 0; i < grid.length; i++) {
@@ -60,7 +60,7 @@ public class BulletMoveEvent implements GridEvent{
             }
         }
         if (found) {
-            eventJSON.append("newPos", newPos);
+            eventJSON.put("newPos", newPos);
             return eventJSON.toString();
         }
         return null;

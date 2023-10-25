@@ -23,4 +23,6 @@ public interface GameRepository {
 
     public void leave(long tankId)
             throws TankDoesNotExistException;
+
+    String[] event(long millis);
 }

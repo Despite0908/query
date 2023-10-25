@@ -18,6 +18,13 @@ import edu.unh.cs.cs619.bulletzone.model.GameMap;
 import edu.unh.cs.cs619.bulletzone.model.IllegalTransitionException;
 import edu.unh.cs.cs619.bulletzone.model.LimitExceededException;
 import edu.unh.cs.cs619.bulletzone.model.MapLoader;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BoardCreationEvent;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BulletHitEvent;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BulletMoveEvent;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.FireEvent;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.GridEvent;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TankMoveEvent;
 import edu.unh.cs.cs619.bulletzone.model.Tank;
 import edu.unh.cs.cs619.bulletzone.model.TankDoesNotExistException;
 import edu.unh.cs.cs619.bulletzone.model.Wall;
@@ -60,6 +67,8 @@ public class InMemoryGameRepository implements GameRepository {
     private int trackActiveBullets[]={0,0};
 
     private int tankSpawn[] = null;
+
+    private final EventHistory eventHistory = new EventHistory();
 
     private String mapPath = "src/main/Maps/DefaultMap.json";
 
@@ -190,14 +199,10 @@ public class InMemoryGameRepository implements GameRepository {
             //Set new Timestamp
             tank.setLastMoveTime(millis+tank.getAllowedMoveInterval());
 
-            /*try {
-                Thread.sleep(500);
-            } catch(InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }*/
-
             tank.setDirection(direction);
-            //TODO: ADD MOVE EVENT
+
+            //Add event
+            eventHistory.addEvent(new TankMoveEvent(tank.getId(), direction, tank.getIntValue(), getGrid()));
 
             return true;
         }
@@ -255,7 +260,8 @@ public class InMemoryGameRepository implements GameRepository {
                 tank.setParent(nextField);
 
                 isCompleted = true;
-                //TODO: ADD MOVE EVENT
+                //Add move event
+                eventHistory.addEvent(new TankMoveEvent(tank.getId(), direction, tank.getIntValue(), getGrid()));
             } else {
                 isCompleted = false;
             }
@@ -352,15 +358,23 @@ public class InMemoryGameRepository implements GameRepository {
                                         t.getParent().clearField();
                                         t.setParent(null);
                                         game.removeTank(t.getId());
-                                        //TODO: ADD TANK HIT EVENT
+                                        //Add tank hit event
+                                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), true, t.getIntValue()));
+                                    } else {
+                                        //Add tank hit event
+                                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), false, t.getIntValue()));
                                     }
                                 }
                                 else if ( nextField.getEntity() instanceof  Wall){
                                     Wall w = (Wall) nextField.getEntity();
                                     if (w.getIntValue() >1000 && w.getIntValue()<=2000 ){
                                         game.getHolderGrid().get(w.getPos()).clearField();
+                                        //Add wall hit event
+                                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), true, w.getIntValue()));
+                                    } else {
+                                        //Add wall hit event
+                                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), false, w.getIntValue()));
                                     }
-                                    //TODO: ADD WALL HIT EVENT
                                 }
                             if (isVisible) {
                                 // Remove bullet from field
@@ -378,12 +392,13 @@ public class InMemoryGameRepository implements GameRepository {
 
                             nextField.setFieldEntity(bullet);
                             bullet.setParent(nextField);
-                            //TODO: ADD BULLET MOVEMENT EVENT
+                            eventHistory.addEvent(new BulletMoveEvent(tankId, bullet.getDirection(), bullet.getIntValue(), getGrid()));
                         }
                     }
                 }
             }, 0, BULLET_PERIOD);
-
+            //Add fire event
+            eventHistory.addEvent(new FireEvent(tank.getId()));
             return true;
         }
     }
@@ -433,6 +448,19 @@ public class InMemoryGameRepository implements GameRepository {
 
             //Build map and holder grid
             this.game = gameBuilder.build();
+            //Add creation event
+            eventHistory.addEvent(new BoardCreationEvent());
+        }
+    }
+
+    public String[] event(long millis) {
+        synchronized (this.monitor) {
+            List<GridEvent> events = eventHistory.getEventsAfter(millis);
+            String[] JSONEvents = new String[events.size()];
+            for (int i = 0; i < events.size(); i++) {
+                JSONEvents[i] = events.get(i).toJSON();
+            }
+            return JSONEvents;
         }
     }
 

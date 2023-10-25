@@ -2,21 +2,15 @@ package edu.unh.cs.cs619.bulletzone.model.ServerEvents;
 
 import org.json.JSONObject;
 
-/**
- * Implementation of GridEvent for a tank firing
- * @author Anthony Papetti
- */
-public class FireEvent implements GridEvent{
+public class BoardCreationEvent implements GridEvent{
+
     long millis;
-    long tankID;
 
     /**
-     * Constructor for FireEvent, stores tank's ID.
-     * @param tankID The ID of the tank that is firing.
+     * Constructor. Sets timestamp.
      */
-    public FireEvent(long tankID) {
+    public BoardCreationEvent() {
         this.millis = System.currentTimeMillis();
-        this.tankID = tankID;
     }
 
     /**
@@ -29,7 +23,7 @@ public class FireEvent implements GridEvent{
     }
 
     /**
-     * {@inheritDoc}. Type specific fields are "tankID".
+     * {@inheritDoc}
      * @return {@inheritDoc}
      */
     @Override
@@ -37,7 +31,6 @@ public class FireEvent implements GridEvent{
         JSONObject eventJSON = new JSONObject();
         eventJSON.put("millis", millis);
         eventJSON.put("eventType", "fire");
-        eventJSON.put("tankID", tankID);
         return eventJSON.toString();
     }
 }

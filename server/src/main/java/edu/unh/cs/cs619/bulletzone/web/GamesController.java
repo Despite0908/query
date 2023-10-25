@@ -75,9 +75,8 @@ class GamesController {
     @ResponseStatus(HttpStatus.OK)
     public
     @ResponseBody
-    ResponseEntity<StringArrayWrapper> event() {
-        //TODO: STUB
-        return new ResponseEntity<StringArrayWrapper>(new StringArrayWrapper(new String[1]), HttpStatus.OK);
+    ResponseEntity<StringArrayWrapper> event(@PathVariable long millis) {
+        return new ResponseEntity<StringArrayWrapper>(new StringArrayWrapper(gameRepository.event(millis)), HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "{tankId}/turn/{direction}", produces = MediaType.APPLICATION_JSON_VALUE)
