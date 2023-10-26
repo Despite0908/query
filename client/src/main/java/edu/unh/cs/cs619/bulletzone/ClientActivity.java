@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
@@ -19,6 +20,7 @@ import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.NonConfigurationInstance;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.rest.spring.annotations.Rest;
@@ -52,23 +54,42 @@ public class ClientActivity extends Activity {
     @Bean
     GridPollerTask gridPollTask;
 
-    @RestService
-    BulletZoneRestClient restClient;
+//    @RestService
+//    BulletZoneRestClient restClient;
+
+//    @Bean
+//    BZRestErrorhandler bzRestErrorhandler;
 
     @Bean
-    BZRestErrorhandler bzRestErrorhandler;
-
     TankController tankControl;
-
-    /**
-     * Remote tank identifier
-     */
-    private long tankId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        tankControl = TankController.getInstance(this, restClient);
+        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        Sensor shakeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+        SensorEventListener sensorEventListener = new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                if (event != null) {
+                    float xAccel = event.values[0];
+                    float yAccel = event.values[1];
+                    float zAccel = event.values[2];
+
+                    if (xAccel > 2 || xAccel < -2 || yAccel > 12 || yAccel < -12 || zAccel > 2 || zAccel < -2) {
+                        tankControl.onBulletFire();
+                    }
+                }
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+            }
+        };
+
+        sensorManager.registerListener(sensorEventListener, shakeSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
@@ -98,25 +119,27 @@ public class ClientActivity extends Activity {
 
     @AfterViews
     protected void afterViewInjection() {
-        joinAsync();
+        tankControl.joinAsync();
+        gridPollTask.doPoll();
         SystemClock.sleep(500);
         gridView.setAdapter(mGridAdapter);
     }
 
     @AfterInject
     void afterInject() {
-        restClient.setRestErrorHandler(bzRestErrorhandler);
+        tankControl.afterInject();
         busProvider.getEventBus().register(gridEventHandler);
+//        tankControl.afterInject(busProvider, gridEventHandler);
     }
 
-    @Background
-    void joinAsync() {
-        try {
-            tankId = restClient.join().getResult();
-            gridPollTask.doPoll();
-        } catch (Exception e) {
-        }
-    }
+//    @Background
+//    void joinAsync() {
+//        try {
+//            tankId = restClient.join().getResult();
+//            gridPollTask.doPoll();
+//        } catch (Exception e) {
+//        }
+//    }
 
     public void updateGrid(GridWrapper gw) {
         mGridAdapter.updateList(gw.getGrid());
@@ -126,21 +149,21 @@ public class ClientActivity extends Activity {
     @Background
     protected void onButtonMove(View view) {
         final int viewId = view.getId();
-        tankControl.moveTank(viewId, tankId);
+        tankControl.moveTank(viewId);
 //        this.moveAsync(tankId, tankControl.moveTank(viewId));
     }
 
     @Click({R.id.buttonLeft})
     @Background
     protected void onButtonTurnLeft() {
-        tankControl.turnLeft(tankId);
+        tankControl.turnLeft();
 //        this.turnAsync(tankId, tankControl.turnLeft());
     }
 
     @Click({R.id.buttonRight})
     @Background
     protected void onButtonTurnRight(View view) {
-        tankControl.turnRight(tankId);
+        tankControl.turnRight();
 //        this.turnAsync(tankId, tankControl.turnRight());
     }
 
@@ -157,15 +180,15 @@ public class ClientActivity extends Activity {
     @Click(R.id.buttonFire)
     @Background
     protected void onButtonFire() {
-        restClient.fire(tankId);
+        tankControl.onBulletFire();
     }
 
     @Click(R.id.buttonLeave)
     @Background
     void leaveGame() {
-        System.out.println("leaveGame() called, tank ID: "+tankId);
+        System.out.println("leaveGame() called, tank ID: "+tankControl.getTankId());
         BackgroundExecutor.cancelAll("grid_poller_task", true);
-        restClient.leave(tankId);
+        tankControl.leaveAsync();
     }
 
     @Click(R.id.buttonLogin)
@@ -173,23 +196,4 @@ public class ClientActivity extends Activity {
         Intent intent = new Intent(this, AuthenticateActivity_.class);
         startActivity(intent);
     }
-
-    @Background
-    void leaveAsync(long tankId) {
-        System.out.println("Leave called, tank ID: " + tankId);
-        BackgroundExecutor.cancelAll("grid_poller_task", true);
-        restClient.leave(tankId);
-    }
-
-    private final SensorEventListener sensorListener = new SensorEventListener() {
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            onButtonFire();
-        }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-        }
-    };
 }

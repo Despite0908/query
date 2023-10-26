@@ -23,10 +23,7 @@ import edu.unh.cs.cs619.bulletzone.datalayer.user.GameUser;
 @RequestMapping(value = "/games/account")
 public class AccountController {
     private static final Logger log = LoggerFactory.getLogger(AccountController.class);
-
     private final DataRepository data;
-    private GameUser gu;
-
     @Autowired
     public AccountController(DataRepository repo) {
         this.data = repo;
@@ -38,7 +35,7 @@ public class AccountController {
      * inside a BooleanWrapper ResponseEntity so that the creation of the new user will either be
      * shown as completed (true) or failed (false). Because this function is looking to register a
      * new user, we are passing a boolean of true as the create parameter of validateUser. 
-     *
+     * - Nicolas Karpf
      * @param name The username
      * @param password The password
      * @return a response w/ success boolean
@@ -66,7 +63,7 @@ public class AccountController {
      * ResponseEntity so that the ResponseEntity will contain the (possible) userID of the user
      * logging in. It will hold null otherwise. Because we are logging in rather than registering a
      * new account, a boolean of false is passed into the validateUser parameter for create.
-     *
+     * - Nicolas Karpf
      * @param name The username
      * @param password The password
      * @return a response w/ the user ID (or -1 if invalid)
