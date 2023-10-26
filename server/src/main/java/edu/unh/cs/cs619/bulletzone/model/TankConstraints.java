@@ -1,13 +1,13 @@
 package edu.unh.cs.cs619.bulletzone.model;
 
 /**
- * A class that checks constraints that are applied to ooperations such as firing, moving, and
+ * A class that checks constraints that are applied to operations such as firing, moving, and
  * turning. Constraints are applied to the Tank object passed into the constructor and checked
  * against the parameters of the check or properties of the tank
  * @author Anthony Papetti
  */
 
-public class GameConstraints {
+public class TankConstraints {
 
     Tank tank;
 
@@ -15,7 +15,7 @@ public class GameConstraints {
      * Constructor to set the tank.
      * @param tank Tank that the constraints will be applied to.
      */
-    public GameConstraints(Tank tank) {
+    public TankConstraints(Tank tank) {
         this.tank = tank;
     }
 

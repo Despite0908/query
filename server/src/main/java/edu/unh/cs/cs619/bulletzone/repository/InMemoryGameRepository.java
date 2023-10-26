@@ -13,7 +13,6 @@ import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
 import edu.unh.cs.cs619.bulletzone.model.Game;
 import edu.unh.cs.cs619.bulletzone.model.GameBuilder;
-import edu.unh.cs.cs619.bulletzone.model.GameConstraints;
 import edu.unh.cs.cs619.bulletzone.model.GameMap;
 import edu.unh.cs.cs619.bulletzone.model.IllegalTransitionException;
 import edu.unh.cs.cs619.bulletzone.model.LimitExceededException;
@@ -66,7 +65,7 @@ public class InMemoryGameRepository implements GameRepository {
     private int bulletDelay[]={500,1000,1500};
     private int trackActiveBullets[]={0,0};
 
-    private int tankSpawn[] = null;
+    private int[] tankSpawn = null;
 
     private final EventHistory eventHistory = new EventHistory();
 
@@ -186,13 +185,9 @@ public class InMemoryGameRepository implements GameRepository {
                 throw new TankDoesNotExistException(tankId);
             }
 
-            GameConstraints constraints = new GameConstraints(tank);
             long millis = System.currentTimeMillis();
             //Constraint checking
-            if (!constraints.checkMoveInterval(millis)) {
-                return false;
-            }
-            if (!constraints.checkTurnConstraints(direction)) {
+            if (!tank.turnConstraints(millis, direction)) {
                 return false;
             }
 
@@ -230,14 +225,9 @@ public class InMemoryGameRepository implements GameRepository {
                 throw new TankDoesNotExistException(tankId);
             }
 
-            GameConstraints constraints = new GameConstraints(tank);
-
             //Make sure tank can only move every 0.5 seconds
             long millis = System.currentTimeMillis();
-            if (!constraints.checkMoveInterval(millis)) {
-                return false;
-            }
-            if (!constraints.checkMoveConstraints(direction)) {
+            if (!tank.moveConstraints(millis, direction)) {
                 return false;
             }
 
@@ -250,8 +240,6 @@ public class InMemoryGameRepository implements GameRepository {
             FieldHolder nextField = parent.getNeighbor(direction);
             checkNotNull(parent.getNeighbor(direction), "Neighbor is not available");
 
-
-            //TODO: POSSIBLY FACTOR OUT TO GameConstraints??
             boolean isCompleted;
             if (!nextField.isPresent()) {
                 // If the next field is empty move the user
@@ -291,113 +279,16 @@ public class InMemoryGameRepository implements GameRepository {
                 throw new TankDoesNotExistException(tankId);
             }
 
-            GameConstraints constraints = new GameConstraints(tank);
-
-            if(constraints.checkBulletsFull())
-                return false;
-
             long millis = System.currentTimeMillis();
-            if (!constraints.checkFireInterval(millis)) {
+            //Constraint Checking
+            if (!tank.fireConstraints(millis)) {
                 return false;
             }
-
             //Set new timestamp
             tank.setLastFireTime(millis + bulletDelay[bulletType - 1] + tank.getAllowedFireInterval());
 
-            //Log.i(TAG, "Cannot find user with id: " + tankId);
-            Direction direction = tank.getDirection();
-            FieldHolder parent = tank.getParent();
-            tank.setNumberOfBullets(tank.getNumberOfBullets() + 1);
-
-            if(!(bulletType>=1 && bulletType<=3)) {
-                System.out.println("Bullet type must be 1, 2 or 3, set to 1 by default.");
-                bulletType = 1;
-            }
-
-            int bulletId=0;
-            if(trackActiveBullets[0]==0){
-                bulletId = 0;
-                trackActiveBullets[0] = 1;
-            }else if(trackActiveBullets[1]==0){
-                bulletId = 1;
-                trackActiveBullets[1] = 1;
-            }
-
-            // Create a new bullet to fire
-            final Bullet bullet = new Bullet(tankId, direction, bulletDamage[bulletType-1]);
-            // Set the same parent for the bullet.
-            // This should be only a one way reference.
-            bullet.setParent(parent);
-            bullet.setBulletId(bulletId);
-
-            // TODO make it nicer
-            timer.schedule(new TimerTask() {
-
-                @Override
-                public void run() {
-                    synchronized (monitor) {
-                        System.out.println("Active Bullet: "+tank.getNumberOfBullets()+"---- Bullet ID: "+bullet.getIntValue());
-                        FieldHolder currentField = bullet.getParent();
-                        Direction direction = bullet.getDirection();
-                        FieldHolder nextField = currentField
-                                .getNeighbor(direction);
-
-                        // Is the bullet visible on the field?
-                        boolean isVisible = currentField.isPresent()
-                                && (currentField.getEntity() == bullet);
-
-
-                            if (nextField.isPresent()) {
-                                // Something is there, hit it
-                                nextField.getEntity().hit(bullet.getDamage());
-
-                                if ( nextField.getEntity() instanceof  Tank){
-                                    Tank t = (Tank) nextField.getEntity();
-                                    System.out.println("tank is hit, tank life: " + t.getLife());
-                                    if (t.getLife() <= 0 ){
-                                        t.getParent().clearField();
-                                        t.setParent(null);
-                                        game.removeTank(t.getId());
-                                        //Add tank hit event
-                                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), true, t.getIntValue()));
-                                    } else {
-                                        //Add tank hit event
-                                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), false, t.getIntValue()));
-                                    }
-                                }
-                                else if ( nextField.getEntity() instanceof  Wall){
-                                    Wall w = (Wall) nextField.getEntity();
-                                    if (w.getIntValue() >1000 && w.getIntValue()<=2000 ){
-                                        game.getHolderGrid().get(w.getPos()).clearField();
-                                        //Add wall hit event
-                                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), true, w.getIntValue()));
-                                    } else {
-                                        //Add wall hit event
-                                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), false, w.getIntValue()));
-                                    }
-                                }
-                            if (isVisible) {
-                                // Remove bullet from field
-                                currentField.clearField();
-                            }
-                            trackActiveBullets[bullet.getBulletId()]=0;
-                            tank.setNumberOfBullets(tank.getNumberOfBullets()-1);
-                            cancel();
-
-                        } else {
-                            if (isVisible) {
-                                // Remove bullet from field
-                                currentField.clearField();
-                            }
-
-                            nextField.setFieldEntity(bullet);
-                            bullet.setParent(nextField);
-                            eventHistory.addEvent(new BulletMoveEvent(tankId, bullet.getDirection(), bullet.getIntValue(), getGrid()));
-                        }
-                    }
-                }
-            }, 0, BULLET_PERIOD);
-            //Add fire event
+            //fire bullet//add fire event
+            tank.getBulletTracker().fire(bulletType, game, monitor, eventHistory);
             eventHistory.addEvent(new FireEvent(tank.getId()));
             return true;
         }

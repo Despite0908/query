@@ -21,6 +21,9 @@ public class Tank extends FieldEntity {
 
     private int life;
 
+    private TankConstraints tankConstraints;
+    private BulletTracker bulletTracker;
+
     private Direction direction;
 
     public Tank(long id, Direction direction, String ip) {
@@ -33,6 +36,53 @@ public class Tank extends FieldEntity {
         allowedFireInterval = 500;
         lastMoveTime = 0;
         allowedMoveInterval = 500;
+        tankConstraints = new TankConstraints(this);
+        bulletTracker = new BulletTracker(this);
+    }
+
+    /**
+     * Getter for the tank's bullet tracker.
+     * @return The tank's BulletTracker object.
+     */
+    public BulletTracker getBulletTracker() {
+        return bulletTracker;
+    }
+
+    /**
+     * Helper function, calls relevant move functionality from GameConstraints.
+     * @param millis Current timestamp in milliseconds
+     * @param direction Direction tank is to be moved
+     * @return Boolean value as to whether the move passed the constraints
+     */
+    public boolean moveConstraints(long millis, Direction direction) {
+        if (!tankConstraints.checkMoveInterval(millis)) {
+            return false;
+        }
+        return tankConstraints.checkMoveConstraints(direction);
+    }
+
+    /**
+     * Helper function, calls relevant turn functionality from GameConstraints.
+     * @param millis Current timestamp in milliseconds
+     * @param direction Direction tank is to be moved
+     * @return Boolean value as to whether the turn passed constraints
+     */
+    public boolean turnConstraints(long millis, Direction direction) {
+        if (!tankConstraints.checkMoveInterval(millis)) {
+            return false;
+        }
+        return tankConstraints.checkTurnConstraints(direction);
+    }
+
+    /**
+     * Helper function, calls relevant fire functionality from GameConstraints.
+     * @param millis Current timestamp in milliseconds
+     * @return Boolean value as to whether the fire passed constraints
+     */
+    public boolean fireConstraints(long millis) {
+        if(tankConstraints.checkBulletsFull())
+            return false;
+        return tankConstraints.checkFireInterval(millis);
     }
 
     @Override
