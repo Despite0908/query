@@ -168,5 +168,7 @@ public class TankController {
         restClient.setRestErrorHandler(bzRestErrorhandler);
     }
 
-
+    void injectRestClient(BulletZoneRestClient restClient) {
+        this.restClient = restClient;
+    }
 }
