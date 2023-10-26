@@ -5,7 +5,6 @@ import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
 
 public class BulletTracker {
     private final int[] bulletDamage ={10,30,50};
-    private final int[] bulletDelay ={500,1000,1500};
     private int trackActiveBullets[]={0,0};
 
     private Tank tank;

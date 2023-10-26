@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.function.ThrowingRunnable;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -46,6 +47,22 @@ public class InMemoryGameRepositoryTest {
         Assert.assertNotNull(tank);
         Assert.assertTrue(tank.getId() >= 0);
         Assert.assertTrue(tank.getIntValue() == repo.getGrid()[12][12]);
+    }
+
+    @Test
+    public void leave_tankDoesNotExist_Throws(){
+        repo.join("");
+        Assert.assertThrows(TankDoesNotExistException.class, () -> repo.leave(2));
+    }
+
+    @Test
+    public void leave_tankExists_doesNotThrow(){
+        Tank tank = repo.join("");
+        try {
+            repo.leave(tank.getId());
+        } catch (TankDoesNotExistException e) {
+            Assert.fail();
+        }
     }
 
     //Basic Turns
