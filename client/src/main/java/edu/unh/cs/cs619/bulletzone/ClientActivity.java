@@ -123,6 +123,8 @@ public class ClientActivity extends Activity {
         gridPollTask.doPoll();
         SystemClock.sleep(500);
         gridView.setAdapter(mGridAdapter);
+        mGridAdapter.setPlayerTankId(tankControl.getTankId());
+        mGridAdapter.setTankController(tankControl);
     }
 
     @AfterInject
