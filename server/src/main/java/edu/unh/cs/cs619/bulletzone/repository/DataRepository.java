@@ -68,10 +68,9 @@ public class DataRepository {
         if (create) {
             GameUser newUser = bzdata.users.createUser(username, username, password);
             BankAccount bankAcc = bzdata.accounts.create();
-            bankAcc.setOwner(newUser);
             bzdata.accounts.modifyBalance(bankAcc, 1000);
+            bzdata.permissions.setOwner(bankAcc, newUser);
             return newUser;
-
         }
         return bzdata.users.validateLogin(username, password);
     }
