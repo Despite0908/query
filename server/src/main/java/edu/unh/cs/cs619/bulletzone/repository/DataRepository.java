@@ -42,7 +42,7 @@ public class DataRepository {
 
     DataRepository() {
         //TODO: Replace database name, username, and password with what's appropriate for your group
-        String url = "stman1.cs.unh.edu";
+        String url = "stman1.cs.unh.edu/61906";
         String username = "oberon";
         String password = "pibyad2ObIb";
 //
@@ -56,7 +56,7 @@ public class DataRepository {
      * parameters, creates a new bank account, and gives them a starting bank account of 1000
      * credits. The validateUser function as well as the createUser function both return null
      * already if there are issues creating or validating a user, so directly returning what they
-     * return in their functions handles errors.
+     * return in their functions handles errors. - Nicolas Karpf
      * @param username Username for the user to create or validate
      * @param password Password for the user
      * @param create true if the user should be created, or false otherwise
@@ -71,6 +71,7 @@ public class DataRepository {
             bankAcc.setOwner(newUser);
             bzdata.accounts.modifyBalance(bankAcc, 1000);
             return newUser;
+
         }
         return bzdata.users.validateLogin(username, password);
     }
