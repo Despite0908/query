@@ -9,8 +9,9 @@ public class BulletTracker {
 
     private Tank tank;
 
-    private Game game;
-
+    /**
+     * Bullet step time in milliseconds
+     */
     private static final int BULLET_PERIOD = 200;
 
     private final Timer timer = new Timer();

@@ -44,11 +44,6 @@ public class InMemoryGameRepository implements GameRepository {
     private static final int FIELD_DIM = 16;
 
     /**
-     * Bullet step time in milliseconds
-     */
-    private static final int BULLET_PERIOD = 200;
-
-    /**
      * Bullet's impact effect [life]
      */
     private static final int BULLET_DAMAGE = 1;
@@ -57,7 +52,6 @@ public class InMemoryGameRepository implements GameRepository {
      * Tank's default life [life]
      */
     private static final int TANK_LIFE = 100;
-    private final Timer timer = new Timer();
     private final AtomicLong idGenerator = new AtomicLong();
     private final Object monitor = new Object();
     private Game game = null;
