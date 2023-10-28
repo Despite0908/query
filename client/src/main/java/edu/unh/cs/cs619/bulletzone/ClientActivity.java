@@ -195,7 +195,7 @@ public class ClientActivity extends Activity {
 
     @Click(R.id.buttonLogin)
     void login() {
-        Intent intent = new Intent(this, AuthenticateActivity_.class);
+        Intent intent = new Intent(this, AuthenticateActivity.class);
         startActivity(intent);
     }
 }
