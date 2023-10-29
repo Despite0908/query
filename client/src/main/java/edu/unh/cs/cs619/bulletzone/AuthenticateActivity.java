@@ -67,6 +67,9 @@ public class AuthenticateActivity extends AppCompatActivity {
             setStatus("Registration successful.");
             //Do you want to log in automatically, or force them to do it?
             userID = controller.login(username, password);
+
+            this.finish();
+
             if (userID < 0) {
                 setStatus("Registration unsuccessful--inconsistency with server.");
             }
@@ -89,6 +92,7 @@ public class AuthenticateActivity extends AppCompatActivity {
         } else { //register successful
             setStatus("Login successful.");
             //do other login things?
+            this.finish();
         }
     }
 
