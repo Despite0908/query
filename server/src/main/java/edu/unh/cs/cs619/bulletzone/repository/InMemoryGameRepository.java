@@ -62,14 +62,14 @@ public class InMemoryGameRepository implements GameRepository {
 
     private final EventHistory eventHistory = new EventHistory();
 
-    private String mapPath = "src/main/Maps/DefaultMap.json";
+    private String mapPath = "Maps/DefaultMap.json";
 
     /**
      * Sets the map to load game from.
      * @param map Only file name needed, not path
      */
     public void setMapPath(String map) {
-        String mapPrefix = "src/main/Maps/";
+        String mapPrefix = "Maps/";
         mapPath = mapPrefix + map;
     }
 
