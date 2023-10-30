@@ -17,6 +17,7 @@ import edu.unh.cs.cs619.bulletzone.model.GameMap;
 import edu.unh.cs.cs619.bulletzone.model.IllegalTransitionException;
 import edu.unh.cs.cs619.bulletzone.model.LimitExceededException;
 import edu.unh.cs.cs619.bulletzone.model.MapLoader;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.AddTankEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BoardCreationEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BulletHitEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BulletMoveEvent;
@@ -135,7 +136,7 @@ public class InMemoryGameRepository implements GameRepository {
             }
 
             game.addTank(ip, tank);
-
+            eventHistory.addEvent(new AddTankEvent(tank.getId()));
             return tank;
         }
     }
