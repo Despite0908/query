@@ -7,7 +7,7 @@ public class Wall extends FieldEntity {
         this.destructValue = 1000;
     }
 
-    public Wall(int destructValue, int pos){
+    public Wall(int pos, int destructValue){
         this.destructValue = destructValue;
         this.pos = pos;
     }

@@ -37,6 +37,7 @@ public class InMemoryGameRepositoryTest {
         Assert.assertNotNull(tank.getDirection());
         Assert.assertTrue(tank.getDirection() == Direction.Up);
         Assert.assertNotNull(tank.getParent());
+        int[][] grid = repo.getGrid();
     }
 
     @Test
