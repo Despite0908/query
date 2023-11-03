@@ -1,7 +1,9 @@
-package edu.unh.cs.cs619.bulletzone.model;
+package edu.unh.cs.cs619.bulletzone.model.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import edu.unh.cs.cs619.bulletzone.model.Direction;
 
 // TODO 2: CONFLICT status code
 @ResponseStatus(HttpStatus.CONFLICT)

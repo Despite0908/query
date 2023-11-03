@@ -4,30 +4,25 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
 
-import edu.unh.cs.cs619.bulletzone.model.Bullet;
 import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
 import edu.unh.cs.cs619.bulletzone.model.Game;
 import edu.unh.cs.cs619.bulletzone.model.GameBuilder;
 import edu.unh.cs.cs619.bulletzone.model.GameMap;
-import edu.unh.cs.cs619.bulletzone.model.IllegalTransitionException;
-import edu.unh.cs.cs619.bulletzone.model.LimitExceededException;
+import edu.unh.cs.cs619.bulletzone.model.PlayerToken;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenMoveEvent;
+import edu.unh.cs.cs619.bulletzone.model.exceptions.IllegalTransitionException;
+import edu.unh.cs.cs619.bulletzone.model.exceptions.LimitExceededException;
 import edu.unh.cs.cs619.bulletzone.model.MapLoader;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.AddTankEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BoardCreationEvent;
-import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BulletHitEvent;
-import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BulletMoveEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.FireEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.GridEvent;
-import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TankMoveEvent;
 import edu.unh.cs.cs619.bulletzone.model.Tank;
-import edu.unh.cs.cs619.bulletzone.model.TankDoesNotExistException;
-import edu.unh.cs.cs619.bulletzone.model.Wall;
+import edu.unh.cs.cs619.bulletzone.model.exceptions.TokenDoesNotExistException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -56,7 +51,7 @@ public class InMemoryGameRepository implements GameRepository {
     private final AtomicLong idGenerator = new AtomicLong();
     private final Object monitor = new Object();
     private Game game = null;
-    private int bulletDelay[]={500,1000,1500};
+    private int bulletDelay[]={500,1000,1500,500};
 
     private int[] tankSpawn = null;
 
@@ -157,132 +152,113 @@ public class InMemoryGameRepository implements GameRepository {
     }
 
     /**
-     * Checks constraints and turns a tank.
-     * @param tankId Tank to be turned
-     * @param direction Direction to turn the tank
+     * Checks constraints and turns a token.
+     * @param tokenId Token to be turned
+     * @param direction Direction to turn the token
      * @return Returns false if constraints are violated. Returns true if turn is successful.
-     * @throws TankDoesNotExistException Throws if there is no thank corresponding to tankID.
-     * @throws IllegalTransitionException Throws if a tank tries to turn in an illegal manner.
+     * @throws TokenDoesNotExistException Throws if there is no token corresponding to tokenID.
+     * @throws IllegalTransitionException Throws if a token tries to turn in an illegal manner.
      * @throws LimitExceededException I honestly don't know on this one.
      */
     @Override
-    public boolean turn(long tankId, Direction direction)
-            throws TankDoesNotExistException, IllegalTransitionException, LimitExceededException {
+    public boolean turn(long tokenId, Direction direction)
+            throws TokenDoesNotExistException, IllegalTransitionException, LimitExceededException {
         synchronized (this.monitor) {
             checkNotNull(direction);
-
-            // Find user
-            Tank tank = game.getTanks().get(tankId);
-            if (tank == null) {
-                //Log.i(TAG, "Cannot find user with id: " + tankId);
-                throw new TankDoesNotExistException(tankId);
+            // Find token
+            PlayerToken token = game.getTanks().get(tokenId);
+            if (token == null) {
+                token = game.getSoldiers().get(tokenId);
+                if (token == null) {
+                    throw new TokenDoesNotExistException(tokenId);
+                }
             }
 
             long millis = System.currentTimeMillis();
             //Constraint checking
-            if (!tank.turnConstraints(millis, direction)) {
+            if (!token.canTurn(millis, direction)) {
                 return false;
             }
 
-            //Set new Timestamp
-            tank.setLastMoveTime(millis+tank.getAllowedMoveInterval());
+            //Turn token
+            token.turn(millis, direction);
 
-            tank.setDirection(direction);
-
-            //Add event
-            eventHistory.addEvent(new TankMoveEvent(tank.getId(), direction, tank.getIntValue(), getGrid()));
+            //Add event to history
+            eventHistory.addEvent(new TokenMoveEvent(token.getId(), direction, token.getIntValue(), getGrid()));
 
             return true;
         }
     }
 
     /**
-     * Checks constraints and moves a tank
-     * @param tankId Tank to be moved
-     * @param direction direction to move tank in
+     * Checks constraints and moves a token
+     * @param tokenId Token to be moved
+     * @param direction direction to move token in
      * @return Returns false if constraints are violated. Returns true if move is successful.
-     * @throws TankDoesNotExistException Throws if there is no thank corresponding to tankID.
+     * @throws TokenDoesNotExistException Throws if there is no thank corresponding to tokenID.
      * @throws IllegalTransitionException I'm not sure here because this exception is specifically about turns.
      * @throws LimitExceededException Don't know here
      */
     @Override
-    public boolean move(long tankId, Direction direction)
-            throws TankDoesNotExistException, IllegalTransitionException, LimitExceededException {
+    public boolean move(long tokenId, Direction direction)
+            throws TokenDoesNotExistException, IllegalTransitionException, LimitExceededException {
         synchronized (this.monitor) {
-            // Find tank
-
-            Tank tank = game.getTanks().get(tankId);
-            if (tank == null) {
-                //Log.i(TAG, "Cannot find user with id: " + tankId);
-                //return false;
-                throw new TankDoesNotExistException(tankId);
+            checkNotNull(direction);
+            // Find token
+            PlayerToken token = game.getTanks().get(tokenId);
+            if (token == null) {
+                token = game.getSoldiers().get(tokenId);
+                if (token == null) {
+                    throw new TokenDoesNotExistException(tokenId);
+                }
             }
 
-            //Make sure tank can only move every 0.5 seconds
+            //Token constraints
             long millis = System.currentTimeMillis();
-            if (!tank.moveConstraints(millis, direction)) {
+            if (!token.canMove(millis, direction)) {
                 return false;
             }
 
-            //Set new timestamp
-            tank.setLastMoveTime(millis + tank.getAllowedMoveInterval());
-
-            //Move the tank from parent to nextField
-            FieldHolder parent = tank.getParent();
-
-            FieldHolder nextField = parent.getNeighbor(direction);
-            checkNotNull(parent.getNeighbor(direction), "Neighbor is not available");
-
-            boolean isCompleted;
-            if (!nextField.isPresent()) {
-                // If the next field is empty move the user
-                parent.clearField();
-                nextField.setFieldEntity(tank);
-                tank.setParent(nextField);
-
-                isCompleted = true;
+            //move tank and set event
+            if (token.move(millis, direction)) {
                 //Add move event
-                eventHistory.addEvent(new TankMoveEvent(tank.getId(), direction, tank.getIntValue(), getGrid()));
-            } else {
-                isCompleted = false;
+                eventHistory.addEvent(new TokenMoveEvent(token.getId(), direction, token.getIntValue(), getGrid()));
+                return true;
             }
-
-            return isCompleted;
+            return false;
         }
     }
 
     /**
      * Checks constraints, fires bullet, then sets timer to move bullet.
-     * @param tankId Tank to fire bullet from
+     * @param tokenId Token to fire bullet from
      * @param bulletType Type of bullet to be fired.
      * @return Returns true if bullet fired successfully. Returns false if constraint violated.
-     * @throws TankDoesNotExistException Throws if there is no thank corresponding to tankID.
+     * @throws TokenDoesNotExistException Throws if there is no thank corresponding to tokenID.
      * @throws LimitExceededException Don't know on this one
      */
     @Override
-    public boolean fire(long tankId, int bulletType)
-            throws TankDoesNotExistException, LimitExceededException {
+    public boolean fire(long tokenId, int bulletType)
+            throws TokenDoesNotExistException, LimitExceededException {
         synchronized (this.monitor) {
 
-            // Find tank
-            Tank tank = game.getTanks().get(tankId);
-            if (tank == null) {
-                //Log.i(TAG, "Cannot find user with id: " + tankId);
-                //return false;
-                throw new TankDoesNotExistException(tankId);
+            // Find token
+            PlayerToken token = game.getTanks().get(tokenId);
+            if (token == null) {
+                throw new TokenDoesNotExistException(tokenId);
             }
 
             long millis = System.currentTimeMillis();
             //Constraint Checking
-            if (!tank.fireConstraints(millis)) {
+            if (!token.canFire(millis)) {
                 return false;
             }
             //Set new timestamp
-            tank.setLastFireTime(millis + bulletDelay[bulletType - 1] + tank.getAllowedFireInterval());
+            token.setLastFireTime(millis + bulletDelay[bulletType - 1] + token.getAllowedFireInterval());
 
             //fire bullet//add fire event
-            tank.getBulletTracker().fire(bulletType, game, monitor, eventHistory);
-            eventHistory.addEvent(new FireEvent(tank.getId()));
+            token.getBulletTracker().fire(bulletType, game, monitor, eventHistory);
+            eventHistory.addEvent(new FireEvent(token.getId()));
             return true;
         }
     }
@@ -290,14 +266,14 @@ public class InMemoryGameRepository implements GameRepository {
     /**
      * Removes tank
      * @param tankId Tank to be removed
-     * @throws TankDoesNotExistException Throws if there is no thank corresponding to tankID.
+     * @throws TokenDoesNotExistException Throws if there is no thank corresponding to tankID.
      */
     @Override
     public void leave(long tankId)
-            throws TankDoesNotExistException {
+            throws TokenDoesNotExistException {
         synchronized (this.monitor) {
             if (!this.game.getTanks().containsKey(tankId)) {
-                throw new TankDoesNotExistException(tankId);
+                throw new TokenDoesNotExistException(tankId);
             }
 
             System.out.println("leave() called, tank ID: " + tankId);

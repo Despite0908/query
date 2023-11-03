@@ -12,21 +12,21 @@ import edu.unh.cs.cs619.bulletzone.model.Tank;
  */
 public class BulletMoveEvent implements GridEvent{
     long millis;
-    long tankID;
+    long tokenID;
     Direction direction;
     int intVal;
     int[][] grid;
 
     /**
      * Constructor for BulletMoveEvent. Stores necessary information for the event.
-     * @param tankID The ID of the tank that the bullet belongs to
+     * @param tokenID The ID of the token that the bullet belongs to
      * @param direction The direction of the bullet.
      * @param intVal Integer value of the bullet. See {@link Bullet#getIntValue() getIntValue} for value.
      * @param grid
      */
-    public BulletMoveEvent(long tankID, Direction direction, int intVal, int[][] grid) {
+    public BulletMoveEvent(long tokenID, Direction direction, int intVal, int[][] grid) {
         this.millis = System.currentTimeMillis();
-        this.tankID = tankID;
+        this.tokenID = tokenID;
         this.direction = direction;
         this.intVal = intVal;
         this.grid = grid;
@@ -42,7 +42,7 @@ public class BulletMoveEvent implements GridEvent{
         JSONObject eventJSON = new JSONObject();
         eventJSON.put("millis", millis);
         eventJSON.put("eventType", "bulletMove");
-        eventJSON.put("tankID", tankID);
+        eventJSON.put("tokenID", tokenID);
         eventJSON.put("direction", Direction.toByte(direction));
         eventJSON.put("intVal", intVal);
         int newPos = 0;

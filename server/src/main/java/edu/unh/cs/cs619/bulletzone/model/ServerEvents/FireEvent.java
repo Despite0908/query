@@ -3,20 +3,20 @@ package edu.unh.cs.cs619.bulletzone.model.ServerEvents;
 import org.json.JSONObject;
 
 /**
- * Implementation of GridEvent for a tank firing
+ * Implementation of GridEvent for a token firing
  * @author Anthony Papetti
  */
 public class FireEvent implements GridEvent{
     long millis;
-    long tankID;
+    long tokenID;
 
     /**
-     * Constructor for FireEvent, stores tank's ID.
-     * @param tankID The ID of the tank that is firing.
+     * Constructor for FireEvent, stores token's ID.
+     * @param tokenID The ID of the token that is firing.
      */
-    public FireEvent(long tankID) {
+    public FireEvent(long tokenID) {
         this.millis = System.currentTimeMillis();
-        this.tankID = tankID;
+        this.tokenID = tokenID;
     }
 
     /**
@@ -29,7 +29,7 @@ public class FireEvent implements GridEvent{
     }
 
     /**
-     * {@inheritDoc}. Type specific fields are "tankID".
+     * {@inheritDoc}. Type specific fields are "tokenID".
      * @return {@inheritDoc}
      */
     @Override
@@ -37,7 +37,7 @@ public class FireEvent implements GridEvent{
         JSONObject eventJSON = new JSONObject();
         eventJSON.put("millis", millis);
         eventJSON.put("eventType", "fire");
-        eventJSON.put("tankID", tankID);
+        eventJSON.put("tokenID", tokenID);
         return eventJSON.toString();
     }
 }

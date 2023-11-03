@@ -17,14 +17,11 @@ import org.springframework.web.client.RestClientException;
 
 import javax.servlet.http.HttpServletRequest;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import edu.unh.cs.cs619.bulletzone.model.Direction;
-import edu.unh.cs.cs619.bulletzone.model.IllegalTransitionException;
-import edu.unh.cs.cs619.bulletzone.model.LimitExceededException;
+import edu.unh.cs.cs619.bulletzone.model.exceptions.IllegalTransitionException;
+import edu.unh.cs.cs619.bulletzone.model.exceptions.LimitExceededException;
 import edu.unh.cs.cs619.bulletzone.model.Tank;
-import edu.unh.cs.cs619.bulletzone.model.TankDoesNotExistException;
+import edu.unh.cs.cs619.bulletzone.model.exceptions.TokenDoesNotExistException;
 import edu.unh.cs.cs619.bulletzone.repository.GameRepository;
 import edu.unh.cs.cs619.bulletzone.util.BooleanWrapper;
 import edu.unh.cs.cs619.bulletzone.util.GridWrapper;
@@ -82,7 +79,7 @@ class GamesController {
     @RequestMapping(method = RequestMethod.PUT, value = "{tankId}/turn/{direction}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     ResponseEntity<BooleanWrapper> turn(@PathVariable long tankId, @PathVariable byte direction)
-            throws TankDoesNotExistException, LimitExceededException, IllegalTransitionException {
+            throws TokenDoesNotExistException, LimitExceededException, IllegalTransitionException {
         return new ResponseEntity<BooleanWrapper>(
                 new BooleanWrapper(gameRepository.turn(tankId, Direction.fromByte(direction))),
                 HttpStatus.OK
@@ -92,7 +89,7 @@ class GamesController {
     @RequestMapping(method = RequestMethod.PUT, value = "{tankId}/move/{direction}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     ResponseEntity<BooleanWrapper> move(@PathVariable long tankId, @PathVariable byte direction)
-            throws TankDoesNotExistException, LimitExceededException, IllegalTransitionException {
+            throws TokenDoesNotExistException, LimitExceededException, IllegalTransitionException {
         return new ResponseEntity<BooleanWrapper>(
                 new BooleanWrapper(gameRepository.move(tankId, Direction.fromByte(direction))),
                 HttpStatus.OK
@@ -102,7 +99,7 @@ class GamesController {
     @RequestMapping(method = RequestMethod.PUT, value = "{tankId}/fire", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     ResponseEntity<BooleanWrapper> fire(@PathVariable long tankId)
-            throws TankDoesNotExistException, LimitExceededException {
+            throws TokenDoesNotExistException, LimitExceededException {
         return new ResponseEntity<BooleanWrapper>(
                 new BooleanWrapper(gameRepository.fire(tankId, 1)),
                 HttpStatus.OK
@@ -112,7 +109,7 @@ class GamesController {
     @RequestMapping(method = RequestMethod.PUT, value = "{tankId}/fire/{bulletType}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     ResponseEntity<BooleanWrapper> fire(@PathVariable long tankId, @PathVariable int bulletType)
-            throws TankDoesNotExistException, LimitExceededException {
+            throws TokenDoesNotExistException, LimitExceededException {
         return new ResponseEntity<BooleanWrapper>(
                 new BooleanWrapper(gameRepository.fire(tankId, bulletType)),
                 HttpStatus.OK
@@ -122,7 +119,7 @@ class GamesController {
     @RequestMapping(method = RequestMethod.DELETE, value = "{tankId}/leave", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     HttpStatus leave(@PathVariable long tankId)
-            throws TankDoesNotExistException {
+            throws TokenDoesNotExistException {
         //System.out.println("Games Controller leave() called, tank ID: "+tankId);
         gameRepository.leave(tankId);
         return HttpStatus.OK;

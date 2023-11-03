@@ -12,7 +12,7 @@ import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
  */
 public class BulletTimer extends TimerTask {
     Object monitor;
-    Tank tank;
+    PlayerToken token;
     Bullet bullet;
 
     Game game;
@@ -22,15 +22,15 @@ public class BulletTimer extends TimerTask {
     /**
      * Constructor. Passes values for task.
      * @param monitor Monitor to synchronize task
-     * @param tank Tank bullet is fired from
+     * @param token Token bullet is fired from
      * @param bullet Bullet to move every step
      * @param game Game the bullet is from
      * @param eventHistory Event History to add events to
      */
-    public BulletTimer(Object monitor, Tank tank, Bullet bullet, Game game, EventHistory eventHistory) {
+    public BulletTimer(Object monitor, PlayerToken token, Bullet bullet, Game game, EventHistory eventHistory) {
         super();
         this.monitor = monitor;
-        this.tank = tank;
+        this.token = token;
         this.bullet = bullet;
         this.game = game;
         this.eventHistory = eventHistory;
@@ -42,7 +42,7 @@ public class BulletTimer extends TimerTask {
     @Override
     public void run() {
         synchronized (monitor) {
-            System.out.println("Active Bullet: "+tank.getNumberOfBullets()+"---- Bullet ID: "+bullet.getIntValue());
+            System.out.println("Active Bullet: "+ token.getNumberOfBullets()+"---- Bullet ID: "+bullet.getIntValue());
             FieldHolder currentField = bullet.getParent();
             Direction direction = bullet.getDirection();
             FieldHolder nextField = currentField
@@ -86,8 +86,8 @@ public class BulletTimer extends TimerTask {
                     // Remove bullet from field
                     currentField.clearField();
                 }
-                tank.getBulletTracker().getTrackActiveBullets()[bullet.getBulletId()]=0;
-                tank.setNumberOfBullets(tank.getNumberOfBullets()-1);
+                token.getBulletTracker().getTrackActiveBullets()[bullet.getBulletId()]=0;
+                token.setNumberOfBullets(token.getNumberOfBullets()-1);
                 cancel();
 
             } else {
@@ -98,7 +98,7 @@ public class BulletTimer extends TimerTask {
 
                 nextField.setFieldEntity(bullet);
                 bullet.setParent(nextField);
-                eventHistory.addEvent(new BulletMoveEvent(tank.getId(), bullet.getDirection(), bullet.getIntValue(), game.getGrid2D()));
+                eventHistory.addEvent(new BulletMoveEvent(token.getId(), bullet.getDirection(), bullet.getIntValue(), game.getGrid2D()));
             }
         }
     }

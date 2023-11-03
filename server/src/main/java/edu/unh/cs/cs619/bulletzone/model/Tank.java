@@ -1,99 +1,99 @@
 package edu.unh.cs.cs619.bulletzone.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-public class Tank extends FieldEntity {
+public class Tank extends PlayerToken {
 
     private static final String TAG = "Tank";
 
-    private final long id;
-
-    private final String ip;
-
-    private long lastMoveTime;
-    private int allowedMoveInterval;
-
-    private long lastFireTime;
-    private int allowedFireInterval;
-
-    private int numberOfBullets;
-    private int allowedNumberOfBullets;
-
-    private int life;
-
-    private TankConstraints tankConstraints;
-    private BulletTracker bulletTracker;
-
-    private Direction direction;
-
+    /**
+     * Constructor. Handles values not set in PlayerToken.
+     * @param id The ID of the tank
+     * @param direction The initial direction of the tank
+     * @param ip IP of the player
+     */
     public Tank(long id, Direction direction, String ip) {
-        this.id = id;
-        this.direction = direction;
-        this.ip = ip;
-        numberOfBullets = 0;
-        allowedNumberOfBullets = 2;
-        lastFireTime = 0;
-        allowedFireInterval = 500;
-        lastMoveTime = 0;
-        allowedMoveInterval = 500;
-        tankConstraints = new TankConstraints(this);
-        bulletTracker = new BulletTracker(this);
+        super(id, direction, ip);
+        setLife(100);
+        setAllowedNumberOfBullets(2);
+        setAllowedFireInterval(500);
+        setAllowedMoveInterval(500);
+        setBulletTracker(new BulletTracker(this, 2));
     }
 
     /**
-     * Getter for the tank's bullet tracker.
-     * @return The tank's BulletTracker object.
+     * {@inheritDoc}
+     * @param millis Timestamp in milliseconds
+     * @param direction Direction in which the token will be moved
+     * @return {@inheritDoc}
      */
-    public BulletTracker getBulletTracker() {
-        return bulletTracker;
-    }
-
-    /**
-     * Helper function, calls relevant move functionality from GameConstraints.
-     * @param millis Current timestamp in milliseconds
-     * @param direction Direction tank is to be moved
-     * @return Boolean value as to whether the move passed the constraints
-     */
-    public boolean moveConstraints(long millis, Direction direction) {
-        if (!tankConstraints.checkMoveInterval(millis)) {
+    @Override
+    public boolean canMove(long millis, Direction direction) {
+        if (millis < getLastMoveTime()) {
             return false;
         }
-        return tankConstraints.checkMoveConstraints(direction);
+        //tank cannot move sideways
+        if (getDirection() == Direction.Up || getDirection() == Direction.Down) {
+            return direction == Direction.Up || direction == Direction.Down;
+        } else {
+            return direction == Direction.Right || direction == Direction.Left;
+        }
     }
 
     /**
-     * Helper function, calls relevant turn functionality from GameConstraints.
-     * @param millis Current timestamp in milliseconds
-     * @param direction Direction tank is to be moved
-     * @return Boolean value as to whether the turn passed constraints
+     * {@inheritDoc}
+     * @param millis Timestamp in milliseconds
+     * @param direction Direction in which the token will turn
+     * @return {@inheritDoc}
      */
-    public boolean turnConstraints(long millis, Direction direction) {
-        if (!tankConstraints.checkMoveInterval(millis)) {
+    @Override
+    public boolean canTurn(long millis, Direction direction) {
+        if (millis < getLastMoveTime()) {
             return false;
         }
-        return tankConstraints.checkTurnConstraints(direction);
+        //tank only turn 90 degrees
+        switch (getDirection()) {
+            case Up:
+                if (direction == Direction.Down) {
+                    return false;
+                }
+                break;
+            case Down:
+                if (direction == Direction.Up) {
+                    return false;
+                }
+                break;
+            case Left:
+                if (direction == Direction.Right) {
+                    return false;
+                }
+            case Right:
+                if (direction == Direction.Left) {
+                    return false;
+                }
+                break;
+        }
+        return true;
     }
 
     /**
-     * Helper function, calls relevant fire functionality from GameConstraints.
-     * @param millis Current timestamp in milliseconds
-     * @return Boolean value as to whether the fire passed constraints
+     * {@inheritDoc}
+     * @param millis Timestamp in milliseconds
+     * @param direction Direction in which the tank will be turned
      */
-    public boolean fireConstraints(long millis) {
-        if(tankConstraints.checkBulletsFull())
-            return false;
-        return tankConstraints.checkFireInterval(millis);
+    public void turn(long millis, Direction direction) {
+        setLastMoveTime(millis + getAllowedMoveInterval());
+        setDirection(direction);
     }
 
     @Override
     public FieldEntity copy() {
-        return new Tank(id, direction, ip);
+        return new Tank(getId(), getDirection(), getIp());
     }
 
     @Override
     public void hit(int damage) {
-        life = life - damage;
-        System.out.println("Tank life: " + id + " : " + life);
+        int life = getLife() - damage;
+        setLife(life);
+        System.out.println("Tank life: " + life + " : " + life);
 //		Log.d(TAG, "TankId: " + id + " hit -> life: " + life);
 
         if (life <= 0) {
@@ -103,71 +103,10 @@ public class Tank extends FieldEntity {
         }
     }
 
-    public long getLastMoveTime() {
-        return lastMoveTime;
-    }
-
-    public void setLastMoveTime(long lastMoveTime) {
-        this.lastMoveTime = lastMoveTime;
-    }
-
-    public long getAllowedMoveInterval() {
-        return allowedMoveInterval;
-    }
-
-    public void setAllowedMoveInterval(int allowedMoveInterval) {
-        this.allowedMoveInterval = allowedMoveInterval;
-    }
-
-    public long getLastFireTime() {
-        return lastFireTime;
-    }
-
-    public void setLastFireTime(long lastFireTime) {
-        this.lastFireTime = lastFireTime;
-    }
-
-    public long getAllowedFireInterval() {
-        return allowedFireInterval;
-    }
-
-    public void setAllowedFireInterval(int allowedFireInterval) {
-        this.allowedFireInterval = allowedFireInterval;
-    }
-
-    public int getNumberOfBullets() {
-        return numberOfBullets;
-    }
-
-    public void setNumberOfBullets(int numberOfBullets) {
-        this.numberOfBullets = numberOfBullets;
-    }
-
-    public int getAllowedNumberOfBullets() {
-        return allowedNumberOfBullets;
-    }
-
-    public void setAllowedNumberOfBullets(int allowedNumberOfBullets) {
-        this.allowedNumberOfBullets = allowedNumberOfBullets;
-    }
-
-    public Direction getDirection() {
-        return direction;
-    }
-
-    public void setDirection(Direction direction) {
-        this.direction = direction;
-    }
-
-    @JsonIgnore
-    public long getId() {
-        return id;
-    }
-
     @Override
     public int getIntValue() {
-        return (int) (10000000 + 10000 * id + 10 * life + Direction
-                .toByte(direction));
+        return (int) (10000000 + 10000 * getId() + 10 * getLife() + Direction
+                .toByte(getDirection()));
     }
 
     @Override
@@ -175,16 +114,5 @@ public class Tank extends FieldEntity {
         return "T";
     }
 
-    public int getLife() {
-        return life;
-    }
-
-    public void setLife(int life) {
-        this.life = life;
-    }
-
-    public String getIp(){
-        return ip;
-    }
 
 }

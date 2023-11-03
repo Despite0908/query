@@ -17,6 +17,12 @@ public final class Game {
     private final ArrayList<FieldHolder> holderGrid = new ArrayList<>();
 
     private final ConcurrentMap<Long, Tank> tanks = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Long, Soldier> soldiers = new ConcurrentHashMap<>();
+
+    /**
+     * Key: IP Address
+     * Value: The ID of it's associated Tank
+     */
     private final ConcurrentMap<String, Long> playersIP = new ConcurrentHashMap<>();
 
     private final Object monitor = new Object();
@@ -69,11 +75,32 @@ public final class Game {
         }
     }
 
+    public void addSoldier(Soldier soldier) {
+        synchronized (soldiers) {
+            soldiers.put(soldier.getId(), soldier);
+        }
+    }
+
+    //TODO: This is bad
+    public void removeSoldiers(long soldierId){
+        synchronized (soldiers) {
+            Soldier s = soldiers.remove(soldierId);
+        }
+    }
+
     public Tank getTank(String ip){
         if (playersIP.containsKey(ip)){
             return tanks.get(playersIP.get(ip));
         }
         return null;
+    }
+
+    public ConcurrentMap<Long, Soldier> getSoldiers() {
+        return soldiers;
+    }
+
+    public Soldier getSoldier(int soldierId) {
+        return soldiers.get(soldierId);
     }
 
     public void removeTank(long tankId){

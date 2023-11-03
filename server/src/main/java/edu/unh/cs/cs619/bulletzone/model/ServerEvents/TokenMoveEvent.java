@@ -7,27 +7,29 @@ import edu.unh.cs.cs619.bulletzone.model.Tank;
 import edu.unh.cs.cs619.bulletzone.repository.GameRepository;
 
 /**
- * Implementation of GridEvent for a tank moving or turning.
+ * Implementation of GridEvent for a token moving or turning.
  * @author Anthony Papetti
  */
-public class TankMoveEvent implements GridEvent{
+public class TokenMoveEvent implements GridEvent{
     long millis;
-    long tankID;
+    long tokenID;
     Direction direction;
     int intVal;
     int[][] grid;
 
+    //TODO: Update intVal docs
+
     /**
-     * Constructor for TankMoveEvent. Stores necessary event information
-     * @param tankID The ID of the tank that is moving.
-     * @param direction Tank's new direction
-     * @param intVal Integer value of the tank. See {@link Tank#getIntValue() getIntValue} for value.
-     * @param grid Integer array representation of board after tank moves.
+     * Constructor for tokenMoveEvent. Stores necessary event information
+     * @param tokenID The ID of the token that is moving.
+     * @param direction token's new direction
+     * @param intVal Integer value of the token. See {@link Tank#getIntValue() getIntValue} for value.
+     * @param grid Integer array representation of board after token moves.
      *             From {@link GameRepository#getGrid() GameRepository.getGrid()}.
      */
-    public TankMoveEvent(long tankID, Direction direction, int intVal, int[][] grid) {
+    public TokenMoveEvent(long tokenID, Direction direction, int intVal, int[][] grid) {
         this.millis = System.currentTimeMillis();
-        this.tankID = tankID;
+        this.tokenID = tokenID;
         this.direction = direction;
         this.intVal = intVal;
         this.grid = grid;
@@ -42,14 +44,14 @@ public class TankMoveEvent implements GridEvent{
     }
 
     /**
-     * {@inheritDoc}. Type specific fields are "tankID", "direction", "intVal", and "newPos".
+     * {@inheritDoc}. Type specific fields are "tokenID", "direction", "intVal", and "newPos".
      * @return {@inheritDoc}
      */
     public String toJSON() {
         JSONObject eventJSON = new JSONObject();
         eventJSON.put("millis", millis);
-        eventJSON.put("eventType", "tankMove");
-        eventJSON.put("tankID", tankID);
+        eventJSON.put("eventType", "tokenMove");
+        eventJSON.put("tokenID", tokenID);
         eventJSON.put("direction", Direction.toByte(direction));
         eventJSON.put("intVal", intVal);
         int newPos = 0;

@@ -1,10 +1,10 @@
 package edu.unh.cs.cs619.bulletzone.repository;
 
 import edu.unh.cs.cs619.bulletzone.model.Direction;
-import edu.unh.cs.cs619.bulletzone.model.IllegalTransitionException;
-import edu.unh.cs.cs619.bulletzone.model.LimitExceededException;
+import edu.unh.cs.cs619.bulletzone.model.exceptions.IllegalTransitionException;
+import edu.unh.cs.cs619.bulletzone.model.exceptions.LimitExceededException;
 import edu.unh.cs.cs619.bulletzone.model.Tank;
-import edu.unh.cs.cs619.bulletzone.model.TankDoesNotExistException;
+import edu.unh.cs.cs619.bulletzone.model.exceptions.TokenDoesNotExistException;
 
 public interface GameRepository {
 
@@ -13,16 +13,16 @@ public interface GameRepository {
     int[][] getGrid();
 
     boolean turn(long tankId, Direction direction)
-            throws TankDoesNotExistException, IllegalTransitionException, LimitExceededException;
+            throws TokenDoesNotExistException, IllegalTransitionException, LimitExceededException;
 
     boolean move(long tankId, Direction direction)
-            throws TankDoesNotExistException, IllegalTransitionException, LimitExceededException;
+            throws TokenDoesNotExistException, IllegalTransitionException, LimitExceededException;
 
     boolean fire(long tankId, int strength)
-            throws TankDoesNotExistException, LimitExceededException;
+            throws TokenDoesNotExistException, LimitExceededException;
 
     public void leave(long tankId)
-            throws TankDoesNotExistException;
+            throws TokenDoesNotExistException;
 
     String[] event(long millis);
 }

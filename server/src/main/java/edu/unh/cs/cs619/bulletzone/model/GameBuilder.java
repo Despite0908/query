@@ -1,10 +1,8 @@
 package edu.unh.cs.cs619.bulletzone.model;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Builder class that creates the Game Object. Main priority is placing walls and creating

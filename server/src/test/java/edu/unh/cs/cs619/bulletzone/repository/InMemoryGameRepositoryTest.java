@@ -4,7 +4,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -14,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.Tank;
-import edu.unh.cs.cs619.bulletzone.model.TankDoesNotExistException;
+import edu.unh.cs.cs619.bulletzone.model.exceptions.TokenDoesNotExistException;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class InMemoryGameRepositoryTest {
@@ -53,7 +52,7 @@ public class InMemoryGameRepositoryTest {
     @Test
     public void leave_tankDoesNotExist_Throws(){
         repo.join("");
-        Assert.assertThrows(TankDoesNotExistException.class, () -> repo.leave(2));
+        Assert.assertThrows(TokenDoesNotExistException.class, () -> repo.leave(2));
     }
 
     @Test
@@ -61,7 +60,7 @@ public class InMemoryGameRepositoryTest {
         Tank tank = repo.join("");
         try {
             repo.leave(tank.getId());
-        } catch (TankDoesNotExistException e) {
+        } catch (TokenDoesNotExistException e) {
             Assert.fail();
         }
     }
@@ -120,8 +119,8 @@ public class InMemoryGameRepositoryTest {
         Assert.assertTrue(tank.getDirection() == Direction.Up);
         Assert.assertNotNull(tank.getParent());
 
-        thrown.expect(TankDoesNotExistException.class);
-        thrown.expectMessage("Tank '1000' does not exist");
+        thrown.expect(TokenDoesNotExistException.class);
+        thrown.expectMessage("Token '1000' does not exist");
         repo.turn(1000, Direction.Right);
     }
 
