@@ -40,9 +40,8 @@ public class BulletTracker {
      * @param bulletType Type of bullet to be fired
      * @param game Game to fire the bullet on
      * @param monitor Object to synchronize firing
-     * @param eventHistory Event History to add on to
      */
-    public void fire(int bulletType, Game game, Object monitor, EventHistory eventHistory) {
+    public void fire(int bulletType, Game game, Object monitor) {
         Direction direction = token.getDirection();
         FieldHolder parent = token.getParent();
         token.setNumberOfBullets(token.getNumberOfBullets() + 1);
@@ -72,6 +71,6 @@ public class BulletTracker {
         // This should be only a one way reference.
         bullet.setParent(parent);
         bullet.setBulletId(bulletId);
-        timer.schedule(new BulletTimer(monitor, token, bullet, game, eventHistory), 0, BULLET_PERIOD);
+        timer.schedule(new BulletTimer(monitor, token, bullet, game), 0, BULLET_PERIOD);
     }
 }

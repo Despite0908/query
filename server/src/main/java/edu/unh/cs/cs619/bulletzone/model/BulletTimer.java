@@ -17,23 +17,19 @@ public class BulletTimer extends TimerTask {
 
     Game game;
 
-    EventHistory eventHistory;
-
     /**
      * Constructor. Passes values for task.
      * @param monitor Monitor to synchronize task
      * @param token Token bullet is fired from
      * @param bullet Bullet to move every step
      * @param game Game the bullet is from
-     * @param eventHistory Event History to add events to
      */
-    public BulletTimer(Object monitor, PlayerToken token, Bullet bullet, Game game, EventHistory eventHistory) {
+    public BulletTimer(Object monitor, PlayerToken token, Bullet bullet, Game game) {
         super();
         this.monitor = monitor;
         this.token = token;
         this.bullet = bullet;
         this.game = game;
-        this.eventHistory = eventHistory;
     }
 
     /**
@@ -42,6 +38,7 @@ public class BulletTimer extends TimerTask {
     @Override
     public void run() {
         synchronized (monitor) {
+            EventHistory eventHistory = EventHistory.get_instance();
             System.out.println("Active Bullet: "+ token.getNumberOfBullets()+"---- Bullet ID: "+bullet.getIntValue());
             FieldHolder currentField = bullet.getParent();
             Direction direction = bullet.getDirection();

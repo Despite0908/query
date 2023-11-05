@@ -12,11 +12,12 @@ import edu.unh.cs.cs619.bulletzone.model.Game;
 import edu.unh.cs.cs619.bulletzone.model.GameBuilder;
 import edu.unh.cs.cs619.bulletzone.model.GameMap;
 import edu.unh.cs.cs619.bulletzone.model.PlayerToken;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenMoveEvent;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.IllegalTransitionException;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.LimitExceededException;
 import edu.unh.cs.cs619.bulletzone.model.MapLoader;
-import edu.unh.cs.cs619.bulletzone.model.ServerEvents.AddTankEvent;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.AddTokenEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BoardCreationEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.FireEvent;
@@ -55,7 +56,7 @@ public class InMemoryGameRepository implements GameRepository {
 
     private int[] tankSpawn = null;
 
-    private final EventHistory eventHistory = new EventHistory();
+    private final EventHistory eventHistory = EventHistory.get_instance();
 
     private String mapPath = "Maps/DefaultMap.json";
 
@@ -131,7 +132,7 @@ public class InMemoryGameRepository implements GameRepository {
             }
 
             game.addTank(ip, tank);
-            eventHistory.addEvent(new AddTankEvent(tank.getId()));
+            eventHistory.addEvent(new AddTokenEvent(tank.getIntValue(), tankSpawn[0] * FIELD_DIM + tankSpawn[1]));
             return tank;
         }
     }
@@ -257,7 +258,7 @@ public class InMemoryGameRepository implements GameRepository {
             token.setLastFireTime(millis + bulletDelay[bulletType - 1] + token.getAllowedFireInterval());
 
             //fire bullet//add fire event
-            token.getBulletTracker().fire(bulletType, game, monitor, eventHistory);
+            token.getBulletTracker().fire(bulletType, game, monitor);
             eventHistory.addEvent(new FireEvent(token.getId()));
             return true;
         }
@@ -282,6 +283,7 @@ public class InMemoryGameRepository implements GameRepository {
             FieldHolder parent = tank.getParent();
             parent.clearField();
             game.removeTank(tankId);
+            eventHistory.addEvent(new TokenLeaveEvent(tank.getId(), tank.getIntValue()));
         }
     }
 

@@ -1,5 +1,6 @@
 package edu.unh.cs.cs619.bulletzone.model.ServerEvents;
 
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -12,12 +13,24 @@ import java.util.concurrent.TimeUnit;
  */
 public class EventHistory {
 
-    List<GridEvent> events;
-    Timer t;
+    private List<GridEvent> events;
+    private Timer t;
+    private volatile static EventHistory _instance;
 
-    public EventHistory() {
+    private EventHistory() {
         this.events = new ArrayList<>();
         this.t = new Timer();
+    }
+
+    public static EventHistory get_instance() {
+        if (_instance == null) {
+            synchronized (EventHistory.class) {
+                if (_instance == null) {
+                    _instance = new EventHistory();
+                }
+            }
+        }
+        return _instance;
     }
 
     /**
