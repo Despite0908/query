@@ -11,7 +11,8 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.GridView;
-
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import com.squareup.otto.Subscribe;
 
 import org.androidannotations.annotations.AfterInject;
@@ -88,7 +89,6 @@ public class ClientActivity extends Activity {
 
             }
         };
-
         sensorManager.registerListener(sensorEventListener, shakeSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
@@ -188,10 +188,47 @@ public class ClientActivity extends Activity {
     @Click(R.id.buttonLeave)
     @Background
     void leaveGame() {
-        System.out.println("leaveGame() called, tank ID: "+tankControl.getTankId());
-        BackgroundExecutor.cancelAll("grid_poller_task", true);
-        tankControl.leaveAsync();
+        onLeavePressed();
     }
+
+    @Override
+    public void onBackPressed()
+    {
+        // code here to show dialog
+        onLeavePressed();
+    }
+
+    public void onLeavePressed() {
+        Thread thread = new Thread(){
+            public void run(){
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        new AlertDialog.Builder(ClientActivity.this)
+                                .setTitle("Exit App")
+                                .setMessage("Do you really want to exit?")
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        System.out.println("leaveGame() called, tank ID: "+tankControl.getTankId());
+                                        BackgroundExecutor.cancelAll("grid_poller_task", true);
+                                        tankControl.leaveAsync();
+                                        //ClientActivity.super.onBackPressed();
+                                    }
+                                })
+                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.dismiss();
+                                    }
+                                })
+                                .show();
+                    }
+                });
+            }
+        };
+        thread.start();
+    }
+
 
     @Click(R.id.buttonLogin)
     void login() {
