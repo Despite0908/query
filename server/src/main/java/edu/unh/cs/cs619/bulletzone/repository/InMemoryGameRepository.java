@@ -52,7 +52,7 @@ public class InMemoryGameRepository implements GameRepository {
     private final AtomicLong idGenerator = new AtomicLong();
     private final Object monitor = new Object();
     private Game game = null;
-    private int bulletDelay[]={500,1000,1500,500};
+    private int bulletDelay[]={500,1000,1500,250};
 
     private int[] tankSpawn = null;
 
@@ -255,7 +255,7 @@ public class InMemoryGameRepository implements GameRepository {
                 return false;
             }
             //Set new timestamp
-            token.setLastFireTime(millis + bulletDelay[bulletType - 1] + token.getAllowedFireInterval());
+            token.setLastFireTime(millis + bulletDelay[bulletType - 1]);
 
             //fire bullet//add fire event
             token.getBulletTracker().fire(bulletType, game, monitor);

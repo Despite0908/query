@@ -14,7 +14,6 @@ public abstract class PlayerToken extends FieldEntity{
     private int allowedMoveInterval;
 
     private long lastFireTime;
-    private int allowedFireInterval;
 
     private int numberOfBullets;
     private int allowedNumberOfBullets;
@@ -131,14 +130,6 @@ public abstract class PlayerToken extends FieldEntity{
 
     public void setLastFireTime(long lastFireTime) {
         this.lastFireTime = lastFireTime;
-    }
-
-    public long getAllowedFireInterval() {
-        return allowedFireInterval;
-    }
-
-    public void setAllowedFireInterval(int allowedFireInterval) {
-        this.allowedFireInterval = allowedFireInterval;
     }
 
     public int getNumberOfBullets() {

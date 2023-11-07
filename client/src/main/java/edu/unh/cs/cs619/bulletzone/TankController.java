@@ -68,12 +68,16 @@ public class TankController {
      * interact with the server.
      */
     public void turnLeft() {
-        if (direction == 0) {
-            direction = 6;
+        byte placeHolderDirection = getDirection();
+        if (placeHolderDirection == 0) {
+            placeHolderDirection = 6;
         } else {
-            direction -= 2;
+            placeHolderDirection -= 2;
         }
-        restClient.turn(tankId, direction);
+        if (!(restClient.turn(tankId, placeHolderDirection).isResult())) {
+            return;
+        }
+        direction = placeHolderDirection;
     }
     /**
      * This method is used to turn the current direction of the tank right 90° of its currently-faced
@@ -81,12 +85,16 @@ public class TankController {
      * interact with the server.
      */
     public void turnRight() {
-        if (direction == 6) {
-            direction = 0;
+        byte placeHolderDirection = getDirection();
+        if (placeHolderDirection == 6) {
+            placeHolderDirection = 0;
         } else {
-            direction += 2;
+            placeHolderDirection += 2;
         }
-        restClient.turn(tankId, direction);
+        if (!(restClient.turn(tankId, placeHolderDirection).isResult())) {
+            return;
+        }
+        direction = placeHolderDirection;
     }
 
     /**
