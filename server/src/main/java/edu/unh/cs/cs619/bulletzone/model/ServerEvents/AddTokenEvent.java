@@ -4,9 +4,9 @@ import org.json.JSONObject;
 
 public class AddTokenEvent implements GridEvent {
 
-    long millis;
-    int tokenVal;
-    int position;
+    private final long millis;
+    private final int tokenVal;
+    private final int position;
 
     /**
      * Constructor for AddTokenEvent, stores token's Intval.

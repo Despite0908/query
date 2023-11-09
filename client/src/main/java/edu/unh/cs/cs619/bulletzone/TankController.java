@@ -144,7 +144,8 @@ public class TankController {
      */
     @Background
     public void onBulletFire() {
-        restClient.fire(tankId);
+        boolean test = restClient.fire(tankId).isResult();
+        Log.d("fireTest", String.format("%b\n", test));
     }
 
     /**

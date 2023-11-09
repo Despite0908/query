@@ -3,9 +3,9 @@ package edu.unh.cs.cs619.bulletzone.model.ServerEvents;
 import org.json.JSONObject;
 
 public class TokenLeaveEvent implements GridEvent {
-    long millis;
-    long tokenID;
-    int intVal;
+    private final long millis;
+    private final long tokenID;
+    private final int intVal;
 
     /**
      * Constructor for TokenLeaveEvent.

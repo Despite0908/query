@@ -11,11 +11,11 @@ import edu.unh.cs.cs619.bulletzone.repository.GameRepository;
  * @author Anthony Papetti
  */
 public class TokenMoveEvent implements GridEvent{
-    long millis;
-    long tokenID;
-    Direction direction;
-    int intVal;
-    int[][] grid;
+    private final long millis;
+    private final long tokenID;
+    private final Direction direction;
+    private final int intVal;
+    private final int[][] grid;
 
     //TODO: Update intVal docs
 

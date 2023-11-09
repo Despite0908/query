@@ -61,4 +61,8 @@ public class EventHistory {
         }
         return returnList;
     }
+
+    public void clear() {
+        events.clear();
+    }
 }

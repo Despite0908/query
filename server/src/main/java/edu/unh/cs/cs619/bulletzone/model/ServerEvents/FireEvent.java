@@ -7,8 +7,8 @@ import org.json.JSONObject;
  * @author Anthony Papetti
  */
 public class FireEvent implements GridEvent{
-    long millis;
-    long tokenID;
+    private final long millis;
+    private final long tokenID;
 
     /**
      * Constructor for FireEvent, stores token's ID.

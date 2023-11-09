@@ -53,12 +53,12 @@ public class BulletTracker {
 
         //Get ID of bullet
         int bulletId=0;
-        boolean bulletFree = true;
+        boolean bulletFree = false;
         for (int i = 0; i < trackActiveBullets.length; i++) {
             if (trackActiveBullets[i] == 0) {
                 bulletId = i;
                 trackActiveBullets[i] = 1;
-                bulletFree = false;
+                bulletFree = true;
             }
         }
         if (!bulletFree) {

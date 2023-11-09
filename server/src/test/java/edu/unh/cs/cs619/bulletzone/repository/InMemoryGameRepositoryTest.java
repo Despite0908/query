@@ -340,7 +340,7 @@ public class InMemoryGameRepositoryTest {
         Tank tank = repo.join("");
         Assert.assertTrue(tank.getDirection() == Direction.Up);
         Assert.assertTrue(repo.fire(tank.getId(), 1));
-        TimeUnit.MILLISECONDS.sleep(1000);
+        TimeUnit.MILLISECONDS.sleep(500);
         Assert.assertTrue(repo.fire(tank.getId(), 1));
     }
 
@@ -361,9 +361,9 @@ public class InMemoryGameRepositoryTest {
         Tank tank = repo.join("");
         Assert.assertTrue(tank.getDirection() == Direction.Up);
         Assert.assertTrue(repo.fire(tank.getId(), 1));
-        TimeUnit.MILLISECONDS.sleep(1000);
+        TimeUnit.MILLISECONDS.sleep(500);
         Assert.assertTrue(repo.fire(tank.getId(), 1));
-        TimeUnit.MILLISECONDS.sleep(1000);
+        TimeUnit.MILLISECONDS.sleep(500);
         Assert.assertFalse(repo.fire(tank.getId(), 1));
     }
 

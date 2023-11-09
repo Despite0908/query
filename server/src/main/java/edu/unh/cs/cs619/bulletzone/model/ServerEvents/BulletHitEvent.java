@@ -10,10 +10,10 @@ import edu.unh.cs.cs619.bulletzone.model.Wall;
  * @author Anthony Papetti
  */
 public class BulletHitEvent implements GridEvent{
-    long millis;
-    long intVal;
-    boolean destroyed;
-    int otherIntVal;
+    private final long millis;
+    private final long intVal;
+    private final boolean destroyed;
+    private final int otherIntVal;
 
     /**
      * Constructor for BulletHitEvent, stores necessary information for event.

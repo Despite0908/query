@@ -11,11 +11,11 @@ import edu.unh.cs.cs619.bulletzone.model.Tank;
  * @author Anthony Papetti
  */
 public class BulletMoveEvent implements GridEvent{
-    long millis;
-    long tokenID;
-    Direction direction;
-    int intVal;
-    int[][] grid;
+    private final long millis;
+    private final long tokenID;
+    private final Direction direction;
+    private final int intVal;
+    private final int[][] grid;
 
     /**
      * Constructor for BulletMoveEvent. Stores necessary information for the event.

@@ -4,7 +4,7 @@ import org.json.JSONObject;
 
 public class BoardCreationEvent implements GridEvent{
 
-    long millis;
+    private long millis;
 
     /**
      * Constructor. Sets timestamp.
@@ -30,7 +30,7 @@ public class BoardCreationEvent implements GridEvent{
     public String toJSON() {
         JSONObject eventJSON = new JSONObject();
         eventJSON.put("millis", millis);
-        eventJSON.put("eventType", "fire");
+        eventJSON.put("eventType", "boardCreation");
         return eventJSON.toString();
     }
 }
