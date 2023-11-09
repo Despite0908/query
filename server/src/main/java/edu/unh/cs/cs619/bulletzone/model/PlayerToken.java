@@ -94,8 +94,8 @@ public abstract class PlayerToken extends FieldEntity{
      * @return Whether the token can fire or not
      */
     public boolean canFire(long millis) {
+        System.out.printf("Allowed %d bullets, there were %d\n", getAllowedNumberOfBullets(), getNumberOfBullets());
         if(getNumberOfBullets() >= getAllowedNumberOfBullets()) {
-            System.out.printf("Failed: Allowed %d bullets, there were %d\n", getAllowedNumberOfBullets(), getNumberOfBullets());
             return false;
         }
         return millis >= getLastFireTime();

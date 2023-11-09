@@ -5,18 +5,26 @@ package edu.unh.cs.cs619.bulletzone.model.ServerEvents;
  * prints them to a JSON string.
  * @author Anthony Papetti
  */
-public interface GridEvent {
+public abstract class GridEvent {
+
+    private final long millis;
+
+    public GridEvent() {
+        this.millis = EventHistory.get_instance().getClock().millis();
+    }
 
     /**
      * Returns the JSON representation of the event. Fields "millis" and "eventType" will
      * be in every implementation.
      * @return The JSON representation of the event
      */
-    public String toJSON();
+    public abstract String toJSON();
 
     /**
      * Gets timestamp of event in milliseconds.
      * @return Timestamp of event in milliseconds
      */
-    public long getMillis();
+    public long getMillis() {
+        return millis;
+    }
 }

@@ -1,6 +1,7 @@
 package edu.unh.cs.cs619.bulletzone.model.ServerEvents;
 
 
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -14,21 +15,29 @@ import java.util.concurrent.TimeUnit;
 public class EventHistory {
 
     private List<GridEvent> events;
-    private Timer t;
+
+    private Clock c;
     private volatile static EventHistory _instance;
 
-    private EventHistory() {
+    private EventHistory(Clock c) {
         this.events = new ArrayList<>();
-        this.t = new Timer();
+        this.c = c;
+    }
+
+    public Clock getClock() {
+        return c;
     }
 
     public static EventHistory get_instance() {
         if (_instance == null) {
-            synchronized (EventHistory.class) {
-                if (_instance == null) {
-                    _instance = new EventHistory();
-                }
-            }
+            return null;
+        }
+        return _instance;
+    }
+
+    public static EventHistory start(Clock c) {
+        synchronized (EventHistory.class) {
+            _instance = new EventHistory(c);
         }
         return _instance;
     }
@@ -39,12 +48,6 @@ public class EventHistory {
      */
     public void addEvent(GridEvent gridEvent) {
         events.add(gridEvent);
-        t.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                events.remove(gridEvent);
-            }
-        }, TimeUnit.MINUTES.toMillis(3));
     }
 
     /**
@@ -54,6 +57,12 @@ public class EventHistory {
      */
     public List<GridEvent> getEventsAfter(long millis) {
         List<GridEvent> returnList = new ArrayList<>();
+        for (int i = events.size() - 1; i >=0 ; i--) {
+            if (events.get(i).getMillis() <= millis - TimeUnit.MINUTES.toMillis(2)) {
+                events.remove(events.get(i));
+            }
+        }
+
         for (int i = 0; i < events.size(); i++) {
             if (events.get(i).getMillis() > millis) {
                 returnList.add(events.get(i));

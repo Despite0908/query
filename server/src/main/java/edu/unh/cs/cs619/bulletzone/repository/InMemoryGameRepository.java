@@ -2,6 +2,7 @@ package edu.unh.cs.cs619.bulletzone.repository;
 
 import org.springframework.stereotype.Component;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -56,7 +57,7 @@ public class InMemoryGameRepository implements GameRepository {
 
     private int[] tankSpawn = null;
 
-    private final EventHistory eventHistory = EventHistory.get_instance();
+    private final EventHistory eventHistory = EventHistory.start(Clock.systemUTC());
 
     private String mapPath = "Maps/DefaultMap.json";
 
@@ -175,7 +176,7 @@ public class InMemoryGameRepository implements GameRepository {
                 }
             }
 
-            long millis = System.currentTimeMillis();
+            long millis = eventHistory.getClock().millis();
             //Constraint checking
             if (!token.canTurn(millis, direction)) {
                 return false;
@@ -215,7 +216,7 @@ public class InMemoryGameRepository implements GameRepository {
             }
 
             //Token constraints
-            long millis = System.currentTimeMillis();
+            long millis = eventHistory.getClock().millis();
             if (!token.canMove(millis, direction)) {
                 return false;
             }
@@ -249,7 +250,7 @@ public class InMemoryGameRepository implements GameRepository {
                 throw new TokenDoesNotExistException(tokenId);
             }
 
-            long millis = System.currentTimeMillis();
+            long millis = eventHistory.getClock().millis();
             //Constraint Checking
             if (!token.canFire(millis)) {
                 return false;

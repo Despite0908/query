@@ -2,8 +2,7 @@ package edu.unh.cs.cs619.bulletzone.model.ServerEvents;
 
 import org.json.JSONObject;
 
-public class TokenLeaveEvent implements GridEvent {
-    private final long millis;
+public class TokenLeaveEvent extends GridEvent {
     private final long tokenID;
     private final int intVal;
 
@@ -13,7 +12,7 @@ public class TokenLeaveEvent implements GridEvent {
      * @param intVal The Int Value of the token that's leaving
      */
     public TokenLeaveEvent(long tokenID, int intVal) {
-        this.millis = System.currentTimeMillis();
+        super();
         this.tokenID = tokenID;
         this.intVal = intVal;
     }
@@ -25,19 +24,10 @@ public class TokenLeaveEvent implements GridEvent {
     @Override
     public String toJSON() {
         JSONObject eventJSON = new JSONObject();
-        eventJSON.put("millis", millis);
+        eventJSON.put("millis", getMillis());
         eventJSON.put("eventType", "tokenLeave");
         eventJSON.put("intVal", intVal);
         eventJSON.put("tokenID", tokenID);
         return eventJSON.toString();
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@inheritDoc}
-     */
-    @Override
-    public long getMillis() {
-        return millis;
     }
 }

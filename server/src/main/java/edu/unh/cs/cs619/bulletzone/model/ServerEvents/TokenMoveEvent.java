@@ -10,8 +10,7 @@ import edu.unh.cs.cs619.bulletzone.repository.GameRepository;
  * Implementation of GridEvent for a token moving or turning.
  * @author Anthony Papetti
  */
-public class TokenMoveEvent implements GridEvent{
-    private final long millis;
+public class TokenMoveEvent extends GridEvent{
     private final long tokenID;
     private final Direction direction;
     private final int intVal;
@@ -28,19 +27,11 @@ public class TokenMoveEvent implements GridEvent{
      *             From {@link GameRepository#getGrid() GameRepository.getGrid()}.
      */
     public TokenMoveEvent(long tokenID, Direction direction, int intVal, int[][] grid) {
-        this.millis = System.currentTimeMillis();
+        super();
         this.tokenID = tokenID;
         this.direction = direction;
         this.intVal = intVal;
         this.grid = grid;
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@inheritDoc}
-     */
-    public long getMillis() {
-        return millis;
     }
 
     /**
@@ -49,7 +40,7 @@ public class TokenMoveEvent implements GridEvent{
      */
     public String toJSON() {
         JSONObject eventJSON = new JSONObject();
-        eventJSON.put("millis", millis);
+        eventJSON.put("millis", getMillis());
         eventJSON.put("eventType", "tokenMove");
         eventJSON.put("tokenID", tokenID);
         eventJSON.put("direction", Direction.toByte(direction));

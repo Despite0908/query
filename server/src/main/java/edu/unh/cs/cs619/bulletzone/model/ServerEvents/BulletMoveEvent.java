@@ -10,8 +10,7 @@ import edu.unh.cs.cs619.bulletzone.model.Tank;
  * GridEvent implementation for movement of bullet.
  * @author Anthony Papetti
  */
-public class BulletMoveEvent implements GridEvent{
-    private final long millis;
+public class BulletMoveEvent extends GridEvent{
     private final long tokenID;
     private final Direction direction;
     private final int intVal;
@@ -25,7 +24,7 @@ public class BulletMoveEvent implements GridEvent{
      * @param grid
      */
     public BulletMoveEvent(long tokenID, Direction direction, int intVal, int[][] grid) {
-        this.millis = System.currentTimeMillis();
+        super();
         this.tokenID = tokenID;
         this.direction = direction;
         this.intVal = intVal;
@@ -33,14 +32,9 @@ public class BulletMoveEvent implements GridEvent{
     }
 
     @Override
-    public long getMillis() {
-        return millis;
-    }
-
-    @Override
     public String toJSON() {
         JSONObject eventJSON = new JSONObject();
-        eventJSON.put("millis", millis);
+        eventJSON.put("millis", getMillis());
         eventJSON.put("eventType", "bulletMove");
         eventJSON.put("tokenID", tokenID);
         eventJSON.put("direction", Direction.toByte(direction));

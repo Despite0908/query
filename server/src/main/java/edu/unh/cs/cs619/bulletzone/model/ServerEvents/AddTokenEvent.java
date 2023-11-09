@@ -2,9 +2,7 @@ package edu.unh.cs.cs619.bulletzone.model.ServerEvents;
 
 import org.json.JSONObject;
 
-public class AddTokenEvent implements GridEvent {
-
-    private final long millis;
+public class AddTokenEvent extends GridEvent {
     private final int tokenVal;
     private final int position;
 
@@ -14,18 +12,9 @@ public class AddTokenEvent implements GridEvent {
      * @param position The position of the newly added tank
      */
     public AddTokenEvent(int tokenVal, int position) {
-        this.millis = System.currentTimeMillis();
+        super();
         this.tokenVal = tokenVal;
         this.position = position;
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@inheritDoc}
-     */
-    @Override
-    public long getMillis() {
-        return millis;
     }
 
     /**
@@ -35,7 +24,7 @@ public class AddTokenEvent implements GridEvent {
     @Override
     public String toJSON() {
         JSONObject eventJSON = new JSONObject();
-        eventJSON.put("millis", millis);
+        eventJSON.put("millis", getMillis());
         eventJSON.put("eventType", "addToken");
         eventJSON.put("intVal", tokenVal);
         eventJSON.put("position", position);

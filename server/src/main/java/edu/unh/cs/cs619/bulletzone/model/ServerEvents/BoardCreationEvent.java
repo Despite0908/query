@@ -2,24 +2,13 @@ package edu.unh.cs.cs619.bulletzone.model.ServerEvents;
 
 import org.json.JSONObject;
 
-public class BoardCreationEvent implements GridEvent{
-
-    private long millis;
+public class BoardCreationEvent extends GridEvent{
 
     /**
      * Constructor. Sets timestamp.
      */
     public BoardCreationEvent() {
-        this.millis = System.currentTimeMillis();
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@inheritDoc}
-     */
-    @Override
-    public long getMillis() {
-        return millis;
+        super();
     }
 
     /**
@@ -29,7 +18,7 @@ public class BoardCreationEvent implements GridEvent{
     @Override
     public String toJSON() {
         JSONObject eventJSON = new JSONObject();
-        eventJSON.put("millis", millis);
+        eventJSON.put("millis", getMillis());
         eventJSON.put("eventType", "boardCreation");
         return eventJSON.toString();
     }

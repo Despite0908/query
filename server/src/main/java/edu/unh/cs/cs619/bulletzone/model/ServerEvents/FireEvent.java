@@ -6,8 +6,7 @@ import org.json.JSONObject;
  * Implementation of GridEvent for a token firing
  * @author Anthony Papetti
  */
-public class FireEvent implements GridEvent{
-    private final long millis;
+public class FireEvent extends GridEvent{
     private final long tokenID;
 
     /**
@@ -15,17 +14,8 @@ public class FireEvent implements GridEvent{
      * @param tokenID The ID of the token that is firing.
      */
     public FireEvent(long tokenID) {
-        this.millis = System.currentTimeMillis();
+        super();
         this.tokenID = tokenID;
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@inheritDoc}
-     */
-    @Override
-    public long getMillis() {
-        return millis;
     }
 
     /**
@@ -35,7 +25,7 @@ public class FireEvent implements GridEvent{
     @Override
     public String toJSON() {
         JSONObject eventJSON = new JSONObject();
-        eventJSON.put("millis", millis);
+        eventJSON.put("millis", getMillis());
         eventJSON.put("eventType", "fire");
         eventJSON.put("tokenID", tokenID);
         return eventJSON.toString();

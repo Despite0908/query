@@ -1,5 +1,7 @@
 package edu.unh.cs.cs619.bulletzone.util;
 
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
+
 /**
  * Created by simon on 10/1/14.
  */
@@ -9,7 +11,7 @@ public class GridWrapper {
 
     public GridWrapper(int[][] grid) {
         this.grid = grid;
-        this.timeStamp = System.currentTimeMillis();
+        this.timeStamp = EventHistory.get_instance().getClock().millis();
     }
 
     public int[][] getGrid() {

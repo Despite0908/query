@@ -9,8 +9,7 @@ import edu.unh.cs.cs619.bulletzone.model.Wall;
  * Implementation of GridEvent for an object being hit.
  * @author Anthony Papetti
  */
-public class BulletHitEvent implements GridEvent{
-    private final long millis;
+public class BulletHitEvent extends GridEvent{
     private final long intVal;
     private final boolean destroyed;
     private final int otherIntVal;
@@ -23,19 +22,10 @@ public class BulletHitEvent implements GridEvent{
      *                    See {@link Bullet#getIntValue() getIntValue} or {@link Wall#getIntValue()} for value.
      */
     public BulletHitEvent(long intVal, boolean destroyed, int otherIntVal) {
-        this.millis = System.currentTimeMillis();
+        super();
         this.intVal = intVal;
         this.destroyed = destroyed;
         this.otherIntVal = otherIntVal;
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@inheritDoc}
-     */
-    @Override
-    public long getMillis() {
-        return millis;
     }
 
     /**
@@ -45,7 +35,7 @@ public class BulletHitEvent implements GridEvent{
     @Override
     public String toJSON() {
         JSONObject eventJSON = new JSONObject();
-        eventJSON.put("millis", millis);
+        eventJSON.put("millis", getMillis());
         eventJSON.put("eventType", "hit");
         eventJSON.put("bulletIntVal", intVal);
         eventJSON.put("hitObjectIntVal", otherIntVal);

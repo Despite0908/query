@@ -44,7 +44,6 @@ public class BulletTracker {
     public void fire(int bulletType, Game game, Object monitor) {
         Direction direction = token.getDirection();
         FieldHolder parent = token.getParent();
-        token.setNumberOfBullets(token.getNumberOfBullets() + 1);
 
         if(!(bulletType>=1 && bulletType<=3)) {
             System.out.println("Bullet type must be 1, 2 or 3, set to 1 by default.");
@@ -59,11 +58,14 @@ public class BulletTracker {
                 bulletId = i;
                 trackActiveBullets[i] = 1;
                 bulletFree = true;
+                break;
             }
         }
         if (!bulletFree) {
+            System.out.println("Bullet Not Free");
             return;
         }
+        token.setNumberOfBullets(token.getNumberOfBullets() + 1);
 
         // Create a new bullet to fire
         final Bullet bullet = new Bullet(token.getId(), direction, bulletDamage[bulletType-1]);
