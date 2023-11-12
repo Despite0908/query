@@ -1,5 +1,6 @@
 package edu.unh.cs.cs619.bulletzone.ui;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -93,7 +94,9 @@ public class GridAdapter extends BaseAdapter {
             if (val > 0) {
                 if (val == 1000 || (val > 1000 && val <= 2000)) {
                     imageView.setImageResource(R.drawable.crate_metal);
-                } else if (val >= 2000000 && val <= 3000000) {
+                } else if (val >= 2000 && val < 2000000) {
+                    //Log.d("Item Check", "THIS  WOULD BE A POWERUP of VALUE " + val);
+                }else if (val >= 2000000 && val <= 3000000) {
                     imageView.setImageResource(R.drawable.bullet_red);
                     imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                     imageView.setRotation(tc.getDirection() * 45);  // Set bullet rotation based on tank's direction

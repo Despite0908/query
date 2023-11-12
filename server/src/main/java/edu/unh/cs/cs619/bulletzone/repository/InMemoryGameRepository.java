@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import java.time.Clock;
 import java.util.List;
 import java.util.Random;
+import java.util.Timer;
 import java.util.concurrent.atomic.AtomicLong;
 
 import edu.unh.cs.cs619.bulletzone.model.Direction;
@@ -12,6 +13,7 @@ import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
 import edu.unh.cs.cs619.bulletzone.model.Game;
 import edu.unh.cs.cs619.bulletzone.model.GameBuilder;
 import edu.unh.cs.cs619.bulletzone.model.GameMap;
+import edu.unh.cs.cs619.bulletzone.model.ItemSpawnTimerController;
 import edu.unh.cs.cs619.bulletzone.model.PlayerToken;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenMoveEvent;
@@ -60,6 +62,10 @@ public class InMemoryGameRepository implements GameRepository {
     private final EventHistory eventHistory = EventHistory.start(Clock.systemUTC());
 
     private String mapPath = "Maps/DefaultMap.json";
+
+    // adding item spawn timer
+    private static final int ITEM_PERIOD = 1000;
+    private final Timer timer = new Timer();
 
     /**
      * Sets the map to load game from.
@@ -313,6 +319,7 @@ public class InMemoryGameRepository implements GameRepository {
             this.game = gameBuilder.build();
             //Add creation event
             eventHistory.addEvent(new BoardCreationEvent());
+            ItemSpawnTimerController.createTimer(this.game);
         }
     }
 
