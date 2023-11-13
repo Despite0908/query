@@ -50,7 +50,7 @@ android {
 
     defaultConfig {
         applicationId "edu.unh.cs.cs619.bulletzone"
-        minSdkVersion 18
+        minSdkVersion 19
         targetSdkVersion 33
         versionCode 1
         versionName "1.0"

@@ -29,14 +29,10 @@ public class TokenFactory {
      *                  toString)
      * @return int[][] representing the grid that the board calls upon for viewing
      */
-    public int[][] updateGrid(String[] newEvents) {
+    public int[][] updateGrid(String[] newEvents) throws JSONException {
         JSONObject event = null;
         JSONArray eventArr = null;
-        try {
-            eventArr = new JSONArray(newEvents);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
+        eventArr = new JSONArray(newEvents);
         for (int i = 0; i < eventArr.length(); i++) {
             try {
                 event = (JSONObject) eventArr.get(i);
