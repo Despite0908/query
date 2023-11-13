@@ -79,6 +79,12 @@ public class BulletTimer extends TimerTask {
                         eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), false, w.getIntValue()));
                     }
                 }
+                else if ( nextField.getEntity() instanceof  Item){
+                    Item i = (Item) nextField.getEntity();
+                    game.getHolderGrid().get(i.getGridLocation()).clearField();
+                    game.getItems().remove(i.getGridLocation());
+                    //TODO aiden add to event list
+                }
                 if (isVisible) {
                     // Remove bullet from field
                     currentField.clearField();

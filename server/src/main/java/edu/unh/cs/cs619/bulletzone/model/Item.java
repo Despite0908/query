@@ -4,14 +4,16 @@ public class Item extends FieldEntity {
 
     private int itemType;
     private int itemId;
+    private int gridLocation;
 
-    public Item(int itemType) {
+    public Item(int itemType, int location) {
         this.setItemType(itemType);
+        this.setGridLocation(location);
     }
 
     @Override
     public int getIntValue() {
-        return (int) (3000 + itemType);
+        return (int) (itemType);
     }
 
     @Override
@@ -21,9 +23,16 @@ public class Item extends FieldEntity {
 
     @Override
     public FieldEntity copy() {
-        return new Item(itemType);
+        return new Item(itemType, gridLocation);
     }
 
+    public void setGridLocation(int newLocation) {
+        this.gridLocation = newLocation;
+    }
+
+    public int getGridLocation() {
+        return gridLocation;
+    }
 
     public int getItemId() {
         return itemId;

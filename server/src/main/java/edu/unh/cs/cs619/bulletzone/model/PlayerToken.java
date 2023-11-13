@@ -23,6 +23,7 @@ public abstract class PlayerToken extends FieldEntity{
 
     private Direction direction;
 
+
     /**
      * Constructor. Handles common data and functionality between tokens.
      * @param id The ID of the token
@@ -84,6 +85,14 @@ public abstract class PlayerToken extends FieldEntity{
             nextField.setFieldEntity(this);
             setParent(nextField);
             return true;
+        } else if (nextField.getEntity() instanceof Item) {
+            //TODO aiden how to powerup tank after ran over
+
+            Item grabbedItem = (Item) nextField.getEntity();
+            parent.clearField();
+            nextField.setFieldEntity(this);
+            setParent(nextField);
+            //TODO aiden remove from item concurrentHashMap (Dont have access to game)
         }
         return false;
     }

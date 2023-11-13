@@ -20,6 +20,13 @@ public final class Game {
     private final ConcurrentMap<Long, Soldier> soldiers = new ConcurrentHashMap<>();
 
     /**
+     * Map of Items on the Grid
+     * Key = grid cell location
+     * Item = Powerup
+     */
+    private final ConcurrentMap<Integer, Item> items = new ConcurrentHashMap<>();
+
+    /**
      * Key: IP Address
      * Value: The ID of it's associated Tank
      */
@@ -46,6 +53,10 @@ public final class Game {
             tanks.put(tank.getId(), tank);
             playersIP.put(ip, tank.getId());
         }
+    }
+
+    public ConcurrentMap<Integer, Item> getItems() {
+        return items;
     }
 
     public Tank getTank(int tankId) {
