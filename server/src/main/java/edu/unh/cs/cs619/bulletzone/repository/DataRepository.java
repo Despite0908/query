@@ -31,8 +31,8 @@ public class DataRepository {
         String username = "oberon";
         String password = "pibyad2ObIb";
 //
-//        bzdata = new BulletZoneData(url, username, password);
-        bzdata = new BulletZoneData(); //just use in-memory database
+        bzdata = new BulletZoneData(url, username, password);
+//        bzdata = new BulletZoneData(); //just use in-memory database
     }
 
     /**
