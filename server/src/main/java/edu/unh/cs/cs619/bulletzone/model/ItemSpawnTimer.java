@@ -14,9 +14,10 @@ public class ItemSpawnTimer extends TimerTask {
     /**
      * Constructor. Passes values for task.
      */
-    public ItemSpawnTimer(Game passedGame) {
+    public ItemSpawnTimer(Game passedGame, Object monitorPassed) {
         super();
         this.theGame = passedGame;
+        this.monitor = monitorPassed;
     }
 
     /**
@@ -25,7 +26,7 @@ public class ItemSpawnTimer extends TimerTask {
     @Override
     public void run() {
         //TODO
-        //synchronized (monitor) {
+        synchronized (monitor) {
             System.out.println("Timer for power up spawn chance");
             Random randomArea = new Random();
             // placeholder for adding logic for the possibility of a powerup spawn
@@ -69,7 +70,7 @@ public class ItemSpawnTimer extends TimerTask {
 
             }
 
-        //}
+        }
     }
 
     /**

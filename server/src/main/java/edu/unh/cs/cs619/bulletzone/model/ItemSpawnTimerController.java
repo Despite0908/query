@@ -12,18 +12,20 @@ import java.util.Timer;
 public class ItemSpawnTimerController {
     private static final int ITEM_PERIOD = 1000;
     private static final Timer timer = new Timer();
+    Object monitor;
     /**
      * Constructor. Passes values for task.
      */
-    ItemSpawnTimerController() {
+    public ItemSpawnTimerController(Object monitorPassed) {
         //timer.schedule(new ItemSpawnTimer(), 0, ITEM_PERIOD);
+        this.monitor = monitorPassed;
     }
 
     private void injectItemSpawned(Game game) {
 
     }
 
-    public static void createTimer(Game passedGame) {
-        timer.schedule(new ItemSpawnTimer(passedGame), 0, ITEM_PERIOD);
+    public void createTimer(Game passedGame) {
+        timer.schedule(new ItemSpawnTimer(passedGame, monitor), 0, ITEM_PERIOD);
     }
 }
