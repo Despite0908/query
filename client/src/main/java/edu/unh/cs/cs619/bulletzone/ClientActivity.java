@@ -76,9 +76,9 @@ public class ClientActivity extends Activity {
                 if (event != null) {
                     float xAccel = event.values[0];
                     float yAccel = event.values[1];
-                    float zAccel = event.values[2];
+                    //float zAccel = event.values[2];
 
-                    if (xAccel > 2 || xAccel < -2 || yAccel > 12 || yAccel < -12 || zAccel > 2 || zAccel < -2) {
+                    if (xAccel > 2 || xAccel < -2 || yAccel > 12 || yAccel < -12) {
                         tankControl.onBulletFire();
                     }
                 }
