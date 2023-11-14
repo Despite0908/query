@@ -38,8 +38,8 @@ public interface BulletZoneRestClient extends RestClientErrorHandling {
     @Get("")
     GridWrapper grid();
 
-    @Get("/{millis}/event")
-    StringArrayWrapper event(long millis);
+//    @Get("/{millis}/event")
+//    StringArrayWrapper event(long millis);
 
     @Put("/account/register/{username}/{password}")
     BooleanWrapper register(@Path String username, @Path String password);
