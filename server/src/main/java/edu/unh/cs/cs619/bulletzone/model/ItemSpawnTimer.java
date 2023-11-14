@@ -26,7 +26,6 @@ public class ItemSpawnTimer extends TimerTask {
     public void run() {
         //TODO
         //synchronized (monitor) {
-            System.out.println("Timer for power up spawn chance");
             Random randomArea = new Random();
             // placeholder for adding logic for the possibility of a powerup spawn
             if (true) {
