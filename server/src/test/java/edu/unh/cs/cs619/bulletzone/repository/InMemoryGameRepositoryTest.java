@@ -12,6 +12,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.concurrent.TimeUnit;
 
 import edu.unh.cs.cs619.bulletzone.model.Direction;
+import edu.unh.cs.cs619.bulletzone.model.Soldier;
 import edu.unh.cs.cs619.bulletzone.model.Tank;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.TokenDoesNotExistException;
 
@@ -26,6 +27,8 @@ public class InMemoryGameRepositoryTest {
     @Before
     public void setUp() throws Exception {
         repo = new InMemoryGameRepository();
+        repo.setMapPath("BlankMap.json");
+        repo.setTankSpawn(12, 12);
     }
 
     @Test
@@ -41,8 +44,6 @@ public class InMemoryGameRepositoryTest {
 
     @Test
     public void join_InjectTankSpawn_TankSpawnsAt12x12() {
-        repo.setMapPath("BlankMap.json");
-        repo.setTankSpawn(12, 12);
         Tank tank = repo.join("");
         Assert.assertNotNull(tank);
         Assert.assertTrue(tank.getId() >= 0);
@@ -201,8 +202,6 @@ public class InMemoryGameRepositoryTest {
     //Test Valid Moves
     @Test
     public void move_ValidMoveTankUp_ReturnsTrueTankMoves() throws Exception {
-        repo.setMapPath("BlankMap.json");
-        repo.setTankSpawn(12, 12);
         Tank tank = repo.join("");
         Assert.assertTrue(tank.getDirection() == Direction.Up);
 
@@ -218,8 +217,6 @@ public class InMemoryGameRepositoryTest {
 
     @Test
     public void move_ValidMoveTankDown_ReturnsTrueTankMoves() throws Exception {
-        repo.setMapPath("BlankMap.json");
-        repo.setTankSpawn(12, 12);
         Tank tank = repo.join("");
 
         repo.turn(tank.getId(), Direction.Left);
@@ -240,8 +237,6 @@ public class InMemoryGameRepositoryTest {
 
     @Test
     public void move_ValidMoveTankRight_ReturnsTrueTankMoves() throws Exception {
-        repo.setMapPath("BlankMap.json");
-        repo.setTankSpawn(12, 12);
         Tank tank = repo.join("");
 
         repo.turn(tank.getId(), Direction.Right);
@@ -260,8 +255,6 @@ public class InMemoryGameRepositoryTest {
 
     @Test
     public void move_ValidMoveTankLeft_ReturnsTrueTankMoves() throws Exception {
-        repo.setMapPath("BlankMap.json");
-        repo.setTankSpawn(12, 12);
         Tank tank = repo.join("");
 
         repo.turn(tank.getId(), Direction.Left);
@@ -281,8 +274,6 @@ public class InMemoryGameRepositoryTest {
     //Test Breaking Constraints
     @Test
     public void move_SidewaysMoveTankUp_ReturnsTrueFalse() throws Exception {
-        repo.setMapPath("BlankMap.json");
-        repo.setTankSpawn(12, 12);
         Tank tank = repo.join("");
         Assert.assertTrue(tank.getDirection() == Direction.Up);
 
@@ -294,8 +285,6 @@ public class InMemoryGameRepositoryTest {
 
     @Test
     public void move_SidewaysMoveTankRight_ReturnsFalse() throws Exception {
-        repo.setMapPath("BlankMap.json");
-        repo.setTankSpawn(12, 12);
         Tank tank = repo.join("");
 
         repo.turn(tank.getId(), Direction.Right);
@@ -310,8 +299,6 @@ public class InMemoryGameRepositoryTest {
 
     @Test
     public void move_ConsecutiveMoves_ReturnsFalse() throws Exception {
-        repo.setMapPath("BlankMap.json");
-        repo.setTankSpawn(12, 12);
         Tank tank = repo.join("");
         Assert.assertTrue(tank.getDirection() == Direction.Up);
 
@@ -334,9 +321,7 @@ public class InMemoryGameRepositoryTest {
     }
 
     @Test
-    public void fire_bulletFired_returnsTrue() throws Exception {
-        repo.setMapPath("BlankMap.json");
-        repo.setTankSpawn(15, 15);
+    public void fire_bulletFired_returnsTrue() throws Exception {;
         Tank tank = repo.join("");
         Assert.assertTrue(tank.getDirection() == Direction.Up);
         Assert.assertTrue(repo.fire(tank.getId(), 1));
@@ -346,8 +331,6 @@ public class InMemoryGameRepositoryTest {
 
     @Test
     public void fire_consecutiveBulletsFired_returnsFalse() throws Exception {
-        repo.setMapPath("BlankMap.json");
-        repo.setTankSpawn(15, 15);
         Tank tank = repo.join("");
         Assert.assertTrue(tank.getDirection() == Direction.Up);
         Assert.assertTrue(repo.fire(tank.getId(), 1));
@@ -356,8 +339,6 @@ public class InMemoryGameRepositoryTest {
 
     @Test
     public void fire_thirdBulletFired_returnsFalse() throws Exception {
-        repo.setMapPath("BlankMap.json");
-        repo.setTankSpawn(15, 15);
         Tank tank = repo.join("");
         Assert.assertTrue(tank.getDirection() == Direction.Up);
         Assert.assertTrue(repo.fire(tank.getId(), 1));
@@ -367,8 +348,113 @@ public class InMemoryGameRepositoryTest {
         Assert.assertFalse(repo.fire(tank.getId(), 1));
     }
 
+    //Eject Tests
     @Test
-    public void testLeave() throws Exception {
+    public void eject_normalEjection_ReturnsSoldier() throws Exception {
+        Tank tank = repo.join("");
+        Soldier soldier = repo.eject(tank.getId());
+        Assert.assertNotNull(soldier);
+    }
 
+    @Test
+    public void eject_SomeSpace_ReturnsSoldier() throws Exception {
+        Tank tank = repo.join("BoxedIn.json");
+        Soldier soldier = repo.eject(tank.getId());
+        Assert.assertNotNull(soldier);
+    }
+
+    @Test
+    public void eject_noSpace_returnsNull() throws Exception {
+        repo.setMapPath("TrueBox.json");
+        repo.setTankSpawn(1, 1);
+        Tank tank = repo.join("");
+        Soldier soldier = repo.eject(tank.getId());
+        Assert.assertNull(soldier);
+    }
+
+    @Test
+    public void eject_multipleEjections_returnsNull() throws Exception {
+        Tank tank = repo.join("");
+        Soldier soldier = repo.eject(tank.getId());
+        Assert.assertNotNull(soldier);
+        Soldier soldier2 = repo.eject(tank.getId());
+        Assert.assertNull(soldier2);
+    }
+
+    @Test
+    public void eject_afterSoldierDestroy_returnsSoldier() throws Exception {
+        Tank tank = repo.join("");
+        Soldier soldier = repo.eject(tank.getId());
+        Assert.assertNotNull(soldier);
+        //Destroy Soldier, doesn't remove from game.soldiers but it's fine for
+        //what we're doing
+        soldier.getParent().clearField();
+        soldier.setParent(null);
+        tank.setPair(null);
+        Soldier soldier2 = repo.eject(tank.getId());
+        Assert.assertNotNull(soldier2);
+    }
+
+    //Timed tests for soldiers
+
+    @Test
+    public void turn_multipleTurnsSoldier_returnsTrue() throws Exception {
+        Tank tank = repo.join("");
+        Soldier soldier = repo.eject(tank.getId());
+        Assert.assertNotNull(soldier);
+        Assert.assertTrue(repo.turn(soldier.getId(), Direction.Right));
+        Assert.assertTrue(repo.turn(soldier.getId(), Direction.Down));
+        Assert.assertTrue(repo.turn(soldier.getId(), Direction.Left));
+        Assert.assertTrue(repo.turn(soldier.getId(), Direction.Up));
+    }
+
+    @Test
+    public void move_movesAtTankStep_returnsFalse() throws Exception {
+        Tank tank = repo.join("");
+        Soldier soldier = repo.eject(tank.getId());
+        Assert.assertNotNull(soldier);
+        Assert.assertTrue(repo.move(soldier.getId(), Direction.Up));
+        TimeUnit.MILLISECONDS.sleep(500);
+        Assert.assertFalse(repo.move(soldier.getId(), Direction.Up));
+    }
+
+    @Test
+    public void move_movesAfter1Sec_returnsTrue() throws Exception {
+        Tank tank = repo.join("");
+        Soldier soldier = repo.eject(tank.getId());
+        Assert.assertNotNull(soldier);
+        Assert.assertTrue(repo.move(soldier.getId(), Direction.Up));
+        TimeUnit.MILLISECONDS.sleep(1000);
+        Assert.assertTrue(repo.move(soldier.getId(), Direction.Up));
+    }
+
+    @Test
+    public void fire_multipleBullets_returnsFalse() throws Exception {
+        Tank tank = repo.join("");
+        Soldier soldier = repo.eject(tank.getId());
+        Assert.assertNotNull(soldier);
+        Assert.assertTrue(repo.fire(soldier.getId(), 4));
+        Assert.assertFalse(repo.fire(soldier.getId(), 4));
+    }
+
+    @Test
+    public void fire_after250ms_returnsTrue() throws Exception {
+        Tank tank = repo.join("");
+        Soldier soldier = repo.eject(tank.getId());
+        Assert.assertNotNull(soldier);
+        Assert.assertTrue(repo.fire(soldier.getId(), 4));
+        TimeUnit.MILLISECONDS.sleep(250);
+        Assert.assertTrue(repo.fire(soldier.getId(), 4));
+    }
+
+    //Re-enter test
+    @Test
+    public void move_soldierEntersTank_TrueAndSoldierRemoved() throws Exception {
+        Tank tank = repo.join("");
+        Soldier soldier = repo.eject(tank.getId());
+        Assert.assertNotNull(soldier);
+        Assert.assertTrue(repo.move(soldier.getId(), Direction.Down));
+        Assert.assertNull(soldier.getParent());
+        Assert.assertNull(tank.getPair());
     }
 }

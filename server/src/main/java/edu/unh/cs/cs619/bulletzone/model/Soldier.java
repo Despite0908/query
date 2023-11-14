@@ -74,7 +74,7 @@ public class Soldier extends PlayerToken{
 
     @Override
     public String toString() {
-        return "T";
+        return "S";
     }
 
     /**

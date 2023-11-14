@@ -218,10 +218,18 @@ public class InMemoryGameRepository implements GameRepository {
             if (holder == null) {
                 return null;
             }
+            if (tank.getPair() != null) {
+                return null;
+            }
             //Spawn Soldier
             Soldier soldier = new Soldier(idGenerator.getAndIncrement(), Direction.Up, tank.getIp());
-            soldier.setParent(parent);
-            parent.setFieldEntity(soldier);
+            soldier.setParent(holder);
+            holder.setFieldEntity(soldier);
+            //Pair solder/tank
+            soldier.setPair(tank);
+            tank.setPair(soldier);
+            //Add to game
+            game.addSoldier(soldier);
             //Add event
             eventHistory.addEvent(new AddTokenEvent(soldier.getIntValue(), game.getHolderGrid().indexOf(parent)));
             //Return soldier
@@ -267,6 +275,7 @@ public class InMemoryGameRepository implements GameRepository {
             } else if (moveResult == 2) {
                 game.removeSoldier(tokenId);
                 eventHistory.addEvent(new TokenLeaveEvent(token.getId(), token.getIntValue()));
+                return true;
             }
             return false;
         }
@@ -288,7 +297,10 @@ public class InMemoryGameRepository implements GameRepository {
             // Find token
             PlayerToken token = game.getTanks().get(tokenId);
             if (token == null) {
-                throw new TokenDoesNotExistException(tokenId);
+                token = game.getSoldiers().get(tokenId);
+                if (token == null) {
+                    throw new TokenDoesNotExistException(tokenId);
+                }
             }
 
             long millis = eventHistory.getClock().millis();
