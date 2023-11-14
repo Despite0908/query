@@ -23,6 +23,8 @@ public abstract class PlayerToken extends FieldEntity{
 
     private Direction direction;
 
+    PlayerToken pair;
+
 
     /**
      * Constructor. Handles common data and functionality between tokens.
@@ -37,6 +39,7 @@ public abstract class PlayerToken extends FieldEntity{
         numberOfBullets = 0;
         lastFireTime = 0;
         lastMoveTime = 0;
+        pair = null;
     }
 
     /**
@@ -68,7 +71,7 @@ public abstract class PlayerToken extends FieldEntity{
      * @param direction Direction in which the tank will be moved
      * @return Whether the move was successful or not
      */
-    public boolean move(long millis, Direction direction) {
+    public int move(long millis, Direction direction) {
         //Set new timestamp
         setLastMoveTime(millis + getAllowedMoveInterval());
 
@@ -84,7 +87,7 @@ public abstract class PlayerToken extends FieldEntity{
             parent.clearField();
             nextField.setFieldEntity(this);
             setParent(nextField);
-            return true;
+            return 1;
         } else if (nextField.getEntity() instanceof Item) {
             //TODO aiden how to powerup tank after ran over
 
@@ -93,8 +96,9 @@ public abstract class PlayerToken extends FieldEntity{
             nextField.setFieldEntity(this);
             setParent(nextField);
             //TODO aiden remove from item concurrentHashMap (Dont have access to game)
+            return 1;
         }
-        return false;
+        return 0;
     }
 
     /**
@@ -183,5 +187,13 @@ public abstract class PlayerToken extends FieldEntity{
 
     public String getIp(){
         return ip;
+    }
+
+    public PlayerToken getPair() {
+        return pair;
+    }
+
+    public void setPair(PlayerToken pair) {
+        this.pair = pair;
     }
 }

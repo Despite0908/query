@@ -17,6 +17,7 @@ import edu.unh.cs.cs619.bulletzone.model.ItemSpawnTimerController;
 import edu.unh.cs.cs619.bulletzone.model.PlayerToken;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenMoveEvent;
+import edu.unh.cs.cs619.bulletzone.model.Soldier;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.IllegalTransitionException;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.LimitExceededException;
 import edu.unh.cs.cs619.bulletzone.model.MapLoader;
@@ -198,6 +199,36 @@ public class InMemoryGameRepository implements GameRepository {
         }
     }
 
+    public Soldier eject(long tankId) throws TokenDoesNotExistException {
+        synchronized (this.monitor) {
+            PlayerToken tank = game.getTanks().get(tankId);
+            if (tank == null) {
+                throw new TokenDoesNotExistException(tankId);
+            }
+            //Look for open position
+            FieldHolder parent = tank.getParent();
+            FieldHolder holder = null;
+            for (Direction dir: Direction.values()) {
+                FieldHolder neighbor = parent.getNeighbor(dir);
+                if (!neighbor.isPresent()) {
+                    holder = neighbor;
+                    break;
+                }
+            }
+            if (holder == null) {
+                return null;
+            }
+            //Spawn Soldier
+            Soldier soldier = new Soldier(idGenerator.getAndIncrement(), Direction.Up, tank.getIp());
+            soldier.setParent(parent);
+            parent.setFieldEntity(soldier);
+            //Add event
+            eventHistory.addEvent(new AddTokenEvent(soldier.getIntValue(), game.getHolderGrid().indexOf(parent)));
+            //Return soldier
+            return soldier;
+        }
+    }
+
     /**
      * Checks constraints and moves a token
      * @param tokenId Token to be moved
@@ -227,11 +258,15 @@ public class InMemoryGameRepository implements GameRepository {
                 return false;
             }
 
+            int moveResult = token.move(millis, direction);
             //move tank and set event
-            if (token.move(millis, direction)) {
+            if (moveResult == 1) {
                 //Add move event
                 eventHistory.addEvent(new TokenMoveEvent(token.getId(), direction, token.getIntValue(), getGrid()));
                 return true;
+            } else if (moveResult == 2) {
+                game.removeSoldier(tokenId);
+                eventHistory.addEvent(new TokenLeaveEvent(token.getId(), token.getIntValue()));
             }
             return false;
         }
@@ -290,6 +325,13 @@ public class InMemoryGameRepository implements GameRepository {
             FieldHolder parent = tank.getParent();
             parent.clearField();
             game.removeTank(tankId);
+            //Remove soldier if it exists
+            Soldier soldier = (Soldier) tank.getPair();
+            if (soldier != null) {
+                soldier.getParent().clearField();
+                soldier.setParent(null);
+                game.removeSoldier(soldier.getId());
+            }
             eventHistory.addEvent(new TokenLeaveEvent(tank.getId(), tank.getIntValue()));
         }
     }

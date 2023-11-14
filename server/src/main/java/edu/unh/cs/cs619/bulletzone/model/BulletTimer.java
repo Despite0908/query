@@ -51,8 +51,19 @@ public class BulletTimer extends TimerTask {
 
 
             if (nextField.isPresent()) {
+                //TODO: RESOLVE BULLSHIT
+
                 // Something is there, hit it
-                nextField.getEntity().hit(bullet.getDamage());
+//                FieldEntity entity = nextField.getEntity();
+//                boolean destroyed = entity.hit(bullet.getDamage());
+//
+//                if (destroyed) {
+//                    entity.getParent().clearField();
+//                    entity.setParent(null);
+//                    game.removeTank(entity.getId());
+//                    game.removeSoldiers(entity.getId());
+//                    game.getItems().remove(entity.getId());
+//                }
 
                 if ( nextField.getEntity() instanceof  Tank){
                     Tank t = (Tank) nextField.getEntity();
@@ -63,6 +74,14 @@ public class BulletTimer extends TimerTask {
                         game.removeTank(t.getId());
                         //Add tank hit event
                         eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), true, t.getIntValue()));
+                        Soldier s = (Soldier) t.getPair();
+                        if (s != null) {
+                            s.getParent().clearField();
+                            s.setParent(null);
+                            game.removeSoldier(s.getId());
+                            //Add soldier hit event
+                            eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), true, s.getIntValue()));
+                        }
                     } else {
                         //Add tank hit event
                         eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), false, t.getIntValue()));
@@ -84,6 +103,26 @@ public class BulletTimer extends TimerTask {
                     game.getHolderGrid().get(i.getGridLocation()).clearField();
                     game.getItems().remove(i.getGridLocation());
                     //TODO aiden add to event list
+                } else if(nextField.getEntity() instanceof  Soldier) {
+                    Soldier s = (Soldier) nextField.getEntity();
+                    System.out.println("tank is hit, tank life: " + s.getLife());
+                    if (s.getLife() <= 0 ){
+                        s.getParent().clearField();
+                        s.setParent(null);
+                        game.removeSoldier(s.getId());
+                        //Add soldier hit event
+                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), true, s.getIntValue()));
+                        //Remove Tank
+                        Tank t = (Tank) s.getPair();
+                        t.getParent().clearField();
+                        t.setParent(null);
+                        game.removeTank(t.getId());
+                        //add tank hit event
+                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), true, t.getIntValue()));
+                    } else {
+                        //Add soldier hit event
+                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), false, s.getIntValue()));
+                    }
                 }
                 if (isVisible) {
                     // Remove bullet from field

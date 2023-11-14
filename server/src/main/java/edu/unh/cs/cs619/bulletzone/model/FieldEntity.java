@@ -1,7 +1,5 @@
 package edu.unh.cs.cs619.bulletzone.model;
 
-import com.google.common.eventbus.EventBus;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class FieldEntity {
@@ -25,7 +23,8 @@ public abstract class FieldEntity {
 
     public abstract FieldEntity copy();
 
-    public void hit(int damage) {
+    public boolean hit(int damage) {
+        return true;
     }
 
     /*public static final void registerEventBusListener(Object listener) {

@@ -89,7 +89,7 @@ public class Tank extends PlayerToken {
     }
 
     @Override
-    public void hit(int damage) {
+    public boolean hit(int damage) {
         int life = getLife() - damage;
         setLife(life);
         System.out.println("Tank life: " + life + " : " + life);
@@ -100,6 +100,7 @@ public class Tank extends PlayerToken {
             //eventBus.post(Tank.this);
             //eventBus.post(new Object());
         }
+        return false;
     }
 
     @Override

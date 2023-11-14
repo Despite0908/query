@@ -2,6 +2,7 @@ package edu.unh.cs.cs619.bulletzone.model;
 
 public class Item extends FieldEntity {
 
+
     private int itemType;
     private int itemId;
     private int gridLocation;

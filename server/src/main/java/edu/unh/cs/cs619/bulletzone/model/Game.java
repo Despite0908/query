@@ -93,7 +93,7 @@ public final class Game {
     }
 
     //TODO: This is bad
-    public void removeSoldiers(long soldierId){
+    public void removeSoldier(long soldierId){
         synchronized (soldiers) {
             Soldier s = soldiers.remove(soldierId);
         }

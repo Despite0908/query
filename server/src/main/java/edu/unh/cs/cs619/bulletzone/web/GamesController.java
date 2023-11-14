@@ -18,6 +18,7 @@ import org.springframework.web.client.RestClientException;
 import javax.servlet.http.HttpServletRequest;
 
 import edu.unh.cs.cs619.bulletzone.model.Direction;
+import edu.unh.cs.cs619.bulletzone.model.Soldier;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.IllegalTransitionException;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.LimitExceededException;
 import edu.unh.cs.cs619.bulletzone.model.Tank;
@@ -114,6 +115,17 @@ class GamesController {
                 new BooleanWrapper(gameRepository.fire(tankId, bulletType)),
                 HttpStatus.OK
         );
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, value = "{tankId}/eject", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    ResponseEntity<LongWrapper> eject(@PathVariable long tankId)
+            throws TokenDoesNotExistException {
+        Soldier soldier = gameRepository.eject(tankId);
+        if (soldier == null) {
+            return new ResponseEntity<LongWrapper>(new LongWrapper(-1), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new LongWrapper(soldier.getId()), HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "{tankId}/leave", produces = MediaType.APPLICATION_JSON_VALUE)

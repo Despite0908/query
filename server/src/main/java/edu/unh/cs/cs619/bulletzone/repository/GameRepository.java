@@ -1,6 +1,7 @@
 package edu.unh.cs.cs619.bulletzone.repository;
 
 import edu.unh.cs.cs619.bulletzone.model.Direction;
+import edu.unh.cs.cs619.bulletzone.model.Soldier;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.IllegalTransitionException;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.LimitExceededException;
 import edu.unh.cs.cs619.bulletzone.model.Tank;
@@ -25,4 +26,6 @@ public interface GameRepository {
             throws TokenDoesNotExistException;
 
     String[] event(long millis);
+
+    public Soldier eject(long tankId) throws TokenDoesNotExistException;
 }
