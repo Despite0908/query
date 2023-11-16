@@ -1,4 +1,6 @@
-package edu.unh.cs.cs619.bulletzone.model;
+package edu.unh.cs.cs619.bulletzone.model.entities;
+
+import edu.unh.cs.cs619.bulletzone.model.Direction;
 
 public class Bullet extends FieldEntity {
 
@@ -7,6 +9,7 @@ public class Bullet extends FieldEntity {
     private int damage, bulletId;
 
     public Bullet(long tankId, Direction direction, int damage) {
+        super(-1);
         this.damage = damage;
         this.setTankId(tankId);
         this.setDirection(direction);

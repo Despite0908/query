@@ -1,6 +1,4 @@
-package edu.unh.cs.cs619.bulletzone.model;
-
-import edu.unh.cs.cs619.bulletzone.model.improvements.Improvement;
+package edu.unh.cs.cs619.bulletzone.model.improvements;
 
 public class Wall extends Improvement {
     int destructValue, pos;

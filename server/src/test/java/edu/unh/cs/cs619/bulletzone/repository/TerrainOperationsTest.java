@@ -1,6 +1,5 @@
 package edu.unh.cs.cs619.bulletzone.repository;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 import org.junit.Assert;
@@ -14,11 +13,10 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Clock;
-import java.util.concurrent.TimeUnit;
 
 import edu.unh.cs.cs619.bulletzone.model.Direction;
-import edu.unh.cs.cs619.bulletzone.model.Soldier;
-import edu.unh.cs.cs619.bulletzone.model.Tank;
+import edu.unh.cs.cs619.bulletzone.model.entities.Soldier;
+import edu.unh.cs.cs619.bulletzone.model.entities.Tank;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class TerrainOperationsTest {

@@ -1,14 +1,12 @@
-package edu.unh.cs.cs619.bulletzone.model;
+package edu.unh.cs.cs619.bulletzone.model.entities;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import edu.unh.cs.cs619.bulletzone.model.improvements.Improvement;
+import edu.unh.cs.cs619.bulletzone.model.BulletTracker;
+import edu.unh.cs.cs619.bulletzone.model.Direction;
+import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
 
 public abstract class PlayerToken extends FieldEntity{
-
-    private final long id;
 
     private final String ip;
 
@@ -35,7 +33,7 @@ public abstract class PlayerToken extends FieldEntity{
      * @param ip IP of the player
      */
     public PlayerToken(long id, Direction direction, String ip) {
-        this.id = id;
+        super(id);
         this.direction = direction;
         this.ip = ip;
         numberOfBullets = 0;
@@ -168,11 +166,6 @@ public abstract class PlayerToken extends FieldEntity{
 
     public void setDirection(Direction direction) {
         this.direction = direction;
-    }
-
-    @JsonIgnore
-    public long getId() {
-        return id;
     }
 
 

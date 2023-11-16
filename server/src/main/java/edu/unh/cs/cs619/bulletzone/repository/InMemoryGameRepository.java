@@ -12,11 +12,11 @@ import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
 import edu.unh.cs.cs619.bulletzone.model.Game;
 import edu.unh.cs.cs619.bulletzone.model.GameBuilder;
-import edu.unh.cs.cs619.bulletzone.model.ItemSpawnTimerController;
-import edu.unh.cs.cs619.bulletzone.model.PlayerToken;
+import edu.unh.cs.cs619.bulletzone.model.ItemSpawnTimer;
+import edu.unh.cs.cs619.bulletzone.model.entities.PlayerToken;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenMoveEvent;
-import edu.unh.cs.cs619.bulletzone.model.Soldier;
+import edu.unh.cs.cs619.bulletzone.model.entities.Soldier;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.IllegalTransitionException;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.LimitExceededException;
 import edu.unh.cs.cs619.bulletzone.model.MapLoader;
@@ -25,7 +25,7 @@ import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BoardCreationEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.FireEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.GridEvent;
-import edu.unh.cs.cs619.bulletzone.model.Tank;
+import edu.unh.cs.cs619.bulletzone.model.entities.Tank;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.TokenDoesNotExistException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -66,7 +66,7 @@ public class InMemoryGameRepository implements GameRepository {
 
     // adding item spawn timer
     private static final int ITEM_PERIOD = 1000;
-    private final Timer timer = new Timer();
+    private final Timer itemTimer = new Timer();
 
     /**
      * ONLY USED FOR TESTING. Changes the system clock.
@@ -381,7 +381,7 @@ public class InMemoryGameRepository implements GameRepository {
             this.game = gameBuilder.build();
             //Add creation event
             eventHistory.addEvent(new BoardCreationEvent());
-            ItemSpawnTimerController.createTimer(this.game);
+            itemTimer.schedule(new ItemSpawnTimer(game, idGenerator), 0, ITEM_PERIOD);
         }
     }
 

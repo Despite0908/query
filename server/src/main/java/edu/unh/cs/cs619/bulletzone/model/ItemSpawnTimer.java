@@ -2,6 +2,9 @@ package edu.unh.cs.cs619.bulletzone.model;
 
 import java.util.Random;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicLong;
+
+import edu.unh.cs.cs619.bulletzone.model.entities.Item;
 
 /**
  * Timer Task for Updating the positions of bullets
@@ -10,13 +13,16 @@ import java.util.TimerTask;
 public class ItemSpawnTimer extends TimerTask {
     Object monitor;
     Game theGame;
+
+    AtomicLong idGenerator;
     private static final int FIELD_DIM = 16;
     /**
      * Constructor. Passes values for task.
      */
-    public ItemSpawnTimer(Game passedGame) {
+    public ItemSpawnTimer(Game passedGame, AtomicLong idGenerator) {
         super();
         this.theGame = passedGame;
+        this.idGenerator = idGenerator;
     }
 
     /**
@@ -50,11 +56,11 @@ public class ItemSpawnTimer extends TimerTask {
 
                 if (createdRanNum < probability) {
                     while(!successFlag) {
-                        if (!fieldElement.isPresent()) {
-                            Item myTestItem = new Item(randomItem(), randomPlace);
+                        if (!fieldElement.isPresent() && !(fieldElement.isImproved() && fieldElement.getImprovement().isSolid())) {
+                            Item myTestItem = new Item(idGenerator.getAndIncrement(), randomItem(), randomPlace);
                             fieldElement.setFieldEntity(myTestItem);
                             myTestItem.setParent(fieldElement);
-                            theGame.getItems().put(randomPlace, myTestItem);
+                            theGame.getItems().put(myTestItem.getId(), myTestItem);
                             System.out.println("Added item " + myTestItem.getItemType());
                             successFlag = true;
 

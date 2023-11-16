@@ -8,6 +8,11 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import edu.unh.cs.cs619.bulletzone.model.entities.FieldEntity;
+import edu.unh.cs.cs619.bulletzone.model.entities.Item;
+import edu.unh.cs.cs619.bulletzone.model.entities.Soldier;
+import edu.unh.cs.cs619.bulletzone.model.entities.Tank;
+
 public final class Game {
     /**
      * Field dimensions
@@ -24,7 +29,7 @@ public final class Game {
      * Key = grid cell location
      * Item = Powerup
      */
-    private final ConcurrentMap<Integer, Item> items = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Long, Item> items = new ConcurrentHashMap<>();
 
     /**
      * Key: IP Address
@@ -55,7 +60,7 @@ public final class Game {
         }
     }
 
-    public ConcurrentMap<Integer, Item> getItems() {
+    public ConcurrentMap<Long, Item> getItems() {
         return items;
     }
 

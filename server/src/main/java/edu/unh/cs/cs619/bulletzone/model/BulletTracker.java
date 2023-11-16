@@ -1,7 +1,9 @@
 package edu.unh.cs.cs619.bulletzone.model;
 
 import java.util.Timer;
-import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
+
+import edu.unh.cs.cs619.bulletzone.model.entities.Bullet;
+import edu.unh.cs.cs619.bulletzone.model.entities.PlayerToken;
 
 public class BulletTracker {
     private final int[] bulletDamage ={10,30,50,5};

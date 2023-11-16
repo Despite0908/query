@@ -1,4 +1,9 @@
-package edu.unh.cs.cs619.bulletzone.model;
+package edu.unh.cs.cs619.bulletzone.model.entities;
+
+import edu.unh.cs.cs619.bulletzone.model.Direction;
+import edu.unh.cs.cs619.bulletzone.model.Game;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
 
 public class Item extends FieldEntity {
 
@@ -7,14 +12,25 @@ public class Item extends FieldEntity {
     private int itemId;
     private int gridLocation;
 
-    public Item(int itemType, int location) {
+    public Item(long id, int itemType, int location) {
+        super(id);
         this.setItemType(itemType);
         this.setGridLocation(location);
     }
 
     @Override
     public int getIntValue() {
-        return (int) (itemType);
+        return (int) (40000000 + 10000 * getId() + 10 * getItemType());
+    }
+
+    @Override
+    public boolean hit(int damage, Game game) {
+        EventHistory eventHistory = EventHistory.get_instance();
+        getParent().clearField();
+        setParent(null);
+        game.getItems().remove(getId());
+        eventHistory.addEvent(new TokenLeaveEvent(getId(), getIntValue()));
+        return true;
     }
 
     @Override
@@ -24,7 +40,7 @@ public class Item extends FieldEntity {
 
     @Override
     public FieldEntity copy() {
-        return new Item(itemType, gridLocation);
+        return new Item(getId(), itemType, gridLocation);
     }
 
     public void setGridLocation(int newLocation) {
@@ -33,13 +49,6 @@ public class Item extends FieldEntity {
 
     public int getGridLocation() {
         return gridLocation;
-    }
-
-    public int getItemId() {
-        return itemId;
-    }
-    public void setItemId(int itemId) {
-        this.itemId = itemId;
     }
 
     public int getItemType() {

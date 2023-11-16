@@ -1,4 +1,11 @@
-package edu.unh.cs.cs619.bulletzone.model;
+package edu.unh.cs.cs619.bulletzone.model.entities;
+
+import edu.unh.cs.cs619.bulletzone.model.BulletTracker;
+import edu.unh.cs.cs619.bulletzone.model.Direction;
+import edu.unh.cs.cs619.bulletzone.model.Game;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
+import edu.unh.cs.cs619.bulletzone.model.Terrain;
 
 public class Soldier extends PlayerToken{
 
@@ -78,5 +85,30 @@ public class Soldier extends PlayerToken{
     @Override
     public int movedIntoBy(PlayerToken token) {
         return 0;
+    }
+
+    @Override
+    public boolean hit(int damage, Game game) {
+        EventHistory eventHistory = EventHistory.get_instance();
+        int life = getLife() - damage;
+        setLife(life);
+
+        if (life <= 0) {
+            //Remove Soldier
+            getParent().clearField();
+            setParent(null);
+            game.removeSoldier(getId());
+            eventHistory.addEvent(new TokenLeaveEvent(getId(), getIntValue()));
+
+            //Remove Tank
+            Tank t = (Tank) getPair();
+            t.getParent().clearField();
+            t.setParent(null);
+            game.removeTank(t.getId());
+            //Add soldier hit event
+            eventHistory.addEvent(new TokenLeaveEvent(t.getId(), t.getIntValue()));
+            return true;
+        }
+        return false;
     }
 }

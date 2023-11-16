@@ -1,4 +1,12 @@
-package edu.unh.cs.cs619.bulletzone.model;
+package edu.unh.cs.cs619.bulletzone.model.entities;
+
+import edu.unh.cs.cs619.bulletzone.model.BulletTracker;
+import edu.unh.cs.cs619.bulletzone.model.Direction;
+import edu.unh.cs.cs619.bulletzone.model.Game;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BulletHitEvent;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
+import edu.unh.cs.cs619.bulletzone.model.Terrain;
 
 public class Tank extends PlayerToken {
 
@@ -99,16 +107,28 @@ public class Tank extends PlayerToken {
     }
 
     @Override
-    public boolean hit(int damage) {
+    public boolean hit(int damage, Game game) {
+        EventHistory eventHistory = EventHistory.get_instance();
         int life = getLife() - damage;
         setLife(life);
-        System.out.println("Tank life: " + life + " : " + life);
-//		Log.d(TAG, "TankId: " + id + " hit -> life: " + life);
 
         if (life <= 0) {
-//			Log.d(TAG, "Tank event");
-            //eventBus.post(Tank.this);
-            //eventBus.post(new Object());
+            //Remove Tank
+			getParent().clearField();
+            setParent(null);
+            game.removeTank(getId());
+            eventHistory.addEvent(new TokenLeaveEvent(getId(), getIntValue()));
+
+            //Remove Soldier If exists
+            Soldier s = (Soldier) getPair();
+            if (s != null) {
+                s.getParent().clearField();
+                s.setParent(null);
+                game.removeSoldier(s.getId());
+                //Add soldier hit event
+                eventHistory.addEvent(new TokenLeaveEvent(s.getId(), s.getIntValue()));
+            }
+            return true;
         }
         return false;
     }
@@ -134,6 +154,5 @@ public class Tank extends PlayerToken {
         }
         return 0;
     }
-
 
 }

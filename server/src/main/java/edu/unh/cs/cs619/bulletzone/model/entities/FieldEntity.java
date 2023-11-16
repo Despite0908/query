@@ -1,15 +1,31 @@
-package edu.unh.cs.cs619.bulletzone.model;
+package edu.unh.cs.cs619.bulletzone.model.entities;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
+import edu.unh.cs.cs619.bulletzone.model.Game;
 
 public abstract class FieldEntity {
     //protected static final EventBus eventBus = new EventBus();
     protected FieldHolder parent;
 
+    private final long id;
+
+    public FieldEntity(long id) {
+        this.id = id;
+    }
+
+    @JsonIgnore
+    public long getId() {
+        return id;
+    }
+
     /**
-     * Serializes the current {@link edu.unh.cs.cs619.bulletzone.model.FieldEntity} instance.
+     * Serializes the current {@link FieldEntity} instance.
      *
-     * @return Integer representation of the current {@link edu.unh.cs.cs619.bulletzone.model.FieldEntity}
+     * @return Integer representation of the current {@link FieldEntity}
      */
     public abstract int getIntValue();
 
@@ -23,7 +39,7 @@ public abstract class FieldEntity {
 
     public abstract FieldEntity copy();
 
-    public boolean hit(int damage) {
+    public boolean hit(int damage, Game game) {
         return true;
     }
 

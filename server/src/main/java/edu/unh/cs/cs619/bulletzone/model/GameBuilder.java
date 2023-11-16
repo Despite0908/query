@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import edu.unh.cs.cs619.bulletzone.model.improvements.Wall;
+
 /**
  * Builder class that creates the Game Object. Main priority is placing walls and creating
  * the game's holder grid.

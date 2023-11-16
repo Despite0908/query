@@ -1,5 +1,8 @@
 package edu.unh.cs.cs619.bulletzone.model;
 
+import edu.unh.cs.cs619.bulletzone.model.entities.FieldEntity;
+import edu.unh.cs.cs619.bulletzone.model.entities.PlayerToken;
+
 /**
  * @author Bence Cserna (bence@cserna.net)
  */
@@ -9,7 +12,8 @@ public class NumberField extends FieldEntity {
     private static final String TAG = "NumberField";
     private final int value;
 
-    public NumberField(int value) {
+    public NumberField(long id, int value) {
+        super(id);
         this.value = value;
     }
 

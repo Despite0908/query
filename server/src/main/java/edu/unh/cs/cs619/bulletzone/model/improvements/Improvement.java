@@ -1,6 +1,6 @@
 package edu.unh.cs.cs619.bulletzone.model.improvements;
 
-import edu.unh.cs.cs619.bulletzone.model.PlayerToken;
+import edu.unh.cs.cs619.bulletzone.model.entities.PlayerToken;
 
 public abstract class Improvement {
 
