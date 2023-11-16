@@ -26,6 +26,14 @@ public class Tank extends PlayerToken {
      */
     @Override
     public boolean canMove(long millis, Direction direction) {
+        //Cannot enter forest
+        //Entering hilly terrain takes 50% longer
+        Terrain nextTerrain = getParent().getNeighbor(direction).getTerrain();
+        if (nextTerrain == Terrain.Forest) {
+            return false;
+        } else if (nextTerrain == Terrain.Hilly) {
+            millis = millis + (getAllowedMoveInterval() / 2);
+        }
         if (millis < getLastMoveTime()) {
             return false;
         }

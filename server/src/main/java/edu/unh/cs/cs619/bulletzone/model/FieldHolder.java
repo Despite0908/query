@@ -12,6 +12,8 @@ public class FieldHolder {
     private final Map<Direction, FieldHolder> neighbors = new HashMap<Direction, FieldHolder>();
     private Optional<FieldEntity> entityHolder = Optional.empty();
 
+    private Terrain terrain = Terrain.Normal;
+
     public void addNeighbor(Direction direction, FieldHolder fieldHolder) {
         neighbors.put(checkNotNull(direction), checkNotNull(fieldHolder));
     }
@@ -40,4 +42,11 @@ public class FieldHolder {
         }
     }
 
+    public Terrain getTerrain() {
+        return terrain;
+    }
+
+    public void setTerrain(Terrain terrain) {
+        this.terrain = terrain;
+    }
 }

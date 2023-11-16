@@ -43,6 +43,11 @@ public class Soldier extends PlayerToken{
      */
     @Override
     public boolean canMove(long millis, Direction direction) {
+        //Entering rocky terrain takes 50% longer
+        Terrain nextTerrain = getParent().getNeighbor(direction).getTerrain();
+        if (nextTerrain == Terrain.Rocky) {
+            millis = millis + (getAllowedMoveInterval() / 2);
+        }
         return millis >= getLastMoveTime();
     }
 

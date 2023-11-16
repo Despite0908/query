@@ -69,6 +69,14 @@ class GamesController {
         return new ResponseEntity<GridWrapper>(new GridWrapper(gameRepository.getGrid()), HttpStatus.OK);
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "terrain", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public
+    @ResponseBody
+    ResponseEntity<GridWrapper> terrainGrid() {
+        return new ResponseEntity<GridWrapper>(new GridWrapper(gameRepository.getTerrainGrid()), HttpStatus.OK);
+    }
+
     @RequestMapping(method = RequestMethod.GET, value = "{millis}/event", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public

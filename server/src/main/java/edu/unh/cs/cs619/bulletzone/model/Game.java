@@ -139,7 +139,25 @@ public final class Game {
                 }
             }
         }
+        return grid;
+    }
 
+    public int[][] getTerrainGrid() {
+        int[][] grid = new int[FIELD_DIM][FIELD_DIM];
+
+        synchronized (holderGrid) {
+            FieldHolder holder;
+            for (int i = 0; i < FIELD_DIM; i++) {
+                for (int j = 0; j < FIELD_DIM; j++) {
+                    holder = holderGrid.get(i * FIELD_DIM + j);
+                    if (holder.isPresent()) {
+                        grid[i][j] = Terrain.toByte(holder.getTerrain());
+                    } else {
+                        grid[i][j] = 0;
+                    }
+                }
+            }
+        }
         return grid;
     }
 }

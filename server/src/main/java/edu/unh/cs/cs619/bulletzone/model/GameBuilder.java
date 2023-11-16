@@ -1,5 +1,6 @@
 package edu.unh.cs.cs619.bulletzone.model;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -13,12 +14,15 @@ public class GameBuilder {
     private static final int FIELD_DIM = 16;
 
     private Map<Integer, FieldEntity> entityMap;
+    private Terrain[] fieldTerrain;
 
     /**
-     * Constructor that initializes entityMap.
+     * Constructor that initializes a map of entities and an array of terrain.
      */
     public GameBuilder() {
         this.entityMap = new HashMap<>();
+        fieldTerrain = new Terrain[FIELD_DIM * FIELD_DIM];
+        Arrays.fill(fieldTerrain, Terrain.Normal);
     }
 
     /**
@@ -40,6 +44,15 @@ public class GameBuilder {
     public GameBuilder setWall(int pos, int destructVal) {
         entityMap.put(pos, new Wall(pos, destructVal));
         return this;
+    }
+
+    /**
+     * Add terrain to the map.
+     * @param position Position terrain to be added at
+     * @param terrain Type of terrain
+     */
+    public void addTerrain(int position, Terrain terrain) {
+        fieldTerrain[position] = terrain;
     }
 
     /**
@@ -85,6 +98,8 @@ public class GameBuilder {
 
                 targetHolder.addNeighbor(Direction.Down, downHolder);
                 downHolder.addNeighbor(Direction.Up, targetHolder);
+                //Set terrain of target Holder
+                targetHolder.setTerrain(fieldTerrain[i * FIELD_DIM + j]);
             }
         }
     }

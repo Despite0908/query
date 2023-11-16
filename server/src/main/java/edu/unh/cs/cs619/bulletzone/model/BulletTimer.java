@@ -49,6 +49,17 @@ public class BulletTimer extends TimerTask {
             boolean isVisible = currentField.isPresent()
                     && (currentField.getEntity() == bullet);
 
+            if (nextField.getTerrain() == Terrain.Forest) {
+                //TODO: Nick change this to a Token Leave Event
+                eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), false, -1));
+                if (isVisible) {
+                    // Remove bullet from field
+                    currentField.clearField();
+                }
+                token.getBulletTracker().getTrackActiveBullets()[bullet.getBulletId()]=0;
+                token.setNumberOfBullets(token.getNumberOfBullets()-1);
+                cancel();
+            }
 
             if (nextField.isPresent()) {
                 //TODO: RESOLVE BULLSHIT
@@ -64,7 +75,6 @@ public class BulletTimer extends TimerTask {
 //                    game.removeSoldiers(entity.getId());
 //                    game.getItems().remove(entity.getId());
 //                }
-
                 if ( nextField.getEntity() instanceof  Tank){
                     Tank t = (Tank) nextField.getEntity();
                     System.out.println("tank is hit, tank life: " + t.getLife());

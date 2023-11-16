@@ -12,7 +12,6 @@ import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
 import edu.unh.cs.cs619.bulletzone.model.Game;
 import edu.unh.cs.cs619.bulletzone.model.GameBuilder;
-import edu.unh.cs.cs619.bulletzone.model.GameMap;
 import edu.unh.cs.cs619.bulletzone.model.ItemSpawnTimerController;
 import edu.unh.cs.cs619.bulletzone.model.PlayerToken;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
@@ -158,6 +157,15 @@ public class InMemoryGameRepository implements GameRepository {
             }
         }
         return game.getGrid2D();
+    }
+
+    public int[][] getTerrainGrid() {
+        synchronized (this.monitor) {
+            if (game == null) {
+                this.create();
+            }
+        }
+        return game.getTerrainGrid();
     }
 
     /**
@@ -356,18 +364,9 @@ public class InMemoryGameRepository implements GameRepository {
             return;
         }
         synchronized (this.monitor) {
-
             //Load data from JSON file using loaders
             MapLoader mapLoader = new MapLoader(mapPath);
-            GameMap gMap = mapLoader.load();
-            List<GameMap.WallLoader> wallData = gMap.getWalls();
-            GameBuilder gameBuilder = new GameBuilder();
-
-            //Push data into builders
-            for (int i = 0; i < wallData.size(); i++) {
-
-                gameBuilder.setWall(wallData.get(i).getPos(), wallData.get(i).getDestructVal());
-            }
+            GameBuilder gameBuilder = mapLoader.load();
 
             //Build map and holder grid
             this.game = gameBuilder.build();

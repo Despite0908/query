@@ -13,6 +13,8 @@ public interface GameRepository {
 
     int[][] getGrid();
 
+    public int[][] getTerrainGrid();
+
     boolean turn(long tankId, Direction direction)
             throws TokenDoesNotExistException, IllegalTransitionException, LimitExceededException;
 
