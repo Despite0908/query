@@ -46,7 +46,7 @@ public class Soldier extends PlayerToken{
         //Entering rocky terrain takes 50% longer
         Terrain nextTerrain = getParent().getNeighbor(direction).getTerrain();
         if (nextTerrain == Terrain.Rocky) {
-            millis = millis + (getAllowedMoveInterval() / 2);
+            millis = millis - (getAllowedMoveInterval() / 2);
         }
         return millis >= getLastMoveTime();
     }

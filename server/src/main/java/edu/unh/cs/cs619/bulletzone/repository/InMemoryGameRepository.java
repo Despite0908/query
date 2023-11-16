@@ -59,13 +59,22 @@ public class InMemoryGameRepository implements GameRepository {
 
     private int[] tankSpawn = null;
 
-    private final EventHistory eventHistory = EventHistory.start(Clock.systemUTC());
+    private Clock c = Clock.systemUTC();
+    private final EventHistory eventHistory = EventHistory.start(c);
 
     private String mapPath = "Maps/DefaultMap.json";
 
     // adding item spawn timer
     private static final int ITEM_PERIOD = 1000;
     private final Timer timer = new Timer();
+
+    /**
+     * ONLY USED FOR TESTING. Changes the system clock.
+     * @param c Clock to be injected
+     */
+    public void injectClock(Clock c) {
+        this.c = c;
+    }
 
     /**
      * Sets the map to load game from.
@@ -191,7 +200,7 @@ public class InMemoryGameRepository implements GameRepository {
                 }
             }
 
-            long millis = eventHistory.getClock().millis();
+            long millis = c.millis();
             //Constraint checking
             if (!token.canTurn(millis, direction)) {
                 return false;
@@ -269,7 +278,7 @@ public class InMemoryGameRepository implements GameRepository {
             }
 
             //Token constraints
-            long millis = eventHistory.getClock().millis();
+            long millis = c.millis();
             if (!token.canMove(millis, direction)) {
                 return false;
             }
@@ -311,7 +320,7 @@ public class InMemoryGameRepository implements GameRepository {
                 }
             }
 
-            long millis = eventHistory.getClock().millis();
+            long millis = c.millis();
             //Constraint Checking
             if (!token.canFire(millis)) {
                 return false;

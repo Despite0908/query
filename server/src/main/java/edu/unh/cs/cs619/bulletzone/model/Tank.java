@@ -29,11 +29,13 @@ public class Tank extends PlayerToken {
         //Cannot enter forest
         //Entering hilly terrain takes 50% longer
         Terrain nextTerrain = getParent().getNeighbor(direction).getTerrain();
+        long lastMoveTime = getLastMoveTime();
         if (nextTerrain == Terrain.Forest) {
             return false;
         } else if (nextTerrain == Terrain.Hilly) {
-            millis = millis + (getAllowedMoveInterval() / 2);
+            millis = millis - (getAllowedMoveInterval() / 2);
         }
+        System.out.printf("System: %d, Against: %d\n", millis, lastMoveTime);
         if (millis < getLastMoveTime()) {
             return false;
         }

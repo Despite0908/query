@@ -1,6 +1,7 @@
 package edu.unh.cs.cs619.bulletzone.model;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -68,9 +69,16 @@ public class MapLoader {
 
         //String to JSONArray for terrain, parse JSON
         Map<Terrain, JSONArray> terrainPosMap = new HashMap<>();
-        terrainPosMap.put(Terrain.Rocky, new JSONObject(str).getJSONArray("rocky"));
-        terrainPosMap.put(Terrain.Hilly, new JSONObject(str).getJSONArray("hilly"));
-        terrainPosMap.put(Terrain.Forest, new JSONObject(str).getJSONArray("forest"));
+        try {
+            terrainPosMap.put(Terrain.Rocky, new JSONObject(str).getJSONArray("rocky"));
+        } catch (JSONException ignored) {}
+        try {
+            terrainPosMap.put(Terrain.Hilly, new JSONObject(str).getJSONArray("hilly"));
+        } catch (JSONException ignored) {}
+        try {
+            terrainPosMap.put(Terrain.Forest, new JSONObject(str).getJSONArray("forest"));
+        } catch (JSONException ignored) {}
+
         for (Terrain t: terrainPosMap.keySet()) {
             JSONArray curArr = terrainPosMap.get(t);
             if (curArr != null) {
