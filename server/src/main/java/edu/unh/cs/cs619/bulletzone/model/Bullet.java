@@ -58,4 +58,8 @@ public class Bullet extends FieldEntity {
     public int getBulletId(){
         return bulletId;
     }
+
+    public int movedIntoBy(PlayerToken other) {
+        return 0;
+    }
 }

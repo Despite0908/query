@@ -123,6 +123,7 @@ public final class Game {
         }
     }
 
+    //TODO: IMPROVEMENTS BEING IN HERE IS TEMPORARY!!! CHANGE TO 3 LAYER MODEL WHEN EVENT SYSTEM IS FINISHED
     public int[][] getGrid2D() {
         int[][] grid = new int[FIELD_DIM][FIELD_DIM];
 
@@ -133,7 +134,9 @@ public final class Game {
                     holder = holderGrid.get(i * FIELD_DIM + j);
                     if (holder.isPresent()) {
                         grid[i][j] = holder.getEntity().getIntValue();
-                    } else {
+                    }else if (holder.isImproved()) {
+                        grid[i][j] = holder.getImprovement().getIntValue();
+                    }else {
                         grid[i][j] = 0;
                     }
                 }

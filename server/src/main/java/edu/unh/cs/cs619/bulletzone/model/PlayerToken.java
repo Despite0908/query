@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import edu.unh.cs.cs619.bulletzone.model.improvements.Improvement;
+
 public abstract class PlayerToken extends FieldEntity{
 
     private final long id;
@@ -81,6 +83,12 @@ public abstract class PlayerToken extends FieldEntity{
         FieldHolder nextField = parent.getNeighbor(direction);
         checkNotNull(parent.getNeighbor(direction), "Neighbor is not available");
 
+        //Check for walls
+        if (nextField.isImproved() && nextField.getImprovement().isSolid()) {
+            return 0;
+        }
+
+        //Check for entities
         boolean isCompleted;
         if (!nextField.isPresent()) {
             // If the next field is empty move the user
@@ -88,17 +96,8 @@ public abstract class PlayerToken extends FieldEntity{
             nextField.setFieldEntity(this);
             setParent(nextField);
             return 1;
-        } else if (nextField.getEntity() instanceof Item) {
-            //TODO aiden how to powerup tank after ran over
-
-            Item grabbedItem = (Item) nextField.getEntity();
-            parent.clearField();
-            nextField.setFieldEntity(this);
-            setParent(nextField);
-            //TODO aiden remove from item concurrentHashMap (Dont have access to game)
-            return 1;
         }
-        return 0;
+        return nextField.getEntity().movedIntoBy(this);
     }
 
     /**

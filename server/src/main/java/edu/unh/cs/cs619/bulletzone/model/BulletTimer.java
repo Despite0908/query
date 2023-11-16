@@ -5,6 +5,7 @@ import java.util.TimerTask;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BulletHitEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BulletMoveEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
+import edu.unh.cs.cs619.bulletzone.model.improvements.Improvement;
 
 /**
  * Timer Task for Updating the positions of bullets
@@ -75,6 +76,20 @@ public class BulletTimer extends TimerTask {
 //                    game.removeSoldiers(entity.getId());
 //                    game.getItems().remove(entity.getId());
 //                }
+
+                //Checking for Walls
+                if (nextField.getImprovement().isSolid()) {
+                    Improvement wall = nextField.getImprovement();
+                    if (wall.getIntValue() >1000 && wall.getIntValue()<=2000 ){
+                        nextField.clearImprovement();
+                        //Add wall hit event
+                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), true, wall.getIntValue()));
+                    } else {
+                        //Add wall hit event
+                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), false, wall.getIntValue()));
+                    }
+                }
+                //TODO: Refactor Checking for entities
                 if ( nextField.getEntity() instanceof  Tank){
                     Tank t = (Tank) nextField.getEntity();
                     System.out.println("tank is hit, tank life: " + t.getLife());
@@ -95,17 +110,6 @@ public class BulletTimer extends TimerTask {
                     } else {
                         //Add tank hit event
                         eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), false, t.getIntValue()));
-                    }
-                }
-                else if ( nextField.getEntity() instanceof  Wall){
-                    Wall w = (Wall) nextField.getEntity();
-                    if (w.getIntValue() >1000 && w.getIntValue()<=2000 ){
-                        game.getHolderGrid().get(w.getPos()).clearField();
-                        //Add wall hit event
-                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), true, w.getIntValue()));
-                    } else {
-                        //Add wall hit event
-                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), false, w.getIntValue()));
                     }
                 }
                 else if ( nextField.getEntity() instanceof  Item){

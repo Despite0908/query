@@ -51,23 +51,6 @@ public class Soldier extends PlayerToken{
         return millis >= getLastMoveTime();
     }
 
-    @Override
-    public int move(long millis, Direction direction) {
-        int isCompleted = super.move(millis, direction);
-        if (isCompleted != 1) {
-            FieldHolder holder = getParent();
-            FieldHolder nextField = parent.getNeighbor(direction);
-            if (nextField.isPresent() && nextField.getEntity().getIntValue() == pair.getIntValue()) {
-                //Remove from tank and field holder
-                getParent().clearField();
-                setParent(null);
-                getPair().setPair(null);
-                return 2;
-            }
-        }
-        return isCompleted;
-    }
-
     /**
      * {@inheritDoc}
      * @return {@inheritDoc}
@@ -90,5 +73,10 @@ public class Soldier extends PlayerToken{
     public int getIntValue() {
         return (int) (30000000 + 10000 * getId() + 10 * getLife() + Direction
                 .toByte(getDirection()));
+    }
+
+    @Override
+    public int movedIntoBy(PlayerToken token) {
+        return 0;
     }
 }

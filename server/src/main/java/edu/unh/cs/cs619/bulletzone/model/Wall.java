@@ -1,11 +1,9 @@
 package edu.unh.cs.cs619.bulletzone.model;
 
-public class Wall extends FieldEntity {
-    int destructValue, pos;
+import edu.unh.cs.cs619.bulletzone.model.improvements.Improvement;
 
-    public Wall(){
-        this.destructValue = 1000;
-    }
+public class Wall extends Improvement {
+    int destructValue, pos;
 
     public Wall(int pos, int destructValue){
         this.destructValue = destructValue;
@@ -13,8 +11,8 @@ public class Wall extends FieldEntity {
     }
 
     @Override
-    public FieldEntity copy() {
-        return new Wall();
+    public Improvement copy() {
+        return new Wall(pos, destructValue);
     }
 
     @Override
@@ -29,5 +27,10 @@ public class Wall extends FieldEntity {
 
     public int getPos(){
         return pos;
+    }
+
+    @Override
+    public boolean isSolid() {
+        return true;
     }
 }

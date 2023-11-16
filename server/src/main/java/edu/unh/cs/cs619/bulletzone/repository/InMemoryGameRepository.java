@@ -227,7 +227,7 @@ public class InMemoryGameRepository implements GameRepository {
             FieldHolder holder = null;
             for (Direction dir: Direction.values()) {
                 FieldHolder neighbor = parent.getNeighbor(dir);
-                if (!neighbor.isPresent()) {
+                if (!neighbor.isPresent() && !(neighbor.isImproved() && neighbor.getImprovement().isSolid())) {
                     holder = neighbor;
                     break;
                 }

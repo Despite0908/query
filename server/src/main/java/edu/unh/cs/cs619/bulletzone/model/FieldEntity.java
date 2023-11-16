@@ -27,6 +27,8 @@ public abstract class FieldEntity {
         return true;
     }
 
+    public abstract int movedIntoBy(PlayerToken other);
+
     /*public static final void registerEventBusListener(Object listener) {
         checkNotNull(listener);
         eventBus.register(listener);

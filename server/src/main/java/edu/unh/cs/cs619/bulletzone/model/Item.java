@@ -49,4 +49,10 @@ public class Item extends FieldEntity {
         this.itemType = itemType;
     }
 
+    public int movedIntoBy(PlayerToken other) {
+        //TODO aiden how to powerup tank after ran over
+        //TODO aiden remove from item concurrentHashMap (Dont have access to game)
+        return 1;
+    }
+
 }

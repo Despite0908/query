@@ -124,5 +124,16 @@ public class Tank extends PlayerToken {
         return "T";
     }
 
+    public int movedIntoBy(PlayerToken other) {
+        if (other == pair) {
+            //Remove from tank and field holder
+            other.getParent().clearField();
+            other.setParent(null);
+            setPair(null);
+            return 2;
+        }
+        return 0;
+    }
+
 
 }

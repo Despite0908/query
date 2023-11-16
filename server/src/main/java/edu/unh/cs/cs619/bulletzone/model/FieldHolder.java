@@ -7,9 +7,13 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import edu.unh.cs.cs619.bulletzone.model.improvements.Improvement;
+
 public class FieldHolder {
 
     private final Map<Direction, FieldHolder> neighbors = new HashMap<Direction, FieldHolder>();
+
+    private Optional<Improvement> improvementHolder = Optional.empty();
     private Optional<FieldEntity> entityHolder = Optional.empty();
 
     private Terrain terrain = Terrain.Normal;
@@ -48,5 +52,24 @@ public class FieldHolder {
 
     public void setTerrain(Terrain terrain) {
         this.terrain = terrain;
+    }
+
+    public Improvement getImprovement() {
+        return improvementHolder.get();
+    }
+
+    public void setImprovement(Improvement improvement) {
+        improvementHolder = Optional.of(checkNotNull(improvement,
+                "Improvment cannot be null."));
+    }
+
+    public void clearImprovement() {
+        if (improvementHolder.isPresent()) {
+            improvementHolder = Optional.empty();
+        }
+    }
+
+    public boolean isImproved() {
+        return improvementHolder.isPresent();
     }
 }
