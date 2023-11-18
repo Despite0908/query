@@ -264,7 +264,7 @@ public class InMemoryGameRepository implements GameRepository {
      * @throws LimitExceededException Don't know here
      */
     @Override
-    public boolean move(long tokenId, Direction direction)
+    public long move(long tokenId, Direction direction)
             throws TokenDoesNotExistException, IllegalTransitionException, LimitExceededException {
         synchronized (this.monitor) {
             checkNotNull(direction);
@@ -280,7 +280,7 @@ public class InMemoryGameRepository implements GameRepository {
             //Token constraints
             long millis = c.millis();
             if (!token.canMove(millis, direction)) {
-                return false;
+                return 0;
             }
 
             int moveResult = token.move(millis, direction);
@@ -288,13 +288,13 @@ public class InMemoryGameRepository implements GameRepository {
             if (moveResult == 1) {
                 //Add move event
                 eventHistory.addEvent(new TokenMoveEvent(token.getId(), direction, token.getIntValue(), getGrid()));
-                return true;
+                return 1;
             } else if (moveResult == 2) {
                 game.removeSoldier(tokenId);
                 eventHistory.addEvent(new TokenLeaveEvent(token.getId(), token.getIntValue()));
-                return true;
+                return 2;
             }
-            return false;
+            return 0;
         }
     }
 

@@ -18,7 +18,7 @@ public interface GameRepository {
     boolean turn(long tankId, Direction direction)
             throws TokenDoesNotExistException, IllegalTransitionException, LimitExceededException;
 
-    boolean move(long tankId, Direction direction)
+    long move(long tankId, Direction direction)
             throws TokenDoesNotExistException, IllegalTransitionException, LimitExceededException;
 
     boolean fire(long tankId, int strength)
