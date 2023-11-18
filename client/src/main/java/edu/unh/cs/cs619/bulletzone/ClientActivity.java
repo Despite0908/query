@@ -28,6 +28,7 @@ import org.androidannotations.rest.spring.annotations.Rest;
 import org.androidannotations.rest.spring.annotations.RestService;
 import org.androidannotations.rest.spring.api.RestClientHeaders;
 import org.androidannotations.api.BackgroundExecutor;
+import org.json.JSONException;
 
 import edu.unh.cs.cs619.bulletzone.events.BusProvider;
 import edu.unh.cs.cs619.bulletzone.rest.BZRestErrorhandler;
