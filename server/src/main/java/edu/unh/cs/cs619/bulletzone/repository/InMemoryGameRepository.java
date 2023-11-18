@@ -381,7 +381,7 @@ public class InMemoryGameRepository implements GameRepository {
             this.game = gameBuilder.build();
             //Add creation event
             eventHistory.addEvent(new BoardCreationEvent());
-            itemTimer.schedule(new ItemSpawnTimer(game, idGenerator), 0, ITEM_PERIOD);
+            itemTimer.schedule(new ItemSpawnTimer(game, idGenerator, monitor), 0, ITEM_PERIOD);
         }
     }
 
