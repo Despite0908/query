@@ -1,6 +1,8 @@
 package edu.unh.cs.cs619.bulletzone.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.sql.SQLSyntaxErrorException;
 import java.util.Optional;
 
 import java.util.ArrayList;
@@ -142,7 +144,7 @@ public final class Game {
                     }else if (holder.isImproved()) {
                         grid[i][j] = holder.getImprovement().getIntValue();
                     }else {
-                        grid[i][j] = 0;
+                        grid[i][j] = Terrain.toByte(holder.getTerrain());
                     }
                 }
             }

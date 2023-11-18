@@ -32,6 +32,7 @@ public class InMemoryGameRepositoryTest {
 
     @Test
     public void join_normalJoin_returnTrue() throws Exception {
+        repo.setMapPath("DefaultMap.json");
         Tank tank = repo.join("");
         Assert.assertNotNull(tank);
         Assert.assertTrue(tank.getId() >= 0);

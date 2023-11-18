@@ -115,8 +115,12 @@ public class GridAdapter extends BaseAdapter {
                     } else {
                         imageView.setImageResource(R.drawable.gold_coin);
                     }
-                }else {
-                    imageView.setImageResource(R.drawable.tile_grass);
+                } else if (val == 2) {
+                    imageView.setImageResource(R.drawable.tile_hilly);
+                } else if (val == 4) {
+                    imageView.setImageResource(R.drawable.tile_rocky);
+                } else {
+                    imageView.setImageResource(R.drawable.tile_forest);
                 }
             } else {
                 imageView.setImageResource(R.drawable.tile_grass);

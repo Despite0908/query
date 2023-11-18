@@ -61,6 +61,7 @@ public class Item extends FieldEntity {
     public int movedIntoBy(PlayerToken other) {
         //TODO aiden how to powerup tank after ran over
         //TODO aiden remove from item concurrentHashMap (Dont have access to game)
+        //From Anthony: Make sure to move the tank into the Item's spot
         return 1;
     }
 
