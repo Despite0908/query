@@ -152,7 +152,10 @@ public class ClientActivity extends Activity {
     @Background
     protected void onButtonMove(View view) {
         final int viewId = view.getId();
-        tankControl.moveTank(viewId);
+        long moveResult = tankControl.moveTank(viewId);
+        if (moveResult == 2) {
+            mGridAdapter.setPlayerSoldierId(-1);
+        }
 //        this.moveAsync(tankId, tankControl.moveTank(viewId));
     }
 
@@ -184,6 +187,13 @@ public class ClientActivity extends Activity {
     @Background
     protected void onButtonFire() {
         tankControl.onBulletFire();
+    }
+
+    @Click(R.id.buttonEject)
+    @Background
+    protected void onButtonEject() {
+        tankControl.eject(tankControl.getTankId());
+        mGridAdapter.setPlayerSoldierId(tankControl.getSoldierId());
     }
 
     @Click(R.id.buttonLeave)

@@ -97,10 +97,12 @@ class GamesController {
 
     @RequestMapping(method = RequestMethod.PUT, value = "{tankId}/move/{direction}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<BooleanWrapper> move(@PathVariable long tankId, @PathVariable byte direction)
+    ResponseEntity<LongWrapper> move(@PathVariable long tankId, @PathVariable byte direction)
             throws TokenDoesNotExistException, LimitExceededException, IllegalTransitionException {
-        return new ResponseEntity<BooleanWrapper>(
-                new BooleanWrapper(gameRepository.move(tankId, Direction.fromByte(direction))),
+        long result = gameRepository.move(tankId, Direction.fromByte(direction));
+        System.out.printf("RESULT: %d", result);
+        return new ResponseEntity<LongWrapper>(
+                new LongWrapper(result),
                 HttpStatus.OK
         );
     }

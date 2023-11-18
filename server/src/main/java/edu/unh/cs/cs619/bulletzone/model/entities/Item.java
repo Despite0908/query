@@ -24,6 +24,12 @@ public class Item extends FieldEntity {
         return (int) (40000000 + 10000 * getId() + 10 * getItemType());
     }
 
+    /**
+     * {@inheritDoc}
+     * @param damage Damage done by the bullet.
+     * @param game Current game.
+     * @return True
+     */
     @Override
     public boolean hit(int damage, Game game) {
         EventHistory eventHistory = EventHistory.get_instance();
@@ -59,6 +65,11 @@ public class Item extends FieldEntity {
         this.itemType = itemType;
     }
 
+    /**
+     * {@inheritDoc}
+     * @param other Token that has moved into this entity
+     * @return 1: Move was successful
+     */
     public int movedIntoBy(PlayerToken other) {
         //TODO aiden how to powerup tank after ran over
         //TODO aiden remove from item concurrentHashMap (Dont have access to game)

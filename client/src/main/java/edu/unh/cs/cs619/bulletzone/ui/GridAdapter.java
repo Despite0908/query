@@ -28,6 +28,8 @@ public class GridAdapter extends BaseAdapter {
     private int[][] mEntities = new int[16][16];
     private long playerTankId = -1;  // Initialize with an invalid ID
 
+    private long playerSoldierId = -1;  // Initialize with an invalid ID
+
     private ClientActivity clientActivity;
     private BulletZoneRestClient restClient;
     private TankController tc;
@@ -42,6 +44,10 @@ public class GridAdapter extends BaseAdapter {
 
     public void setPlayerTankId(long tankId) {
         this.playerTankId = tankId;
+    }
+
+    public void setPlayerSoldierId(long soldierId) {
+        this.playerSoldierId = soldierId;
     }
 
 
@@ -94,11 +100,11 @@ public class GridAdapter extends BaseAdapter {
             if (val > 0) {
                 if (val == 1000 || (val > 1000 && val <= 2000)) {
                     imageView.setImageResource(R.drawable.crate_metal);
-                } else if (val >= 2000000 && val <= 3000000) {
+                } else if (val >= 2000000 && val < 3000000) {
                     imageView.setImageResource(R.drawable.bullet_red);
                     imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                     imageView.setRotation(tc.getDirection() * 45);  // Set bullet rotation based on tank's direction
-                } else if (val >= 10000000 && val <= 20000000) {
+                } else if (val >= 10000000 && val < 20000000) {
                     int tankId = val /10000 % 1000;  // Extract the tankId
                     if (tankId == playerTankId) {
                         imageView.setImageResource(R.drawable.tank_sand);
@@ -106,7 +112,15 @@ public class GridAdapter extends BaseAdapter {
                     } else {
                         imageView.setImageResource(R.drawable.tank_dark);
                     }
-                } else if (val >= 40000000 && val <= 50000000) {
+                } else if (val >= 30000000 && val < 40000000) {
+                    int soldierId = val /10000 % 1000;  // Extract the soldierId
+                    if (soldierId == playerSoldierId) {
+                        imageView.setImageResource(R.drawable.player_soldier);
+                        imageView.setRotation(tc.getSoldierDirection() * 45);  // Set rotation based on direction
+                    } else {
+                        imageView.setImageResource(R.drawable.enemy_soldier);
+                    }
+                }else if (val >= 40000000 && val < 50000000) {
                     val = val % 100;
                     if (val == 30) {
                         imageView.setImageResource(R.drawable.fusion_reactor);

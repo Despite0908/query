@@ -64,12 +64,19 @@ public class FieldHolder {
                 "Improvment cannot be null."));
     }
 
+    /**
+     * Clears improvement from Holder.
+     */
     public void clearImprovement() {
         if (improvementHolder.isPresent()) {
             improvementHolder = Optional.empty();
         }
     }
 
+    /**
+     * Checks if an improvement is present.
+     * @return True if an improvement is present, false if not.
+     */
     public boolean isImproved() {
         return improvementHolder.isPresent();
     }
