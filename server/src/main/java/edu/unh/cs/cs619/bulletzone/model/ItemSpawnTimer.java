@@ -38,7 +38,7 @@ public class ItemSpawnTimer extends TimerTask {
             if (true) {
 
                 int numPlayers = theGame.getTanks().size();
-                int numItems = theGame.getItems().size();
+                int numItems = theGame.getNumItems();
 
                 // TODO aiden just here to not fill entire board remove when ready!!!!
                 if(numItems > 10) {
@@ -61,7 +61,7 @@ public class ItemSpawnTimer extends TimerTask {
                             Item myTestItem = new Item(idGenerator.getAndIncrement(), randomItem(), randomPlace);
                             fieldElement.setFieldEntity(myTestItem);
                             myTestItem.setParent(fieldElement);
-                            theGame.getItems().put(myTestItem.getId(), myTestItem);
+                            theGame.incrementItems();
                             System.out.println("Added item " + myTestItem.getItemType());
                             successFlag = true;
 

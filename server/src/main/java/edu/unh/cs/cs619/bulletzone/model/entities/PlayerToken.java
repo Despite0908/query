@@ -86,6 +86,16 @@ public abstract class PlayerToken extends FieldEntity{
             return 0;
         }
 
+        //Check for Items
+        if (nextField.isPresent() && nextField.getEntity().getIsItem()) {
+            Item grabbedItem = (Item) nextField.getEntity();
+            parent.clearField();
+            nextField.setFieldEntity(this);
+            setParent(nextField);
+            return 1;
+        }
+
+
         //Check for entities
         boolean isCompleted;
         if (!nextField.isPresent()) {

@@ -31,7 +31,7 @@ public final class Game {
      * Key = grid cell location
      * Item = Powerup
      */
-    private final ConcurrentMap<Long, Item> items = new ConcurrentHashMap<>();
+    private int numItems = 0;
 
     /**
      * Key: IP Address
@@ -62,8 +62,16 @@ public final class Game {
         }
     }
 
-    public ConcurrentMap<Long, Item> getItems() {
-        return items;
+    public void incrementItems() {
+        numItems++;
+    }
+
+    public void decrementItems() {
+        numItems--;
+    }
+
+    public int getNumItems() {
+        return numItems;
     }
 
     public Tank getTank(int tankId) {

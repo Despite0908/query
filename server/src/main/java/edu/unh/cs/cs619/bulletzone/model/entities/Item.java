@@ -16,6 +16,7 @@ public class Item extends FieldEntity {
         super(id);
         this.setItemType(itemType);
         this.setGridLocation(location);
+        this.setIsItem(true);
     }
 
     @Override
@@ -28,7 +29,7 @@ public class Item extends FieldEntity {
         EventHistory eventHistory = EventHistory.get_instance();
         getParent().clearField();
         setParent(null);
-        game.getItems().remove(getId());
+        game.decrementItems();
         eventHistory.addEvent(new TokenLeaveEvent(getId(), getIntValue()));
         return true;
     }
@@ -64,5 +65,4 @@ public class Item extends FieldEntity {
         //From Anthony: Make sure to move the tank into the Item's spot
         return 1;
     }
-
 }

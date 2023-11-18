@@ -4,13 +4,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.Optional;
+
 import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
 import edu.unh.cs.cs619.bulletzone.model.Game;
 
 public abstract class FieldEntity {
     //protected static final EventBus eventBus = new EventBus();
     protected FieldHolder parent;
-
+    private boolean isItem = false;
     private final long id;
 
     public FieldEntity(long id) {
@@ -28,6 +30,14 @@ public abstract class FieldEntity {
      * @return Integer representation of the current {@link FieldEntity}
      */
     public abstract int getIntValue();
+
+    public boolean getIsItem() {
+        return isItem;
+    }
+
+    public void setIsItem(boolean isItemSetter) {
+        isItem = isItemSetter;
+    }
 
     public FieldHolder getParent() {
         return parent;
