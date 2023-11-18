@@ -39,10 +39,21 @@ public abstract class FieldEntity {
 
     public abstract FieldEntity copy();
 
+    /**
+     * Method to apply effects to the object that has been hit.
+     * @param damage Damage done by the bullet.
+     * @param game Current game.
+     * @return Is token destroyed or not.
+     */
     public boolean hit(int damage, Game game) {
         return true;
     }
 
+    /**
+     * Method to apply effects to the object that has been moved into.
+     * @param other Token that has moved into this entity
+     * @return 0: move was not successful. 1: Move was successful. 2: Re-entry.
+     */
     public abstract int movedIntoBy(PlayerToken other);
 
     /*public static final void registerEventBusListener(Object listener) {

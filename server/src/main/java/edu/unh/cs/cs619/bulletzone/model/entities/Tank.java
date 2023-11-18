@@ -106,6 +106,12 @@ public class Tank extends PlayerToken {
         return new Tank(getId(), getDirection(), getIp());
     }
 
+    /**
+     * {@inheritDoc}
+     * @param damage Damage done by the bullet.
+     * @param game Current game.
+     * @return {@inheritDoc}
+     */
     @Override
     public boolean hit(int damage, Game game) {
         EventHistory eventHistory = EventHistory.get_instance();
@@ -144,6 +150,11 @@ public class Tank extends PlayerToken {
         return "T";
     }
 
+    /**
+     * {@inheritDoc}
+     * @param other Token that has moved into this entity
+     * @return {@inheritDoc}
+     */
     public int movedIntoBy(PlayerToken other) {
         if (other == pair) {
             //Remove from tank and field holder

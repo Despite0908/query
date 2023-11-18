@@ -168,6 +168,10 @@ public class InMemoryGameRepository implements GameRepository {
         return game.getGrid2D();
     }
 
+    /**
+     * Compiles a 2D array of terrain from the field.
+     * @return A 2D integer array representing field terrain.
+     */
     public int[][] getTerrainGrid() {
         synchronized (this.monitor) {
             if (game == null) {
@@ -216,6 +220,12 @@ public class InMemoryGameRepository implements GameRepository {
         }
     }
 
+    /**
+     * Spawns a soldier and pairs it with the current tank.
+     * @param tankId Tank soldier is paired with
+     * @return Returns the soldier that is spawned
+     * @throws TokenDoesNotExistException
+     */
     public Soldier eject(long tankId) throws TokenDoesNotExistException {
         synchronized (this.monitor) {
             PlayerToken tank = game.getTanks().get(tankId);
@@ -258,7 +268,7 @@ public class InMemoryGameRepository implements GameRepository {
      * Checks constraints and moves a token
      * @param tokenId Token to be moved
      * @param direction direction to move token in
-     * @return Returns false if constraints are violated. Returns true if move is successful.
+     * @return TEMPORARY: RETURNS LONG FROM MOVERESULT. TURN TO ORIGINAL LATER. Returns false if constraints are violated. Returns true if move is successful.
      * @throws TokenDoesNotExistException Throws if there is no thank corresponding to tokenID.
      * @throws IllegalTransitionException I'm not sure here because this exception is specifically about turns.
      * @throws LimitExceededException Don't know here
@@ -385,6 +395,11 @@ public class InMemoryGameRepository implements GameRepository {
         }
     }
 
+    /**
+     * Generates a list of JSON strings representing a list of events since millis.
+     * @param millis A timestamp in milliseconds
+     * @return Array of JSON events that happened since millis
+     */
     public String[] event(long millis) {
         synchronized (this.monitor) {
             List<GridEvent> events = eventHistory.getEventsAfter(millis);

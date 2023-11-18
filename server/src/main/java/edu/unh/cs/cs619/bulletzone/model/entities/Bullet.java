@@ -62,6 +62,11 @@ public class Bullet extends FieldEntity {
         return bulletId;
     }
 
+    /**
+     * {@inheritDoc}
+     * @param other Token that has moved into this entity
+     * @return {@inheritDoc}
+     */
     public int movedIntoBy(PlayerToken other) {
         return 0;
     }

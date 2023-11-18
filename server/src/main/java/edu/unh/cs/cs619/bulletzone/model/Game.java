@@ -152,6 +152,10 @@ public final class Game {
         return grid;
     }
 
+    /**
+     * Compiles a 2D grid of terrain from the field.
+     * @return 2D integer array representation of the field terrain.
+     */
     public int[][] getTerrainGrid() {
         int[][] grid = new int[FIELD_DIM][FIELD_DIM];
 

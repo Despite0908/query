@@ -82,11 +82,22 @@ public class Soldier extends PlayerToken{
                 .toByte(getDirection()));
     }
 
+    /**
+     * {@inheritDoc}
+     * @param token Token that has moved into this entity
+     * @return 0: Move was not successful
+     */
     @Override
     public int movedIntoBy(PlayerToken token) {
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     * @param damage Damage done by the bullet.
+     * @param game Current game.
+     * @return {@inheritDoc}
+     */
     @Override
     public boolean hit(int damage, Game game) {
         EventHistory eventHistory = EventHistory.get_instance();
