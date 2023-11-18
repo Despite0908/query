@@ -76,11 +76,16 @@ public class AccountController {
         // Log the request
         log.debug("Login '" + name + "' with password '" + password + "'");
         // Return the response (return user ID if valid login)
+        GameUser loginUser = data.validateUser(name, password, false);
+        long id = -1;
+        if (loginUser != null) {
+            id = loginUser.getId();
+        }
 
         return new ResponseEntity<LongWrapper>(new LongWrapper(
 //                TODO: something that invokes users.validateLogin(name, password) in
 //                      the DataRepository (actually calls data.validateUser(...))
-                data.validateUser(name, password, false).getId()
+                id
                 ),
                 HttpStatus.OK);
     }
