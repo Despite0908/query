@@ -12,11 +12,11 @@ import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
 import edu.unh.cs.cs619.bulletzone.model.Game;
 import edu.unh.cs.cs619.bulletzone.model.GameBuilder;
-import edu.unh.cs.cs619.bulletzone.model.GameMap;
-import edu.unh.cs.cs619.bulletzone.model.ItemSpawnTimerController;
-import edu.unh.cs.cs619.bulletzone.model.PlayerToken;
+import edu.unh.cs.cs619.bulletzone.model.ItemSpawnTimer;
+import edu.unh.cs.cs619.bulletzone.model.entities.PlayerToken;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenMoveEvent;
+import edu.unh.cs.cs619.bulletzone.model.entities.Soldier;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.IllegalTransitionException;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.LimitExceededException;
 import edu.unh.cs.cs619.bulletzone.model.MapLoader;
@@ -25,7 +25,7 @@ import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BoardCreationEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.FireEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.GridEvent;
-import edu.unh.cs.cs619.bulletzone.model.Tank;
+import edu.unh.cs.cs619.bulletzone.model.entities.Tank;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.TokenDoesNotExistException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -59,13 +59,22 @@ public class InMemoryGameRepository implements GameRepository {
 
     private int[] tankSpawn = null;
 
-    private final EventHistory eventHistory = EventHistory.start(Clock.systemUTC());
+    private Clock c = Clock.systemUTC();
+    private final EventHistory eventHistory = EventHistory.start(c);
 
     private String mapPath = "Maps/DefaultMap.json";
 
     // adding item spawn timer
     private static final int ITEM_PERIOD = 1000;
-    private final Timer timer = new Timer();
+    private final Timer itemTimer = new Timer();
+
+    /**
+     * ONLY USED FOR TESTING. Changes the system clock.
+     * @param c Clock to be injected
+     */
+    public void injectClock(Clock c) {
+        this.c = c;
+    }
 
     /**
      * Sets the map to load game from.
@@ -159,6 +168,15 @@ public class InMemoryGameRepository implements GameRepository {
         return game.getGrid2D();
     }
 
+    public int[][] getTerrainGrid() {
+        synchronized (this.monitor) {
+            if (game == null) {
+                this.create();
+            }
+        }
+        return game.getTerrainGrid();
+    }
+
     /**
      * Checks constraints and turns a token.
      * @param tokenId Token to be turned
@@ -182,7 +200,7 @@ public class InMemoryGameRepository implements GameRepository {
                 }
             }
 
-            long millis = eventHistory.getClock().millis();
+            long millis = c.millis();
             //Constraint checking
             if (!token.canTurn(millis, direction)) {
                 return false;
@@ -195,6 +213,44 @@ public class InMemoryGameRepository implements GameRepository {
             eventHistory.addEvent(new TokenMoveEvent(token.getId(), direction, token.getIntValue(), getGrid()));
 
             return true;
+        }
+    }
+
+    public Soldier eject(long tankId) throws TokenDoesNotExistException {
+        synchronized (this.monitor) {
+            PlayerToken tank = game.getTanks().get(tankId);
+            if (tank == null) {
+                throw new TokenDoesNotExistException(tankId);
+            }
+            //Look for open position
+            FieldHolder parent = tank.getParent();
+            FieldHolder holder = null;
+            for (Direction dir: Direction.values()) {
+                FieldHolder neighbor = parent.getNeighbor(dir);
+                if (!neighbor.isPresent() && !(neighbor.isImproved() && neighbor.getImprovement().isSolid())) {
+                    holder = neighbor;
+                    break;
+                }
+            }
+            if (holder == null) {
+                return null;
+            }
+            if (tank.getPair() != null) {
+                return null;
+            }
+            //Spawn Soldier
+            Soldier soldier = new Soldier(idGenerator.getAndIncrement(), Direction.Up, tank.getIp());
+            soldier.setParent(holder);
+            holder.setFieldEntity(soldier);
+            //Pair solder/tank
+            soldier.setPair(tank);
+            tank.setPair(soldier);
+            //Add to game
+            game.addSoldier(soldier);
+            //Add event
+            eventHistory.addEvent(new AddTokenEvent(soldier.getIntValue(), game.getHolderGrid().indexOf(parent)));
+            //Return soldier
+            return soldier;
         }
     }
 
@@ -222,15 +278,20 @@ public class InMemoryGameRepository implements GameRepository {
             }
 
             //Token constraints
-            long millis = eventHistory.getClock().millis();
+            long millis = c.millis();
             if (!token.canMove(millis, direction)) {
                 return false;
             }
 
+            int moveResult = token.move(millis, direction);
             //move tank and set event
-            if (token.move(millis, direction)) {
+            if (moveResult == 1) {
                 //Add move event
                 eventHistory.addEvent(new TokenMoveEvent(token.getId(), direction, token.getIntValue(), getGrid()));
+                return true;
+            } else if (moveResult == 2) {
+                game.removeSoldier(tokenId);
+                eventHistory.addEvent(new TokenLeaveEvent(token.getId(), token.getIntValue()));
                 return true;
             }
             return false;
@@ -253,10 +314,13 @@ public class InMemoryGameRepository implements GameRepository {
             // Find token
             PlayerToken token = game.getTanks().get(tokenId);
             if (token == null) {
-                throw new TokenDoesNotExistException(tokenId);
+                token = game.getSoldiers().get(tokenId);
+                if (token == null) {
+                    throw new TokenDoesNotExistException(tokenId);
+                }
             }
 
-            long millis = eventHistory.getClock().millis();
+            long millis = c.millis();
             //Constraint Checking
             if (!token.canFire(millis)) {
                 return false;
@@ -290,6 +354,13 @@ public class InMemoryGameRepository implements GameRepository {
             FieldHolder parent = tank.getParent();
             parent.clearField();
             game.removeTank(tankId);
+            //Remove soldier if it exists
+            Soldier soldier = (Soldier) tank.getPair();
+            if (soldier != null) {
+                soldier.getParent().clearField();
+                soldier.setParent(null);
+                game.removeSoldier(soldier.getId());
+            }
             eventHistory.addEvent(new TokenLeaveEvent(tank.getId(), tank.getIntValue()));
         }
     }
@@ -302,25 +373,15 @@ public class InMemoryGameRepository implements GameRepository {
             return;
         }
         synchronized (this.monitor) {
-
             //Load data from JSON file using loaders
             MapLoader mapLoader = new MapLoader(mapPath);
-            GameMap gMap = mapLoader.load();
-            List<GameMap.WallLoader> wallData = gMap.getWalls();
-            GameBuilder gameBuilder = new GameBuilder();
-
-            //Push data into builders
-            for (int i = 0; i < wallData.size(); i++) {
-
-                gameBuilder.setWall(wallData.get(i).getPos(), wallData.get(i).getDestructVal());
-            }
+            GameBuilder gameBuilder = mapLoader.load();
 
             //Build map and holder grid
             this.game = gameBuilder.build();
             //Add creation event
             eventHistory.addEvent(new BoardCreationEvent());
-            ItemSpawnTimerController controller = new ItemSpawnTimerController(monitor);
-            controller.createTimer(this.game);
+            itemTimer.schedule(new ItemSpawnTimer(game, idGenerator), 0, ITEM_PERIOD);
         }
     }
 

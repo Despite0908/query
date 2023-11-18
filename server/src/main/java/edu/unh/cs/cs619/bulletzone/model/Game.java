@@ -1,12 +1,19 @@
 package edu.unh.cs.cs619.bulletzone.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.sql.SQLSyntaxErrorException;
 import java.util.Optional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import edu.unh.cs.cs619.bulletzone.model.entities.FieldEntity;
+import edu.unh.cs.cs619.bulletzone.model.entities.Item;
+import edu.unh.cs.cs619.bulletzone.model.entities.Soldier;
+import edu.unh.cs.cs619.bulletzone.model.entities.Tank;
 
 public final class Game {
     /**
@@ -24,7 +31,7 @@ public final class Game {
      * Key = grid cell location
      * Item = Powerup
      */
-    private final ConcurrentMap<Integer, Item> items = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Long, Item> items = new ConcurrentHashMap<>();
 
     /**
      * Key: IP Address
@@ -55,7 +62,7 @@ public final class Game {
         }
     }
 
-    public ConcurrentMap<Integer, Item> getItems() {
+    public ConcurrentMap<Long, Item> getItems() {
         return items;
     }
 
@@ -93,7 +100,7 @@ public final class Game {
     }
 
     //TODO: This is bad
-    public void removeSoldiers(long soldierId){
+    public void removeSoldier(long soldierId){
         synchronized (soldiers) {
             Soldier s = soldiers.remove(soldierId);
         }
@@ -123,6 +130,7 @@ public final class Game {
         }
     }
 
+    //TODO: IMPROVEMENTS BEING IN HERE IS TEMPORARY!!! CHANGE TO 3 LAYER MODEL WHEN EVENT SYSTEM IS FINISHED
     public int[][] getGrid2D() {
         int[][] grid = new int[FIELD_DIM][FIELD_DIM];
 
@@ -133,13 +141,33 @@ public final class Game {
                     holder = holderGrid.get(i * FIELD_DIM + j);
                     if (holder.isPresent()) {
                         grid[i][j] = holder.getEntity().getIntValue();
+                    }else if (holder.isImproved()) {
+                        grid[i][j] = holder.getImprovement().getIntValue();
+                    }else {
+                        grid[i][j] = Terrain.toByte(holder.getTerrain());
+                    }
+                }
+            }
+        }
+        return grid;
+    }
+
+    public int[][] getTerrainGrid() {
+        int[][] grid = new int[FIELD_DIM][FIELD_DIM];
+
+        synchronized (holderGrid) {
+            FieldHolder holder;
+            for (int i = 0; i < FIELD_DIM; i++) {
+                for (int j = 0; j < FIELD_DIM; j++) {
+                    holder = holderGrid.get(i * FIELD_DIM + j);
+                    if (holder.isPresent()) {
+                        grid[i][j] = Terrain.toByte(holder.getTerrain());
                     } else {
                         grid[i][j] = 0;
                     }
                 }
             }
         }
-
         return grid;
     }
 }

@@ -26,8 +26,7 @@ public class DataRepository {
     private BulletZoneData bzdata;
 
     DataRepository() {
-        //TODO: Replace database name, username, and password with what's appropriate for your group
-        String url = "stman1.cs.unh.edu/61906";
+        String url = "jdbc:mysql://stman1.cs.unh.edu/cs61906";
         String username = "oberon";
         String password = "pibyad2ObIb";
 //

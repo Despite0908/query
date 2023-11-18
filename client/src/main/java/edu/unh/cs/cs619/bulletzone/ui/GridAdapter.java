@@ -94,12 +94,6 @@ public class GridAdapter extends BaseAdapter {
             if (val > 0) {
                 if (val == 1000 || (val > 1000 && val <= 2000)) {
                     imageView.setImageResource(R.drawable.crate_metal);
-                } else if (val == 7) {
-                    imageView.setImageResource(R.drawable.gold_coin);
-                } else if (val == 2003) {
-                    imageView.setImageResource(R.drawable.fusion_reactor);
-                }else if (val == 2002) {
-                    imageView.setImageResource(R.drawable.black_hole);
                 } else if (val >= 2000000 && val <= 3000000) {
                     imageView.setImageResource(R.drawable.bullet_red);
                     imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
@@ -112,8 +106,21 @@ public class GridAdapter extends BaseAdapter {
                     } else {
                         imageView.setImageResource(R.drawable.tank_dark);
                     }
+                } else if (val >= 40000000 && val <= 50000000) {
+                    val = val % 100;
+                    if (val == 30) {
+                        imageView.setImageResource(R.drawable.fusion_reactor);
+                    } else if (val == 20) {
+                        imageView.setImageResource(R.drawable.black_hole);
+                    } else {
+                        imageView.setImageResource(R.drawable.gold_coin);
+                    }
+                } else if (val == 2) {
+                    imageView.setImageResource(R.drawable.tile_hilly);
+                } else if (val == 4) {
+                    imageView.setImageResource(R.drawable.tile_rocky);
                 } else {
-                    imageView.setImageResource(R.drawable.tile_grass);
+                    imageView.setImageResource(R.drawable.tile_forest);
                 }
             } else {
                 imageView.setImageResource(R.drawable.tile_grass);
