@@ -19,7 +19,7 @@ public abstract class PlayerToken extends FieldEntity{
     private int allowedMoveInterval;
 
     private long lastFireTime;
-
+    private int  fireInterval;
     private int numberOfBullets;
     private int allowedNumberOfBullets;
 
@@ -120,6 +120,10 @@ public abstract class PlayerToken extends FieldEntity{
             if (grabbedItem.getItemType() == ItemTypes.FUSION_REACTOR) {
                 numBulletsAfterReactor();
                 fireRateAfterReactor();
+                movementSpeedAfterReactor();
+            } else if (grabbedItem.getItemType() == ItemTypes.ANTI_GRAV) {
+                movementSpeedAfterAntiGrav();
+                fireRateAfterAntiGrav();
             }
             // this was working
             // eventBus.post(customEvent);
@@ -178,6 +182,14 @@ public abstract class PlayerToken extends FieldEntity{
 
     public void setAllowedMoveInterval(int allowedMoveInterval) {
         this.allowedMoveInterval = allowedMoveInterval;
+    }
+
+    public long getAllowedFireInterval() {
+        return fireInterval;
+    }
+
+    public void setAllowedFireInterval(int allowedFireInterval) {
+        this.fireInterval = allowedFireInterval;
     }
 
     public long getLastFireTime() {
@@ -247,12 +259,22 @@ public abstract class PlayerToken extends FieldEntity{
      * @return interval of firing time
      */
     public void fireRateAfterReactor() {
-        setLastFireTime(lastFireTime / 2);
+        setAllowedFireInterval(fireInterval / 2);
     }
 
-//    public long movementSpeedAfterReactor() {
-//        double delay = allowedMoveInterval * .25;
-//        setAllowedMoveInterval(delay);
-//    }
+    public void movementSpeedAfterReactor() {
+        int delay = (allowedMoveInterval * 25);
+        delay = delay / 100;
+        delay = allowedMoveInterval + delay;
+        setAllowedMoveInterval(delay);
+    }
 
+    public void fireRateAfterAntiGrav() {
+
+        setAllowedFireInterval(fireInterval + 100);
+    }
+
+    public void movementSpeedAfterAntiGrav() {
+        setAllowedMoveInterval(allowedMoveInterval / 2);
+    }
 }

@@ -344,7 +344,7 @@ public class InMemoryGameRepository implements GameRepository {
                 return false;
             }
             //Set new timestamp
-            token.setLastFireTime(millis + bulletDelay[bulletType - 1]);
+            token.setLastFireTime(millis + token.getAllowedFireInterval());
 
             //fire bullet//add fire event
             token.getBulletTracker().fire(bulletType, game, monitor);
