@@ -1,0 +1,19 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background of the health bar -->
+    <item android:id="@android:id/background">
+        <shape>
+            <solid android:color="#2a2a2a"/> <!-- Grey color for background -->
+            <corners android:radius="5dp"/>
+        </shape>
+    </item>
+
+    <!-- Foreground of the health bar, this will change color -->
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape>
+                <solid android:color="#B8252A"/> <!-- Initial green color -->
+                <corners android:radius="5dp"/>
+            </shape>
+        </clip>
+    </item>
+</layer-list>

@@ -1,7 +1,9 @@
 package edu.unh.cs.cs619.bulletzone;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -13,6 +15,9 @@ import android.view.View;
 import android.widget.GridView;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
 import com.squareup.otto.Subscribe;
 
 import org.androidannotations.annotations.AfterInject;
@@ -29,6 +34,7 @@ import org.androidannotations.rest.spring.annotations.RestService;
 import org.androidannotations.rest.spring.api.RestClientHeaders;
 import org.androidannotations.api.BackgroundExecutor;
 import org.json.JSONException;
+import org.w3c.dom.Text;
 
 import edu.unh.cs.cs619.bulletzone.events.BusProvider;
 import edu.unh.cs.cs619.bulletzone.rest.BZRestErrorhandler;
@@ -239,6 +245,73 @@ public class ClientActivity extends Activity {
         };
         thread.start();
     }
+
+
+    protected void updateTankHealth(final int health) {
+        runOnUiThread(new Runnable() {
+            @SuppressLint("UseCompatLoadingForDrawables")
+            @Override
+            public void run() {
+
+                ProgressBar tankHealth = findViewById(R.id.tankHealthBar);
+                TextView tankTextView = findViewById(R.id.tankHealthValue);
+
+                tankHealth.setMax(100);
+                Log.d("ProgressBarDebug", "Current progress: " + tankHealth.getProgress());
+
+
+                tankTextView.setText(health + "|" + "100");
+
+                if (health > 66) {
+                    // Green color for health > 66%
+                    tankHealth.setProgressDrawable(getResources().getDrawable(R.drawable.health_bar));
+                } else if (health > 33) {
+                    // Yellow color for health between 33% and 66%
+                    tankHealth.setProgressDrawable(getResources().getDrawable(R.drawable.health_baryellow));
+                } else {
+                    // Red color for health <= 33%
+                    tankHealth.setProgressDrawable(getResources().getDrawable(R.drawable.health_barred));
+                }
+                tankHealth.setProgress(health);
+
+            }
+        });
+
+    }
+
+    protected void updateSoldierHealth(final int health) {
+        runOnUiThread(new Runnable() {
+            @SuppressLint("UseCompatLoadingForDrawables")
+            @Override
+            public void run() {
+
+                ProgressBar soldierHealth = findViewById(R.id.soldierHealthBar);
+                TextView soldierTextView = findViewById(R.id.soldierHealthValue);
+
+                soldierHealth.setMax(25);
+                Log.d("ProgressBarDebug", "Current progress: " + soldierHealth.getProgress());
+
+
+                soldierTextView.setText(health + "|" + "25");
+
+                if (health > 16) {
+                    // Green color for health > 66%
+                    soldierHealth.setProgressDrawable(getResources().getDrawable(R.drawable.health_bar));
+                } else if (health > 8) {
+                    // Yellow color for health between 33% and 66%
+                    soldierHealth.setProgressDrawable(getResources().getDrawable(R.drawable.health_baryellow));
+                } else {
+                    // Red color for health <= 33%
+                    soldierHealth.setProgressDrawable(getResources().getDrawable(R.drawable.health_barred));
+                }
+                soldierHealth.setProgress(health);
+
+            }
+        });
+
+    }
+
+
 
 
     @Click(R.id.buttonLogin)
