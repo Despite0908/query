@@ -8,20 +8,20 @@ import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
 public class Item extends FieldEntity {
 
 
-    private int itemType;
-    private int itemId;
+    private ItemTypes itemType;
     private int gridLocation;
 
-    public Item(long id, int itemType, int location) {
+    //public Item(long id, int itemType, int location) {
+    public Item(long id, ItemTypes theItemType, int location) {
         super(id);
-        this.setItemType(itemType);
+        this.setItemType(theItemType);
         this.setGridLocation(location);
         this.setIsItem(true);
     }
 
     @Override
     public int getIntValue() {
-        return (int) (40000000 + 10000 * getId() + 10 * getItemType());
+        return (int) (40000000 + 10000 * getId() + 10 * getItemType().getValue());
     }
 
     /**
@@ -58,10 +58,10 @@ public class Item extends FieldEntity {
         return gridLocation;
     }
 
-    public int getItemType() {
+    public ItemTypes getItemType() {
         return itemType;
     }
-    public void setItemType(int itemType) {
+    public void setItemType(ItemTypes itemType) {
         this.itemType = itemType;
     }
 
@@ -72,7 +72,6 @@ public class Item extends FieldEntity {
      */
     public int movedIntoBy(PlayerToken other) {
         //TODO aiden how to powerup tank after ran over
-        //TODO aiden remove from item concurrentHashMap (Dont have access to game)
         //From Anthony: Make sure to move the tank into the Item's spot
         return 1;
     }

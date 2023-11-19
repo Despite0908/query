@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import edu.unh.cs.cs619.bulletzone.events.BusProvider;
 import edu.unh.cs.cs619.bulletzone.events.CustomEvent;
+import edu.unh.cs.cs619.bulletzone.events.CustomEventTypes;
 import edu.unh.cs.cs619.bulletzone.events.EventListener;
 import edu.unh.cs.cs619.bulletzone.model.entities.FieldEntity;
 import edu.unh.cs.cs619.bulletzone.model.entities.Soldier;
@@ -202,7 +203,7 @@ public final class Game {
 
     @Subscribe
     public void someCustomEvent(CustomEvent customEvent) {
-        System.out.println("Received event in class game -- numItems is " + numItems + " about to decrement");
+        System.out.println("Received event " + customEvent.getEventType().name() + " in class game -- numItems is " + numItems + " about to decrement");
         decrementItems();
     }
 }

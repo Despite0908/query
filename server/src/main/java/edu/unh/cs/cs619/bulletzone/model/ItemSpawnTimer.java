@@ -5,6 +5,7 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
 
 import edu.unh.cs.cs619.bulletzone.model.entities.Item;
+import edu.unh.cs.cs619.bulletzone.model.entities.ItemTypes;
 
 /**
  * Timer Task for Updating the positions of bullets
@@ -62,7 +63,7 @@ public class ItemSpawnTimer extends TimerTask {
                             fieldElement.setFieldEntity(myTestItem);
                             myTestItem.setParent(fieldElement);
                             theGame.incrementItems();
-                            System.out.println("Added item " + myTestItem.getItemType());
+                            System.out.println("Added item " + myTestItem.getItemType() + " with value " + myTestItem.getItemType().getValue());
                             successFlag = true;
 
                         } else {
@@ -82,20 +83,20 @@ public class ItemSpawnTimer extends TimerTask {
      * Decides the random Item we are using
      * @return int val representing the PowerUP
      */
-    public int randomItem() {
+    public ItemTypes randomItem() {
         Random randomItemNum = new Random();
         int randomItem = randomItemNum.nextInt(3) + 1;
-        int actualItem = 0;
+        ItemTypes randomItemType = null;
         if (randomItem == 1) {
             //Thingamagig
-            actualItem = 7;
+            randomItemType = ItemTypes.COIN;
         } else if(randomItem == 2) {
             //AntiGrav
-            actualItem = 2002;
+            randomItemType = ItemTypes.ANTI_GRAV;
         } else if(randomItem == 3) {
             //FusionReactor
-            actualItem = 2003;
+            randomItemType = ItemTypes.FUSION_REACTOR;
         }
-        return actualItem;
+        return randomItemType;
     }
 }

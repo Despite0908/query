@@ -6,6 +6,7 @@ import com.google.common.eventbus.EventBus;
 
 import edu.unh.cs.cs619.bulletzone.events.BusProvider;
 import edu.unh.cs.cs619.bulletzone.events.CustomEvent;
+import edu.unh.cs.cs619.bulletzone.events.CustomEventTypes;
 import edu.unh.cs.cs619.bulletzone.model.BulletTracker;
 import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
@@ -114,7 +115,8 @@ public abstract class PlayerToken extends FieldEntity{
             parent.clearField();
             nextField.setFieldEntity(this);
             setParent(nextField);
-            CustomEvent customEvent = new CustomEvent("Custom Event");
+            grabbedItem.movedIntoBy(this);
+            CustomEvent customEvent = new CustomEvent(CustomEventTypes.ANTI_GRAV_PICKUP, grabbedItem);
 
             // this was working
             // eventBus.post(customEvent);
