@@ -49,7 +49,7 @@ public class BulletTracker {
         Direction direction = token.getDirection();
         FieldHolder parent = token.getParent();
 
-        if(!(bulletType>=1 && bulletType<=3)) {
+        if(!(bulletType>=1 && bulletType<=4)) {
             System.out.println("Bullet type must be 1, 2 or 3, set to 1 by default.");
             bulletType = 1;
         }

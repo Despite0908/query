@@ -93,7 +93,7 @@ public class TankControllerTest {
         controller.joinAsync();
         controller.injectRestClient(restClient);
         controller.onBulletFire();
-        verify(restClient).fire(controller.getTankId());
+        verify(restClient).fire(controller.getTankId(), 1);
     }
 
     @Test

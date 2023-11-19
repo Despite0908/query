@@ -67,6 +67,7 @@ public class BulletTimer extends TimerTask {
                 token.getBulletTracker().getTrackActiveBullets()[bullet.getBulletId()] = null;
                 token.setNumberOfBullets(token.getNumberOfBullets()-1);
                 cancel();
+                return;
             }
 
             //Checking for Walls
