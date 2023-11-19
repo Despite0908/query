@@ -196,7 +196,12 @@ public class TankController {
     @Background
     public void onBulletFire() {
         long id = getCurrentUnitId();
-        boolean test = restClient.fire(id).isResult();
+        boolean test;
+        if (soldierId != -1) {
+            test = restClient.fire(getSoldierId(), 4).isResult();
+        } else {
+            test = restClient.fire(getTankId(), 1).isResult();
+        }
         Log.d("fireTest", String.format("%b\n", test));
     }
 

@@ -200,7 +200,7 @@ public class InMemoryGameRepository implements GameRepository {
             if (token == null) {
                 token = game.getSoldiers().get(tokenId);
                 if (token == null) {
-                    throw new TokenDoesNotExistException(tokenId);
+                    return false;
                 }
             }
 
@@ -230,7 +230,7 @@ public class InMemoryGameRepository implements GameRepository {
         synchronized (this.monitor) {
             Tank tank = game.getTanks().get(tankId);
             if (tank == null) {
-                throw new TokenDoesNotExistException(tankId);
+                return null;
             }
             //If there has already been an ejection
             if (tank.isEjected()) {
@@ -291,7 +291,7 @@ public class InMemoryGameRepository implements GameRepository {
             if (token == null) {
                 token = game.getSoldiers().get(tokenId);
                 if (token == null) {
-                    throw new TokenDoesNotExistException(tokenId);
+                    return 0;
                 }
             }
 
@@ -334,7 +334,7 @@ public class InMemoryGameRepository implements GameRepository {
             if (token == null) {
                 token = game.getSoldiers().get(tokenId);
                 if (token == null) {
-                    throw new TokenDoesNotExistException(tokenId);
+                    return false;
                 }
             }
 

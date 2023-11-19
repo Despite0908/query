@@ -53,8 +53,8 @@ public interface BulletZoneRestClient extends RestClientErrorHandling {
     @Put("/{tankId}/turn/{direction}")
     BooleanWrapper turn(@Path long tankId, @Path byte direction);
 
-    @Put("/{tankId}/fire/1")
-    BooleanWrapper fire(@Path long tankId);
+    @Put("/{tankId}/fire/{bulletType}")
+    BooleanWrapper fire(@Path long tankId, @Path int bulletType);
 
     @Delete("/{tankId}/leave")
     BooleanWrapper leave(@Path long tankId);
