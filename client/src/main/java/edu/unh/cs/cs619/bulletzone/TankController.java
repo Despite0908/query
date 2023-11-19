@@ -206,7 +206,10 @@ public class TankController {
      */
     void eject(long tankId) {
         try {
-            soldierId = restClient.eject(tankId).getResult();
+            long tempId = restClient.eject(tankId).getResult();
+            if (tempId != -1) {
+                soldierId = tempId;
+            }
         } catch (Exception e) {
             Log.d("debug", "Server Error during eject");
         }

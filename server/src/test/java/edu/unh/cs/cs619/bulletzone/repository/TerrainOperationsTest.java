@@ -140,5 +140,4 @@ public class TerrainOperationsTest {
         when(mockClock.millis()).thenReturn((long)4000);
         Assert.assertTrue(repo.move(soldier.getId(), Direction.Up));
     }
-
 }

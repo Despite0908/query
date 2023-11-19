@@ -12,6 +12,8 @@ public class Tank extends PlayerToken {
 
     private static final String TAG = "Tank";
 
+    private boolean ejected = false;
+
     /**
      * Constructor. Handles values not set in PlayerToken.
      * @param id The ID of the tank
@@ -24,6 +26,14 @@ public class Tank extends PlayerToken {
         setAllowedNumberOfBullets(2);
         setAllowedMoveInterval(500);
         setBulletTracker(new BulletTracker(this, 2));
+    }
+
+    public void setEjected(boolean ejected) {
+        this.ejected = ejected;
+    }
+
+    public boolean isEjected() {
+        return ejected;
     }
 
     /**
@@ -160,10 +170,29 @@ public class Tank extends PlayerToken {
             //Remove from tank and field holder
             other.getParent().clearField();
             other.setParent(null);
-            setPair(null);
+            ejected = false;
             return 2;
         }
         return 0;
+    }
+
+    @Override
+    public void cleanPair() {
+        Soldier s = (Soldier) getPair();
+        if (s != null) {
+            //Clear bullets
+            s.getBulletTracker().clear();
+            //If (somehow) soldier is on field, delete
+            if (ejected) {
+                s.getParent().clearField();
+                s.setParent(null);
+                EventHistory e = EventHistory.get_instance();
+                e.addEvent(new TokenLeaveEvent(s.getId(), s.getIntValue()));
+            }
+            //clear pair
+            setPair(null);
+            ejected = false;
+        }
     }
 
 }

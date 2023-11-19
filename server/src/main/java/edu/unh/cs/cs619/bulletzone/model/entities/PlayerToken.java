@@ -150,6 +150,8 @@ public abstract class PlayerToken extends FieldEntity{
         return millis >= getLastFireTime();
     }
 
+    public void cleanPair(){}
+
     public BulletTracker getBulletTracker() {
         return bulletTracker;
     }
