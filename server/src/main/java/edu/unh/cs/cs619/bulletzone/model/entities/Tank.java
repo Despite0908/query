@@ -1,5 +1,8 @@
 package edu.unh.cs.cs619.bulletzone.model.entities;
 
+import com.google.common.eventbus.EventBus;
+
+import edu.unh.cs.cs619.bulletzone.events.BusProvider;
 import edu.unh.cs.cs619.bulletzone.model.BulletTracker;
 import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.Game;
@@ -11,6 +14,7 @@ import edu.unh.cs.cs619.bulletzone.model.Terrain;
 public class Tank extends PlayerToken {
 
     private static final String TAG = "Tank";
+    EventBus eventBus = BusProvider.BusProvider().eventBus;
 
     /**
      * Constructor. Handles values not set in PlayerToken.
@@ -23,7 +27,7 @@ public class Tank extends PlayerToken {
         setLife(100);
         setAllowedNumberOfBullets(2);
         setAllowedMoveInterval(500);
-        setBulletTracker(new BulletTracker(this, 2));
+        setBulletTracker(new BulletTracker(this, 256));
     }
 
     /**

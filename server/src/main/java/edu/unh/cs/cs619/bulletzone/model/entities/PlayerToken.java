@@ -15,7 +15,7 @@ public abstract class PlayerToken extends FieldEntity{
     private final String ip;
 
     private long lastMoveTime;
-    private int allowedMoveInterval;
+    private long allowedMoveInterval;
 
     private long lastFireTime;
 
@@ -115,7 +115,10 @@ public abstract class PlayerToken extends FieldEntity{
             nextField.setFieldEntity(this);
             setParent(nextField);
             CustomEvent customEvent = new CustomEvent("Custom Event");
-
+            if (grabbedItem.getItemType() == 2003) {
+                numBulletsAfterReactor();
+                fireRateAfterReactor();
+            }
             // this was working
             // eventBus.post(customEvent);
             eventBus2.post(customEvent);
@@ -225,4 +228,27 @@ public abstract class PlayerToken extends FieldEntity{
     public void setPair(PlayerToken pair) {
         this.pair = pair;
     }
+
+    /**
+     * Doubles number of bullets to fired
+     * @return num of bullets that can be fired
+     */
+    public void numBulletsAfterReactor() {
+        setAllowedNumberOfBullets(allowedNumberOfBullets * 2);
+        //setNumberOfBullets(numberOfBullets * 2);
+    }
+
+    /**
+     * doubles allowed firing time
+     * @return interval of firing time
+     */
+    public void fireRateAfterReactor() {
+        setLastFireTime(lastFireTime / 2);
+    }
+
+//    public long movementSpeedAfterReactor() {
+//        double delay = allowedMoveInterval * .25;
+//        setAllowedMoveInterval(delay);
+//    }
+
 }
