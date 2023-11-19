@@ -2,6 +2,10 @@ package edu.unh.cs.cs619.bulletzone.model.entities;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.eventbus.EventBus;
+
+import edu.unh.cs.cs619.bulletzone.events.BusProvider;
+import edu.unh.cs.cs619.bulletzone.events.CustomEvent;
 import edu.unh.cs.cs619.bulletzone.model.BulletTracker;
 import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
@@ -25,6 +29,16 @@ public abstract class PlayerToken extends FieldEntity{
 
     PlayerToken pair;
 
+    //EventBus eventBus = new BusProvider().getEventBus();
+
+
+    //this is what was working
+    //EventBus eventBus;
+
+    EventBus eventBus2;
+
+
+
 
     /**
      * Constructor. Handles common data and functionality between tokens.
@@ -40,8 +54,16 @@ public abstract class PlayerToken extends FieldEntity{
         lastFireTime = 0;
         lastMoveTime = 0;
         pair = null;
+        eventBus2 = BusProvider.BusProvider().eventBus;
     }
 
+//    public void setEventBus(EventBus theBus) {
+//        eventBus = theBus;
+//    }
+
+//    public EventBus getEventBus() {
+//        return eventBus;
+//    }
     /**
      * Constraint checking for the token's turn operation.
      * @param millis Timestamp in milliseconds
@@ -92,6 +114,11 @@ public abstract class PlayerToken extends FieldEntity{
             parent.clearField();
             nextField.setFieldEntity(this);
             setParent(nextField);
+            CustomEvent customEvent = new CustomEvent("Custom Event");
+
+            // this was working
+            // eventBus.post(customEvent);
+            eventBus2.post(customEvent);
             return 1;
         }
 

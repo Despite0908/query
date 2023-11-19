@@ -136,5 +136,95 @@
                 android:textColor="@color/text_color"
                 tools:ignore="SmallSp" />
         </RelativeLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="bottom"
+            android:padding="8dp">
+
+            <!-- Soldier Health Bar, Icon, and Text -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <!-- Soldier Health Icon -->
+                <ImageView
+                    android:id="@+id/soldierHealthIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="50dp"
+                    android:src="@drawable/soldierhealth_icon" /> <!-- Replace with your soldier icon drawable resource -->
+
+                <!-- Soldier Health Bar -->
+                <ProgressBar
+                    android:id="@+id/soldierHealthBar"
+                    android:layout_width="100dp"
+                    android:layout_height="22dp"
+                    android:max="25"
+                    android:progress="25"
+                    android:indeterminate="false"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:progressDrawable="@drawable/health_bar"
+                    android:layout_toRightOf="@id/soldierHealthIcon" />
+
+                <!-- Soldier Health Value -->
+                <TextView
+                    android:id="@+id/soldierHealthValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignStart="@id/soldierHealthBar"
+                    android:layout_alignTop="@id/soldierHealthBar"
+                    android:text="25|25"
+                    android:textColor="@color/text_color"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp"
+                    android:gravity="center_vertical" />
+            </RelativeLayout>
+
+            <!-- Tank Health Bar, Icon, and Text -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <!-- Tank Health Icon -->
+                <ImageView
+                    android:id="@+id/tankHealthIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/tankhealth_icon" />
+
+                <!-- Tank Health Bar -->
+                <ProgressBar
+                    android:id="@+id/tankHealthBar"
+                    android:layout_width="200dp"
+                    android:layout_height="28dp"
+                    android:max="100"
+                    android:progress="100"
+                    android:indeterminate="false"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:progressDrawable="@drawable/health_bar"
+                    android:layout_toRightOf="@id/tankHealthIcon" />
+
+                <!-- Tank Health Value -->
+                <TextView
+                    android:id="@+id/tankHealthValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignStart="@id/tankHealthBar"
+                    android:layout_alignTop="@id/tankHealthBar"
+                    android:text="100|100"
+                    android:textColor="@color/text_color"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp"
+                    android:gravity="center_vertical" />
+            </RelativeLayout>
+        </LinearLayout>
+
+
     </LinearLayout>
 </LinearLayout>
