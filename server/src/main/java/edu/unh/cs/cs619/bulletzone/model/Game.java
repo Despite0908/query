@@ -1,8 +1,9 @@
 package edu.unh.cs.cs619.bulletzone.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
-import java.sql.SQLSyntaxErrorException;
 import java.util.Optional;
 
 import java.util.ArrayList;
@@ -10,8 +11,10 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import edu.unh.cs.cs619.bulletzone.events.BusProvider;
+import edu.unh.cs.cs619.bulletzone.events.CustomEvent;
+import edu.unh.cs.cs619.bulletzone.events.EventListener;
 import edu.unh.cs.cs619.bulletzone.model.entities.FieldEntity;
-import edu.unh.cs.cs619.bulletzone.model.entities.Item;
 import edu.unh.cs.cs619.bulletzone.model.entities.Soldier;
 import edu.unh.cs.cs619.bulletzone.model.entities.Tank;
 
@@ -25,6 +28,11 @@ public final class Game {
 
     private final ConcurrentMap<Long, Tank> tanks = new ConcurrentHashMap<>();
     private final ConcurrentMap<Long, Soldier> soldiers = new ConcurrentHashMap<>();
+
+    EventBus eventBus = BusProvider.BusProvider().eventBus;
+
+    //EventBus eventBus = new AppConfig().eventBus();
+    // was working EventBus eventBus = new EventBus();
 
     /**
      * Map of Items on the Grid
@@ -42,7 +50,16 @@ public final class Game {
     private final Object monitor = new Object();
 
     public Game() {
+        EventListener listener = new EventListener(eventBus);
+        eventBus.register(this);
+        //eventBus.register(listener);
+        //CustomEvent customEvent = new CustomEvent("Custom Event");
+        //eventBus.post(customEvent);
         this.id = 0;
+    }
+
+    public EventBus getGameEventBus() {
+        return eventBus;
     }
 
     @JsonIgnore
@@ -181,5 +198,11 @@ public final class Game {
             }
         }
         return grid;
+    }
+
+    @Subscribe
+    public void someCustomEvent(CustomEvent customEvent) {
+        System.out.println("Received event in class game -- numItems is " + numItems + " about to decrement");
+        decrementItems();
     }
 }
