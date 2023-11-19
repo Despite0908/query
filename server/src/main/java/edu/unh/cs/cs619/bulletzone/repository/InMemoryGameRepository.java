@@ -228,9 +228,13 @@ public class InMemoryGameRepository implements GameRepository {
      */
     public Soldier eject(long tankId) throws TokenDoesNotExistException {
         synchronized (this.monitor) {
-            PlayerToken tank = game.getTanks().get(tankId);
+            Tank tank = game.getTanks().get(tankId);
             if (tank == null) {
                 throw new TokenDoesNotExistException(tankId);
+            }
+            //If there has already been an ejection
+            if (tank.isEjected()) {
+                return null;
             }
             //Look for open position
             FieldHolder parent = tank.getParent();
@@ -242,19 +246,23 @@ public class InMemoryGameRepository implements GameRepository {
                     break;
                 }
             }
+            //If no open position
             if (holder == null) {
                 return null;
             }
-            if (tank.getPair() != null) {
-                return null;
-            }
             //Spawn Soldier
-            Soldier soldier = new Soldier(idGenerator.getAndIncrement(), Direction.Up, tank.getIp());
+            Soldier soldier;
+            if (tank.getPair() == null) {
+                soldier = new Soldier(idGenerator.getAndIncrement(), Direction.Up, tank.getIp());
+            } else {
+                soldier = (Soldier) tank.getPair();
+            }
             soldier.setParent(holder);
             holder.setFieldEntity(soldier);
             //Pair solder/tank
             soldier.setPair(tank);
             tank.setPair(soldier);
+            tank.setEjected(true);
             //Add to game
             game.addSoldier(soldier);
             //Add event
@@ -268,7 +276,7 @@ public class InMemoryGameRepository implements GameRepository {
      * Checks constraints and moves a token
      * @param tokenId Token to be moved
      * @param direction direction to move token in
-     * @return TEMPORARY: RETURNS LONG FROM MOVERESULT. TURN TO ORIGINAL LATER. Returns false if constraints are violated. Returns true if move is successful.
+     * @return TEMPORARY: RETURNS LONG FROM MOVERESULT. RETURN TO ORIGINAL LATER. Returns false if constraints are violated. Returns true if move is successful.
      * @throws TokenDoesNotExistException Throws if there is no thank corresponding to tokenID.
      * @throws IllegalTransitionException I'm not sure here because this exception is specifically about turns.
      * @throws LimitExceededException Don't know here
@@ -340,6 +348,7 @@ public class InMemoryGameRepository implements GameRepository {
 
             //fire bullet//add fire event
             token.getBulletTracker().fire(bulletType, game, monitor);
+            token.cleanPair();
             eventHistory.addEvent(new FireEvent(token.getId()));
             return true;
         }
