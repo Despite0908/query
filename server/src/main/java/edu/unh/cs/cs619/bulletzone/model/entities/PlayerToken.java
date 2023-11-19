@@ -159,6 +159,10 @@ public abstract class PlayerToken extends FieldEntity{
 
     public void cleanPair(){}
 
+    /**
+     * gets BulletTracker
+     * @return bulletTracker
+     */
     public BulletTracker getBulletTracker() {
         return bulletTracker;
     }
