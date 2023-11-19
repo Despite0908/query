@@ -8,11 +8,12 @@ public class Bullet extends FieldEntity {
     private Direction direction;
     private int damage, bulletId;
 
-    public Bullet(long tankId, Direction direction, int damage) {
+    public Bullet(long tankId, Direction direction, int damage, int bulletId) {
         super(-1);
         this.damage = damage;
         this.setTankId(tankId);
         this.setDirection(direction);
+        this.bulletId = bulletId;
     }
 
     @Override
@@ -27,7 +28,7 @@ public class Bullet extends FieldEntity {
 
     @Override
     public FieldEntity copy() {
-        return new Bullet(tankId, direction, damage);
+        return new Bullet(tankId, direction, damage, bulletId);
     }
 
     public long getTankId() {

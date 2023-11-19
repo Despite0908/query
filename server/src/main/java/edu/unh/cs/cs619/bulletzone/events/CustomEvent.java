@@ -1,17 +1,27 @@
 package edu.unh.cs.cs619.bulletzone.events;
 
 public class CustomEvent {
-    private String action;
+    private CustomEventTypes eventType;
+    private Object myObject;
 
-    public CustomEvent(String passedString) {
-        setAction (passedString);
+    public CustomEvent(CustomEventTypes theEventType, Object customObject) {
+        setEventType(theEventType);
+        setMyObject(customObject);
     }
 
-    public String getAction(){
-        return action;
+    public CustomEventTypes getEventType(){
+        return eventType;
     }
 
-    public void setAction(String action){
-        this.action = action;
+    public void setEventType(CustomEventTypes passedEventType){
+        this.eventType = passedEventType;
+    }
+
+    public void setMyObject(Object passedObject) {
+        this.myObject = passedObject;
+    }
+
+    public Object getMyObject() {
+        return myObject;
     }
 }

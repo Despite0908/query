@@ -64,7 +64,7 @@ public class BulletTimer extends TimerTask {
                     // Remove bullet from field
                     currentField.clearField();
                 }
-                token.getBulletTracker().getTrackActiveBullets()[bullet.getBulletId()]=0;
+                token.getBulletTracker().getTrackActiveBullets()[bullet.getBulletId()] = null;
                 token.setNumberOfBullets(token.getNumberOfBullets()-1);
                 cancel();
             }
@@ -85,9 +85,9 @@ public class BulletTimer extends TimerTask {
                     // Remove bullet from field
                     currentField.clearField();
                 }
-                token.getBulletTracker().getTrackActiveBullets()[bullet.getBulletId()]=0;
+                token.getBulletTracker().getTrackActiveBullets()[bullet.getBulletId()] = null;
                 token.setNumberOfBullets(token.getNumberOfBullets()-1);
-                eventHistory.addEvent(new TokenLeaveEvent(bullet.getBulletId(), bullet.getBulletId()));
+                eventHistory.addEvent(new TokenLeaveEvent(bullet.getId(), bullet.getIntValue()));
                 cancel();
             } else if (nextField.isPresent()) {
                 nextField.getEntity().hit(bullet.getDamage(), game);
@@ -96,9 +96,9 @@ public class BulletTimer extends TimerTask {
                     // Remove bullet from field
                     currentField.clearField();
                 }
-                token.getBulletTracker().getTrackActiveBullets()[bullet.getBulletId()]=0;
+                token.getBulletTracker().getTrackActiveBullets()[bullet.getBulletId()] = null;
                 token.setNumberOfBullets(token.getNumberOfBullets()-1);
-                eventHistory.addEvent(new TokenLeaveEvent(bullet.getBulletId(), bullet.getBulletId()));
+                eventHistory.addEvent(new TokenLeaveEvent(bullet.getId(), bullet.getIntValue()));
                 cancel();
 
             } else {

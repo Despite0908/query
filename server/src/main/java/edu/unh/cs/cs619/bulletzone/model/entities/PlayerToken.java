@@ -6,6 +6,7 @@ import com.google.common.eventbus.EventBus;
 
 import edu.unh.cs.cs619.bulletzone.events.BusProvider;
 import edu.unh.cs.cs619.bulletzone.events.CustomEvent;
+import edu.unh.cs.cs619.bulletzone.events.CustomEventTypes;
 import edu.unh.cs.cs619.bulletzone.model.BulletTracker;
 import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
@@ -15,7 +16,7 @@ public abstract class PlayerToken extends FieldEntity{
     private final String ip;
 
     private long lastMoveTime;
-    private long allowedMoveInterval;
+    private int allowedMoveInterval;
 
     private long lastFireTime;
 
@@ -114,7 +115,8 @@ public abstract class PlayerToken extends FieldEntity{
             parent.clearField();
             nextField.setFieldEntity(this);
             setParent(nextField);
-            CustomEvent customEvent = new CustomEvent("Custom Event");
+            grabbedItem.movedIntoBy(this);
+            CustomEvent customEvent = new CustomEvent(CustomEventTypes.ANTI_GRAV_PICKUP, grabbedItem);
             if (grabbedItem.getItemType() == 2003) {
                 numBulletsAfterReactor();
                 fireRateAfterReactor();
@@ -150,6 +152,8 @@ public abstract class PlayerToken extends FieldEntity{
         }
         return millis >= getLastFireTime();
     }
+
+    public void cleanPair(){}
 
     public BulletTracker getBulletTracker() {
         return bulletTracker;

@@ -7,6 +7,6 @@ public class EventDispatcher {
 
     // @Autowired
     public EventDispatcher(EventBus eventBus) {
-        eventBus.post(new CustomEvent("test event"));
+        //eventBus.post(new CustomEvent(CustomEventTypes.ANTI_GRAV_PICKUP, ));
     }
 }
