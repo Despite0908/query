@@ -1,12 +1,19 @@
 package edu.unh.cs.cs619.bulletzone.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.util.Collection;
 import java.util.Optional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import edu.unh.cs.cs619.bulletzone.datalayer.BulletZoneData;
+import edu.unh.cs.cs619.bulletzone.datalayer.account.BankAccount;
+import edu.unh.cs.cs619.bulletzone.datalayer.user.GameUser;
+import edu.unh.cs.cs619.bulletzone.repository.DataRepository;
 
 public final class Game {
     /**
@@ -18,6 +25,10 @@ public final class Game {
 
     private final ConcurrentMap<Long, Tank> tanks = new ConcurrentHashMap<>();
     private final ConcurrentMap<Long, Soldier> soldiers = new ConcurrentHashMap<>();
+
+    BulletZoneData data = new DataRepository().getbzData();
+
+    //associate the inventory with username
 
     /**
      * Map of Items on the Grid
@@ -91,6 +102,36 @@ public final class Game {
             soldiers.put(soldier.getId(), soldier);
         }
     }
+
+    public int[] getInventory(String username){
+        int [] inventory = new int[1];
+
+        int balance = getCredits(username);
+
+        inventory[0] = balance;
+
+        return inventory;
+    }
+
+    public int getCredits(String username) {
+        try {
+            GameUser user = data.users.getUser(username);
+
+            Collection<BankAccount> accounts = user.getOwnedAccounts();
+
+            BankAccount ba = accounts.iterator().next();
+
+            double balance = ba.getBalance();
+
+            return (int) balance;
+        } catch (NullPointerException e) {
+            System.out.println("Error: getting coins, user not found");
+        }
+
+        return 0;
+    }
+
+
 
     //TODO: This is bad
     public void removeSoldier(long soldierId){

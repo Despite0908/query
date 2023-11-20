@@ -25,13 +25,17 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class DataRepository {
     private BulletZoneData bzdata;
 
-    DataRepository() {
+    public DataRepository() {
         String url = "jdbc:mysql://stman1.cs.unh.edu/cs61906";
         String username = "oberon";
         String password = "pibyad2ObIb";
 //
         bzdata = new BulletZoneData(url, username, password);
 //        bzdata = new BulletZoneData(); //just use in-memory database
+    }
+
+    public BulletZoneData getbzData() {
+    	return bzdata;
     }
 
     /**

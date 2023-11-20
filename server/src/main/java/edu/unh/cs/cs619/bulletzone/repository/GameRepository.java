@@ -28,4 +28,8 @@ public interface GameRepository {
     String[] event(long millis);
 
     public Soldier eject(long tankId) throws TokenDoesNotExistException;
+
+    public int[] getInventory(String username);
+
+
 }

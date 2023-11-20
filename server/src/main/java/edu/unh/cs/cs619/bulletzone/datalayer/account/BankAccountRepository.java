@@ -73,12 +73,29 @@ public class BankAccountRepository implements OwnableEntityRepository {
         return newAccount;
     }
 
+
+    public boolean addCredits(BankAccount acc, double credits) {
+
+
+        return addCredits(acc.getId(), credits);
+    }
+
+    public boolean addCredits(int accountID, double credits) {
+        if (!accountMap.containsKey(accountID))
+            return false;
+
+        return updateBalance(accountID, credits);
+    }
+
     /**
      * Deletes the referenced account from the in-memory representation and
      * marks it as deleted in the database.
      * @param account    BankAccount to be marked as deleted
      * @return  true if the operation was successful, and false otherwise.
      */
+
+
+
     public boolean delete(BankAccount account) {
         return delete(account.getId());
     }
@@ -112,6 +129,7 @@ public class BankAccountRepository implements OwnableEntityRepository {
     }
 
     public boolean modifyBalance(BankAccount account, double amount) {
+        
         return modifyBalance(account.getId(), amount);
     }
 

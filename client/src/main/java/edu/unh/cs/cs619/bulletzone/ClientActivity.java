@@ -13,6 +13,8 @@ import android.view.View;
 import android.widget.GridView;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.widget.TextView;
+
 import com.squareup.otto.Subscribe;
 
 import org.androidannotations.annotations.AfterInject;
@@ -34,8 +36,10 @@ import edu.unh.cs.cs619.bulletzone.rest.BZRestErrorhandler;
 import edu.unh.cs.cs619.bulletzone.rest.BulletZoneRestClient;
 import edu.unh.cs.cs619.bulletzone.rest.GridPollerTask;
 import edu.unh.cs.cs619.bulletzone.rest.GridUpdateEvent;
+import edu.unh.cs.cs619.bulletzone.ui.GameUser;
 import edu.unh.cs.cs619.bulletzone.ui.GridAdapter;
 import edu.unh.cs.cs619.bulletzone.util.GridWrapper;
+import edu.unh.cs.cs619.bulletzone.util.InventoryWrapper;
 
 @EActivity(R.layout.activity_client)
 public class ClientActivity extends Activity {
@@ -44,6 +48,8 @@ public class ClientActivity extends Activity {
 
     @Bean
     protected GridAdapter mGridAdapter;
+
+    GameUser user;
 
     @ViewById
     protected GridView gridView;
@@ -54,6 +60,10 @@ public class ClientActivity extends Activity {
     @NonConfigurationInstance
     @Bean
     GridPollerTask gridPollTask;
+    @RestService
+    BulletZoneRestClient restClient;
+    @Bean
+    BZRestErrorhandler bzRestErrorhandler;
 
 //    @RestService
 //    BulletZoneRestClient restClient;
@@ -131,6 +141,10 @@ public class ClientActivity extends Activity {
     void afterInject() {
         tankControl.afterInject();
         busProvider.getEventBus().register(gridEventHandler);
+
+        restClient.setRestErrorHandler(bzRestErrorhandler);
+
+        user = GameUser.getInstance();
 //        tankControl.afterInject(busProvider, gridEventHandler);
     }
 
@@ -145,7 +159,25 @@ public class ClientActivity extends Activity {
 
     public void updateGrid(GridWrapper gw) {
         mGridAdapter.updateList(gw.getGrid());
+
+        getPlayerInfo();
     }
+
+    public void getPlayerInfo() {
+
+        TextView creditInfo = findViewById(R.id.bal);
+
+        InventoryWrapper in = restClient.getInventory(user.getUsername());
+
+        int[] inv = in.getResult();
+
+
+        String text = "Credits: " + inv[0] + "\n";
+
+        creditInfo.setText(text);
+
+    }
+
 
     @Click({R.id.buttonUp, R.id.buttonDown})
     @Background

@@ -15,6 +15,7 @@ import org.springframework.web.client.RestClientException;
 
 import edu.unh.cs.cs619.bulletzone.util.BooleanWrapper;
 import edu.unh.cs.cs619.bulletzone.util.GridWrapper;
+import edu.unh.cs.cs619.bulletzone.util.InventoryWrapper;
 import edu.unh.cs.cs619.bulletzone.util.LongWrapper;
 import edu.unh.cs.cs619.bulletzone.util.StringArrayWrapper;
 
@@ -58,4 +59,8 @@ public interface BulletZoneRestClient extends RestClientErrorHandling {
 
     @Delete("/{tankId}/leave")
     BooleanWrapper leave(@Path long tankId);
+
+
+    @Put("/GetInventory/{username}")
+    InventoryWrapper getInventory(@Path String username);
 }

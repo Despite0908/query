@@ -94,6 +94,8 @@ public class InMemoryGameRepository implements GameRepository {
         }
     }
 
+
+
     /**
      * Adds a player to the current game. If there is no game occurring, it creates one.
      * @param ip IP address of the player joining.
@@ -346,6 +348,10 @@ public class InMemoryGameRepository implements GameRepository {
             }
             eventHistory.addEvent(new TokenLeaveEvent(tank.getId(), tank.getIntValue()));
         }
+    }
+
+    public int[] getInventory(String username){
+        return game.getInventory(username);
     }
 
     /**

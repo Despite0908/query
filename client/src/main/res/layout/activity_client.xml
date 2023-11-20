@@ -30,16 +30,21 @@
                 android:text="Login"
                 android:textColor="@color/text_color" />
 
+
+
             <Button
                 android:id="@+id/buttonLeave"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:textSize="12sp"
                 android:layout_alignParentRight="true"
+
                 android:background="@color/color_selector"
                 android:text="Leave"
                 android:textColor="@color/text_color" />
         </RelativeLayout>
+
+
 
         <GridView
             android:id="@+id/gridView"
@@ -54,6 +59,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="4dp">
+
+            <TextView
+                android:id="@+id/bal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:gravity="center"
+                android:layout_toEndOf="@+id/buttonLeft"
+                android:layout_toStartOf="@+id/buttonRight"
+                android:textColor="#FFFFFF"
+            android:textSize="12sp"
+                />
+
 
             <Button
                 android:id="@+id/buttonLeft"

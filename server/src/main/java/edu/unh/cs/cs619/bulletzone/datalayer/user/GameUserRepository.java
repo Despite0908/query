@@ -18,6 +18,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
 import edu.unh.cs.cs619.bulletzone.datalayer.BulletZoneData;
+import edu.unh.cs.cs619.bulletzone.datalayer.account.BankAccount;
 import edu.unh.cs.cs619.bulletzone.datalayer.core.Entity;
 import edu.unh.cs.cs619.bulletzone.datalayer.core.EntityRepository;
 import edu.unh.cs.cs619.bulletzone.datalayer.core.EntityType;
@@ -61,6 +62,8 @@ public class GameUserRepository implements EntityRepository {
         GameUserRecord newRecord = new GameUserRecord(name, username);
         GameUser newUser = null;
 
+
+
         //The following is adapted from https://www.baeldung.com/java-password-hashing
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[saltSize];
@@ -87,6 +90,13 @@ public class GameUserRepository implements EntityRepository {
             newUser = new GameUser(newRecord);
             userMap.put(newUser.getId(), newUser);
             usernameToUserMap.put(newRecord.username, newUser);
+
+            BankAccount account = data.accounts.create();
+
+            data.permissions.setOwner(account, newUser);
+            data.accounts.modifyBalance(account, 1000);
+
+
         } catch (SQLException e) {
             throw new IllegalStateException("Error while creating user!", e);
         }

@@ -26,6 +26,7 @@ import edu.unh.cs.cs619.bulletzone.model.exceptions.TokenDoesNotExistException;
 import edu.unh.cs.cs619.bulletzone.repository.GameRepository;
 import edu.unh.cs.cs619.bulletzone.util.BooleanWrapper;
 import edu.unh.cs.cs619.bulletzone.util.GridWrapper;
+import edu.unh.cs.cs619.bulletzone.util.InventoryWrapper;
 import edu.unh.cs.cs619.bulletzone.util.LongWrapper;
 import edu.unh.cs.cs619.bulletzone.util.StringArrayWrapper;
 
@@ -141,5 +142,33 @@ class GamesController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     String handleBadRequests(Exception e) {
         return e.getMessage();
+    }
+
+
+
+    //return inventory to rest client call
+
+    @RequestMapping(method=RequestMethod.PUT, value="GetInventory/{username}/")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+
+    ResponseEntity<InventoryWrapper> getInventory(@PathVariable String username)
+    {
+
+        try
+        {
+            int[] inventory = gameRepository.getInventory(username);
+
+            //boolean isPoweredUp =
+            return new ResponseEntity<InventoryWrapper>(new InventoryWrapper(inventory), HttpStatus.OK);
+
+
+        } catch (RestClientException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
+
     }
 }

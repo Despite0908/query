@@ -16,6 +16,8 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 
+import edu.unh.cs.cs619.bulletzone.ui.GameUser;
+
 @EActivity(R.layout.activity_authenticate)
 public class AuthenticateActivity extends AppCompatActivity {
     @ViewById
@@ -31,6 +33,8 @@ public class AuthenticateActivity extends AppCompatActivity {
     AuthenticationController controller;
 
     long userID;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +52,7 @@ public class AuthenticateActivity extends AppCompatActivity {
     @AfterInject
     void afterInject() {
         //Put any Bean-related setup code here (the you might normally put in onCreate)
+
     }
 
     /**

@@ -7,6 +7,7 @@ import org.androidannotations.annotations.EBean;
 import org.androidannotations.rest.spring.annotations.RestService;
 
 import edu.unh.cs.cs619.bulletzone.rest.BulletZoneRestClient;
+import edu.unh.cs.cs619.bulletzone.ui.GameUser;
 import edu.unh.cs.cs619.bulletzone.util.BooleanWrapper;
 import edu.unh.cs.cs619.bulletzone.util.LongWrapper;
 
@@ -14,6 +15,8 @@ import edu.unh.cs.cs619.bulletzone.util.LongWrapper;
 public class AuthenticationController {
     @RestService
     BulletZoneRestClient restClient;
+
+    GameUser user;
 
     /**
      * Constructor for InputHandler
@@ -39,6 +42,10 @@ public class AuthenticationController {
      */
     public long login(String username, String password) {
         LongWrapper result = restClient.login(username, password);
+        user = GameUser.getInstance();
+        user.setUsername(username);
+
+
         if (result == null) {
             return -1;
         }
