@@ -1,14 +1,11 @@
 package edu.unh.cs.cs619.bulletzone.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-<<<<<<< HEAD
 
 import java.util.Collection;
-=======
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
->>>>>>> origin
 import java.util.Optional;
 
 import java.util.ArrayList;
@@ -16,12 +13,10 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-<<<<<<< HEAD
 import edu.unh.cs.cs619.bulletzone.datalayer.BulletZoneData;
 import edu.unh.cs.cs619.bulletzone.datalayer.account.BankAccount;
 import edu.unh.cs.cs619.bulletzone.datalayer.user.GameUser;
 import edu.unh.cs.cs619.bulletzone.repository.DataRepository;
-=======
 import edu.unh.cs.cs619.bulletzone.events.BusProvider;
 import edu.unh.cs.cs619.bulletzone.events.CustomEvent;
 import edu.unh.cs.cs619.bulletzone.events.CustomEventTypes;
@@ -29,7 +24,6 @@ import edu.unh.cs.cs619.bulletzone.events.EventListener;
 import edu.unh.cs.cs619.bulletzone.model.entities.FieldEntity;
 import edu.unh.cs.cs619.bulletzone.model.entities.Soldier;
 import edu.unh.cs.cs619.bulletzone.model.entities.Tank;
->>>>>>> origin
 
 public final class Game {
     /**
