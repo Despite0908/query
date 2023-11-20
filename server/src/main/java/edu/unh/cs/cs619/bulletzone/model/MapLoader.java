@@ -1,6 +1,7 @@
 package edu.unh.cs.cs619.bulletzone.model;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -8,6 +9,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Loads map from a JSON map file.
@@ -29,7 +32,7 @@ public class MapLoader {
      * Loads map file into a GameMap object.
      * @return Object representation of the map file.
      */
-    public GameMap load() {
+    public GameBuilder load() {
         //Get file
         BufferedReader reader;
         try {
@@ -52,15 +55,36 @@ public class MapLoader {
         }
 
         //String to JSONArray for walls, parse json
-        GameMap g = new GameMap();
+        GameBuilder g = new GameBuilder();
         JSONArray wallPos = new JSONObject(str).getJSONArray("map");
         for (int i = 0; i < wallPos.length(); i++) {
             Object holder = wallPos.get(i);
             if (holder instanceof Integer) {
-                g.addWall((Integer) holder);
+                g.setWall((Integer) holder);
             } else {
                 JSONObject w = (JSONObject) holder;
-                g.addWall(w.getInt("pos"), w.getInt("destructVal"));
+                g.setWall(w.getInt("pos"), w.getInt("destructVal"));
+            }
+        }
+
+        //String to JSONArray for terrain, parse JSON
+        Map<Terrain, JSONArray> terrainPosMap = new HashMap<>();
+        try {
+            terrainPosMap.put(Terrain.Rocky, new JSONObject(str).getJSONArray("rocky"));
+        } catch (JSONException ignored) {}
+        try {
+            terrainPosMap.put(Terrain.Hilly, new JSONObject(str).getJSONArray("hilly"));
+        } catch (JSONException ignored) {}
+        try {
+            terrainPosMap.put(Terrain.Forest, new JSONObject(str).getJSONArray("forest"));
+        } catch (JSONException ignored) {}
+
+        for (Terrain t: terrainPosMap.keySet()) {
+            JSONArray curArr = terrainPosMap.get(t);
+            if (curArr != null) {
+                for (int i = 0; i < curArr.length(); i++) {
+                    g.addTerrain(curArr.getInt(i), t);
+                }
             }
         }
         return g;

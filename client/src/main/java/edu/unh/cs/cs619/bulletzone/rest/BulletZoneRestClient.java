@@ -49,18 +49,20 @@ public interface BulletZoneRestClient extends RestClientErrorHandling {
     LongWrapper login(@Path String username, @Path String password);
 
     @Put("/{tankId}/move/{direction}")
-    BooleanWrapper move(@Path long tankId, @Path byte direction);
+    LongWrapper move(@Path long tankId, @Path byte direction);
 
     @Put("/{tankId}/turn/{direction}")
     BooleanWrapper turn(@Path long tankId, @Path byte direction);
 
-    @Put("/{tankId}/fire/1")
-    BooleanWrapper fire(@Path long tankId);
+    @Put("/{tankId}/fire/{bulletType}")
+    BooleanWrapper fire(@Path long tankId, @Path int bulletType);
 
     @Delete("/{tankId}/leave")
     BooleanWrapper leave(@Path long tankId);
 
-
     @Put("/GetInventory/{username}")
     InventoryWrapper getInventory(@Path String username);
+
+    @Put("/{tankId}/eject")
+    LongWrapper eject(@Path long tankId);
 }

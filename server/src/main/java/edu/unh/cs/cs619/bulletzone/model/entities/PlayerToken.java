@@ -1,12 +1,17 @@
-package edu.unh.cs.cs619.bulletzone.model;
+package edu.unh.cs.cs619.bulletzone.model.entities;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.eventbus.EventBus;
+
+import edu.unh.cs.cs619.bulletzone.events.BusProvider;
+import edu.unh.cs.cs619.bulletzone.events.CustomEvent;
+import edu.unh.cs.cs619.bulletzone.events.CustomEventTypes;
+import edu.unh.cs.cs619.bulletzone.model.BulletTracker;
+import edu.unh.cs.cs619.bulletzone.model.Direction;
+import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
 
 public abstract class PlayerToken extends FieldEntity{
-
-    private final long id;
 
     private final String ip;
 
@@ -14,7 +19,7 @@ public abstract class PlayerToken extends FieldEntity{
     private int allowedMoveInterval;
 
     private long lastFireTime;
-
+    private int  fireInterval;
     private int numberOfBullets;
     private int allowedNumberOfBullets;
 
@@ -25,6 +30,16 @@ public abstract class PlayerToken extends FieldEntity{
 
     PlayerToken pair;
 
+    //EventBus eventBus = new BusProvider().getEventBus();
+
+
+    //this is what was working
+    //EventBus eventBus;
+
+    EventBus eventBus2;
+
+
+
 
     /**
      * Constructor. Handles common data and functionality between tokens.
@@ -33,15 +48,23 @@ public abstract class PlayerToken extends FieldEntity{
      * @param ip IP of the player
      */
     public PlayerToken(long id, Direction direction, String ip) {
-        this.id = id;
+        super(id);
         this.direction = direction;
         this.ip = ip;
         numberOfBullets = 0;
         lastFireTime = 0;
         lastMoveTime = 0;
         pair = null;
+        eventBus2 = BusProvider.BusProvider().eventBus;
     }
 
+//    public void setEventBus(EventBus theBus) {
+//        eventBus = theBus;
+//    }
+
+//    public EventBus getEventBus() {
+//        return eventBus;
+//    }
     /**
      * Constraint checking for the token's turn operation.
      * @param millis Timestamp in milliseconds
@@ -81,6 +104,35 @@ public abstract class PlayerToken extends FieldEntity{
         FieldHolder nextField = parent.getNeighbor(direction);
         checkNotNull(parent.getNeighbor(direction), "Neighbor is not available");
 
+        //Check for walls
+        if (nextField.isImproved() && nextField.getImprovement().isSolid()) {
+            return 0;
+        }
+
+        //Check for Items
+        if (nextField.isPresent() && nextField.getEntity().getIsItem()) {
+            Item grabbedItem = (Item) nextField.getEntity();
+            parent.clearField();
+            nextField.setFieldEntity(this);
+            setParent(nextField);
+            grabbedItem.movedIntoBy(this);
+            CustomEvent customEvent = new CustomEvent(CustomEventTypes.ANTI_GRAV_PICKUP, grabbedItem);
+            if (grabbedItem.getItemType() == ItemTypes.FUSION_REACTOR) {
+                numBulletsAfterReactor();
+                fireRateAfterReactor();
+                movementSpeedAfterReactor();
+            } else if (grabbedItem.getItemType() == ItemTypes.ANTI_GRAV) {
+                movementSpeedAfterAntiGrav();
+                fireRateAfterAntiGrav();
+            }
+            // this was working
+            // eventBus.post(customEvent);
+            eventBus2.post(customEvent);
+            return 1;
+        }
+
+
+        //Check for entities
         boolean isCompleted;
         if (!nextField.isPresent()) {
             // If the next field is empty move the user
@@ -88,17 +140,8 @@ public abstract class PlayerToken extends FieldEntity{
             nextField.setFieldEntity(this);
             setParent(nextField);
             return 1;
-        } else if (nextField.getEntity() instanceof Item) {
-            //TODO aiden how to powerup tank after ran over
-
-            Item grabbedItem = (Item) nextField.getEntity();
-            parent.clearField();
-            nextField.setFieldEntity(this);
-            setParent(nextField);
-            //TODO aiden remove from item concurrentHashMap (Dont have access to game)
-            return 1;
         }
-        return 0;
+        return nextField.getEntity().movedIntoBy(this);
     }
 
     /**
@@ -114,6 +157,12 @@ public abstract class PlayerToken extends FieldEntity{
         return millis >= getLastFireTime();
     }
 
+    public void cleanPair(){}
+
+    /**
+     * gets BulletTracker
+     * @return bulletTracker
+     */
     public BulletTracker getBulletTracker() {
         return bulletTracker;
     }
@@ -137,6 +186,14 @@ public abstract class PlayerToken extends FieldEntity{
 
     public void setAllowedMoveInterval(int allowedMoveInterval) {
         this.allowedMoveInterval = allowedMoveInterval;
+    }
+
+    public long getAllowedFireInterval() {
+        return fireInterval;
+    }
+
+    public void setAllowedFireInterval(int allowedFireInterval) {
+        this.fireInterval = allowedFireInterval;
     }
 
     public long getLastFireTime() {
@@ -171,11 +228,6 @@ public abstract class PlayerToken extends FieldEntity{
         this.direction = direction;
     }
 
-    @JsonIgnore
-    public long getId() {
-        return id;
-    }
-
 
     public int getLife() {
         return life;
@@ -195,5 +247,38 @@ public abstract class PlayerToken extends FieldEntity{
 
     public void setPair(PlayerToken pair) {
         this.pair = pair;
+    }
+
+    /**
+     * Doubles number of bullets to fired
+     * @return num of bullets that can be fired
+     */
+    public void numBulletsAfterReactor() {
+        setAllowedNumberOfBullets(allowedNumberOfBullets * 2);
+        //setNumberOfBullets(numberOfBullets * 2);
+    }
+
+    /**
+     * doubles allowed firing time
+     * @return interval of firing time
+     */
+    public void fireRateAfterReactor() {
+        setAllowedFireInterval(fireInterval / 2);
+    }
+
+    public void movementSpeedAfterReactor() {
+        int delay = (allowedMoveInterval * 25);
+        delay = delay / 100;
+        delay = allowedMoveInterval + delay;
+        setAllowedMoveInterval(delay);
+    }
+
+    public void fireRateAfterAntiGrav() {
+
+        setAllowedFireInterval(fireInterval + 100);
+    }
+
+    public void movementSpeedAfterAntiGrav() {
+        setAllowedMoveInterval(allowedMoveInterval / 2);
     }
 }

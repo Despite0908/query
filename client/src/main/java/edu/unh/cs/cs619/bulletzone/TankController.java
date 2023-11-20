@@ -26,11 +26,16 @@ import edu.unh.cs.cs619.bulletzone.rest.BulletZoneRestClient;
 @EBean
 public class TankController {
     private byte direction;
+    private byte soldierDirection;
 
     /**
      * remote tank identifier
      */
     private long tankId;
+    /**
+     * Remote Soldier identifier
+     */
+    private long soldierId;
     /**
      * The ClientActivity. Used just as a Context parameter for the constructor due to EBean
      * constrictions.
@@ -58,7 +63,9 @@ public class TankController {
      */
     protected TankController(Context activity) {
         direction = 0;
+        soldierDirection = 0;
         tankId = -1;
+        soldierId = -1;
         this.activity = activity;
     }
 
@@ -68,16 +75,20 @@ public class TankController {
      * interact with the server.
      */
     public void turnLeft() {
-        byte placeHolderDirection = getDirection();
+        byte placeHolderDirection = getCurrentUnitDirection();
         if (placeHolderDirection == 0) {
             placeHolderDirection = 6;
         } else {
             placeHolderDirection -= 2;
         }
-        if (!(restClient.turn(tankId, placeHolderDirection).isResult())) {
+        if (!(restClient.turn(getCurrentUnitId(), placeHolderDirection).isResult())) {
             return;
         }
-        direction = placeHolderDirection;
+        if (soldierId == -1) {
+            direction = placeHolderDirection;
+        } else {
+            soldierDirection = placeHolderDirection;
+        }
     }
     /**
      * This method is used to turn the current direction of the tank right 90° of its currently-faced
@@ -85,16 +96,20 @@ public class TankController {
      * interact with the server.
      */
     public void turnRight() {
-        byte placeHolderDirection = getDirection();
+        byte placeHolderDirection = getCurrentUnitDirection();
         if (placeHolderDirection == 6) {
             placeHolderDirection = 0;
         } else {
             placeHolderDirection += 2;
         }
-        if (!(restClient.turn(tankId, placeHolderDirection).isResult())) {
+        if (!(restClient.turn(getCurrentUnitId(), placeHolderDirection).isResult())) {
             return;
         }
-        direction = placeHolderDirection;
+        if (soldierId == -1) {
+            direction = placeHolderDirection;
+        } else {
+            soldierDirection = placeHolderDirection;
+        }
     }
 
     /**
@@ -106,6 +121,14 @@ public class TankController {
     }
 
     /**
+     * Getter for the direction the soldier our user is controlling is currently facing
+     * @return byte
+     */
+    public byte getSoldierDirection() {
+        return soldierDirection;
+    }
+
+    /**
      * Getter for the tankId of the tank our user is controlling.
      * @return long
      */
@@ -113,14 +136,37 @@ public class TankController {
         return tankId;
     }
 
+    public long getSoldierId() {return soldierId;}
+
+    public void setSoldierId(long soldierId) {
+        this.soldierId = soldierId;
+    }
+
+    public long getCurrentUnitId() {
+        if (soldierId != -1) {
+            return soldierId;
+        } else {
+            return tankId;
+        }
+    }
+
+    public byte getCurrentUnitDirection() {
+        if (soldierId != -1) {
+            return soldierDirection;
+        } else {
+            return direction;
+        }
+    }
+
+    //TODO: FIX DOC
     /**
      * Interacts with the RestClient to move the tank the current user is controlling either
      * forward or backward based on the button that is pressed as well as the current direction that
      * the tank is facing.
      * @param viewId Button that is pressed to move the tank (Either Up or Down)
      */
-    public void moveTank(int viewId) {
-        byte placeHolderDirection = getDirection();
+    public long moveTank(int viewId) {
+        byte placeHolderDirection = getCurrentUnitDirection();
         switch (viewId) {
             case R.id.buttonUp:
                 break;
@@ -135,7 +181,12 @@ public class TankController {
                 Log.e("ClientActivity", "Unknown movement button id: " + viewId);
                 break;
         }
-        restClient.move(tankId, placeHolderDirection);
+        long moveResult = restClient.move(getCurrentUnitId(), placeHolderDirection).getResult();
+        if (moveResult == 2) {
+            setSoldierId(-1);
+            soldierDirection = 0;
+        }
+        return moveResult;
     }
 
     /**
@@ -144,7 +195,13 @@ public class TankController {
      */
     @Background
     public void onBulletFire() {
-        boolean test = restClient.fire(tankId).isResult();
+        long id = getCurrentUnitId();
+        boolean test;
+        if (soldierId != -1) {
+            test = restClient.fire(getSoldierId(), 4).isResult();
+        } else {
+            test = restClient.fire(getTankId(), 1).isResult();
+        }
         Log.d("fireTest", String.format("%b\n", test));
     }
 
@@ -152,6 +209,17 @@ public class TankController {
      * Calls on the RestClient to have a user join the game. This sets the tankId for said user
      * that we will be using for all movement, turning, and firing that gets called in this class.
      */
+    void eject(long tankId) {
+        try {
+            long tempId = restClient.eject(tankId).getResult();
+            if (tempId != -1) {
+                soldierId = tempId;
+            }
+        } catch (Exception e) {
+            Log.d("debug", "Server Error during eject");
+        }
+    }
+
     @Background
     void joinAsync() {
         try {

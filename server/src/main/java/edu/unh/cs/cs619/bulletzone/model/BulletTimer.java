@@ -5,6 +5,13 @@ import java.util.TimerTask;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BulletHitEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BulletMoveEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
+import edu.unh.cs.cs619.bulletzone.model.entities.Bullet;
+import edu.unh.cs.cs619.bulletzone.model.entities.Item;
+import edu.unh.cs.cs619.bulletzone.model.entities.PlayerToken;
+import edu.unh.cs.cs619.bulletzone.model.entities.Soldier;
+import edu.unh.cs.cs619.bulletzone.model.entities.Tank;
+import edu.unh.cs.cs619.bulletzone.model.improvements.Improvement;
 
 /**
  * Timer Task for Updating the positions of bullets
@@ -49,87 +56,50 @@ public class BulletTimer extends TimerTask {
             boolean isVisible = currentField.isPresent()
                     && (currentField.getEntity() == bullet);
 
-
-            if (nextField.isPresent()) {
-                //TODO: RESOLVE BULLSHIT
-
-                // Something is there, hit it
-//                FieldEntity entity = nextField.getEntity();
-//                boolean destroyed = entity.hit(bullet.getDamage());
-//
-//                if (destroyed) {
-//                    entity.getParent().clearField();
-//                    entity.setParent(null);
-//                    game.removeTank(entity.getId());
-//                    game.removeSoldiers(entity.getId());
-//                    game.getItems().remove(entity.getId());
-//                }
-
-                if ( nextField.getEntity() instanceof  Tank){
-                    Tank t = (Tank) nextField.getEntity();
-                    System.out.println("tank is hit, tank life: " + t.getLife());
-                    if (t.getLife() <= 0 ){
-                        t.getParent().clearField();
-                        t.setParent(null);
-                        game.removeTank(t.getId());
-                        //Add tank hit event
-                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), true, t.getIntValue()));
-                        Soldier s = (Soldier) t.getPair();
-                        if (s != null) {
-                            s.getParent().clearField();
-                            s.setParent(null);
-                            game.removeSoldier(s.getId());
-                            //Add soldier hit event
-                            eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), true, s.getIntValue()));
-                        }
-                    } else {
-                        //Add tank hit event
-                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), false, t.getIntValue()));
-                    }
+            //Check for Forest
+            if (nextField.getTerrain() == Terrain.Forest) {
+                //TODO: Nick change this to a Token Leave Event
+                eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), false, -1));
+                if (isVisible) {
+                    // Remove bullet from field
+                    currentField.clearField();
                 }
-                else if ( nextField.getEntity() instanceof  Wall){
-                    Wall w = (Wall) nextField.getEntity();
-                    if (w.getIntValue() >1000 && w.getIntValue()<=2000 ){
-                        game.getHolderGrid().get(w.getPos()).clearField();
-                        //Add wall hit event
-                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), true, w.getIntValue()));
-                    } else {
-                        //Add wall hit event
-                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), false, w.getIntValue()));
-                    }
-                }
-                else if ( nextField.getEntity() instanceof  Item){
-                    Item i = (Item) nextField.getEntity();
-                    game.getHolderGrid().get(i.getGridLocation()).clearField();
-                    game.getItems().remove(i.getGridLocation());
-                    //TODO aiden add to event list
-                } else if(nextField.getEntity() instanceof  Soldier) {
-                    Soldier s = (Soldier) nextField.getEntity();
-                    System.out.println("tank is hit, tank life: " + s.getLife());
-                    if (s.getLife() <= 0 ){
-                        s.getParent().clearField();
-                        s.setParent(null);
-                        game.removeSoldier(s.getId());
-                        //Add soldier hit event
-                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), true, s.getIntValue()));
-                        //Remove Tank
-                        Tank t = (Tank) s.getPair();
-                        t.getParent().clearField();
-                        t.setParent(null);
-                        game.removeTank(t.getId());
-                        //add tank hit event
-                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), true, t.getIntValue()));
-                    } else {
-                        //Add soldier hit event
-                        eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), false, s.getIntValue()));
-                    }
+                token.getBulletTracker().getTrackActiveBullets()[bullet.getBulletId()] = null;
+                token.setNumberOfBullets(token.getNumberOfBullets()-1);
+                cancel();
+                return;
+            }
+
+            //Checking for Walls
+            //TODO: Nick Find a way to remove walls on events
+            if (nextField.isImproved() && nextField.getImprovement().isSolid()) {
+                Improvement wall = nextField.getImprovement();
+                if (wall.getIntValue() >1000 && wall.getIntValue()<=2000 ){
+                    nextField.clearImprovement();
+                    //Add wall hit event
+                    eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), true, wall.getIntValue()));
+                } else {
+                    //Add wall hit event
+                    eventHistory.addEvent(new BulletHitEvent(bullet.getIntValue(), false, wall.getIntValue()));
                 }
                 if (isVisible) {
                     // Remove bullet from field
                     currentField.clearField();
                 }
-                token.getBulletTracker().getTrackActiveBullets()[bullet.getBulletId()]=0;
+                token.getBulletTracker().getTrackActiveBullets()[bullet.getBulletId()] = null;
                 token.setNumberOfBullets(token.getNumberOfBullets()-1);
+                eventHistory.addEvent(new TokenLeaveEvent(bullet.getId(), bullet.getIntValue()));
+                cancel();
+            } else if (nextField.isPresent()) {
+                nextField.getEntity().hit(bullet.getDamage(), game);
+
+                if (isVisible) {
+                    // Remove bullet from field
+                    currentField.clearField();
+                }
+                token.getBulletTracker().getTrackActiveBullets()[bullet.getBulletId()] = null;
+                token.setNumberOfBullets(token.getNumberOfBullets()-1);
+                eventHistory.addEvent(new TokenLeaveEvent(bullet.getId(), bullet.getIntValue()));
                 cancel();
 
             } else {

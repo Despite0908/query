@@ -1,8 +1,11 @@
 package edu.unh.cs.cs619.bulletzone.model;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import edu.unh.cs.cs619.bulletzone.model.improvements.Wall;
 
 /**
  * Builder class that creates the Game Object. Main priority is placing walls and creating
@@ -12,13 +15,16 @@ import java.util.Map;
 public class GameBuilder {
     private static final int FIELD_DIM = 16;
 
-    private Map<Integer, FieldEntity> entityMap;
+    private Map<Integer, Wall> wallMap;
+    private Terrain[] fieldTerrain;
 
     /**
-     * Constructor that initializes entityMap.
+     * Constructor that initializes a map of entities and an array of terrain.
      */
     public GameBuilder() {
-        this.entityMap = new HashMap<>();
+        this.wallMap = new HashMap<>();
+        fieldTerrain = new Terrain[FIELD_DIM * FIELD_DIM];
+        Arrays.fill(fieldTerrain, Terrain.Normal);
     }
 
     /**
@@ -27,7 +33,7 @@ public class GameBuilder {
      * @return Returns this object
      */
     public GameBuilder setWall(int pos) {
-        entityMap.put(pos, new Wall(pos, 1000));
+        wallMap.put(pos, new Wall(pos, 1000));
         return this;
     }
 
@@ -38,7 +44,7 @@ public class GameBuilder {
      * @return Returns this object
      */
     public GameBuilder setWall(int pos, int destructVal) {
-        entityMap.put(pos, new Wall(pos, destructVal));
+        wallMap.put(pos, new Wall(pos, destructVal));
         return this;
     }
 
@@ -47,16 +53,25 @@ public class GameBuilder {
 
 
     /**
+     * Add terrain to the map.
+     * @param position Position terrain to be added at
+     * @param terrain Type of terrain
+     */
+    public void addTerrain(int position, Terrain terrain) {
+        fieldTerrain[position] = terrain;
+    }
+
+    /**
      * Builds the Game object
      * @return A Game object built to the specifications from this GameBuilder
      */
     public Game build() {
         Game g = new Game();
         createFieldHolderGrid(g);
-        Iterator<Integer> keys = entityMap.keySet().iterator();
+        Iterator<Integer> keys = wallMap.keySet().iterator();
         while (keys.hasNext()) {
             Integer curr = keys.next();
-            g.getHolderGrid().get(curr).setFieldEntity(entityMap.get(curr));
+            g.getHolderGrid().get(curr).setImprovement(wallMap.get(curr));
         }
         return g;
     }
@@ -89,6 +104,8 @@ public class GameBuilder {
 
                 targetHolder.addNeighbor(Direction.Down, downHolder);
                 downHolder.addNeighbor(Direction.Up, targetHolder);
+                //Set terrain of target Holder
+                targetHolder.setTerrain(fieldTerrain[i * FIELD_DIM + j]);
             }
         }
     }

@@ -12,12 +12,11 @@ import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
 import edu.unh.cs.cs619.bulletzone.model.Game;
 import edu.unh.cs.cs619.bulletzone.model.GameBuilder;
-import edu.unh.cs.cs619.bulletzone.model.GameMap;
-import edu.unh.cs.cs619.bulletzone.model.ItemSpawnTimerController;
-import edu.unh.cs.cs619.bulletzone.model.PlayerToken;
+import edu.unh.cs.cs619.bulletzone.model.ItemSpawnTimer;
+import edu.unh.cs.cs619.bulletzone.model.entities.PlayerToken;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenMoveEvent;
-import edu.unh.cs.cs619.bulletzone.model.Soldier;
+import edu.unh.cs.cs619.bulletzone.model.entities.Soldier;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.IllegalTransitionException;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.LimitExceededException;
 import edu.unh.cs.cs619.bulletzone.model.MapLoader;
@@ -26,7 +25,7 @@ import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BoardCreationEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.FireEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.GridEvent;
-import edu.unh.cs.cs619.bulletzone.model.Tank;
+import edu.unh.cs.cs619.bulletzone.model.entities.Tank;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.TokenDoesNotExistException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -60,13 +59,22 @@ public class InMemoryGameRepository implements GameRepository {
 
     private int[] tankSpawn = null;
 
-    private final EventHistory eventHistory = EventHistory.start(Clock.systemUTC());
+    private Clock c = Clock.systemUTC();
+    private final EventHistory eventHistory = EventHistory.start(c);
 
     private String mapPath = "Maps/DefaultMap.json";
 
     // adding item spawn timer
     private static final int ITEM_PERIOD = 1000;
-    private final Timer timer = new Timer();
+    private final Timer itemTimer = new Timer();
+
+    /**
+     * ONLY USED FOR TESTING. Changes the system clock.
+     * @param c Clock to be injected
+     */
+    public void injectClock(Clock c) {
+        this.c = c;
+    }
 
     /**
      * Sets the map to load game from.
@@ -163,6 +171,19 @@ public class InMemoryGameRepository implements GameRepository {
     }
 
     /**
+     * Compiles a 2D array of terrain from the field.
+     * @return A 2D integer array representing field terrain.
+     */
+    public int[][] getTerrainGrid() {
+        synchronized (this.monitor) {
+            if (game == null) {
+                this.create();
+            }
+        }
+        return game.getTerrainGrid();
+    }
+
+    /**
      * Checks constraints and turns a token.
      * @param tokenId Token to be turned
      * @param direction Direction to turn the token
@@ -181,11 +202,11 @@ public class InMemoryGameRepository implements GameRepository {
             if (token == null) {
                 token = game.getSoldiers().get(tokenId);
                 if (token == null) {
-                    throw new TokenDoesNotExistException(tokenId);
+                    return false;
                 }
             }
 
-            long millis = eventHistory.getClock().millis();
+            long millis = c.millis();
             //Constraint checking
             if (!token.canTurn(millis, direction)) {
                 return false;
@@ -201,35 +222,49 @@ public class InMemoryGameRepository implements GameRepository {
         }
     }
 
+    /**
+     * Spawns a soldier and pairs it with the current tank.
+     * @param tankId Tank soldier is paired with
+     * @return Returns the soldier that is spawned
+     * @throws TokenDoesNotExistException
+     */
     public Soldier eject(long tankId) throws TokenDoesNotExistException {
         synchronized (this.monitor) {
-            PlayerToken tank = game.getTanks().get(tankId);
+            Tank tank = game.getTanks().get(tankId);
             if (tank == null) {
-                throw new TokenDoesNotExistException(tankId);
+                return null;
+            }
+            //If there has already been an ejection
+            if (tank.isEjected()) {
+                return null;
             }
             //Look for open position
             FieldHolder parent = tank.getParent();
             FieldHolder holder = null;
             for (Direction dir: Direction.values()) {
                 FieldHolder neighbor = parent.getNeighbor(dir);
-                if (!neighbor.isPresent()) {
+                if (!neighbor.isPresent() && !(neighbor.isImproved() && neighbor.getImprovement().isSolid())) {
                     holder = neighbor;
                     break;
                 }
             }
+            //If no open position
             if (holder == null) {
                 return null;
             }
-            if (tank.getPair() != null) {
-                return null;
-            }
             //Spawn Soldier
-            Soldier soldier = new Soldier(idGenerator.getAndIncrement(), Direction.Up, tank.getIp());
+            Soldier soldier;
+            if (tank.getPair() == null) {
+                soldier = new Soldier(idGenerator.getAndIncrement(), Direction.Up, tank.getIp());
+            } else {
+                soldier = (Soldier) tank.getPair();
+            }
             soldier.setParent(holder);
             holder.setFieldEntity(soldier);
             //Pair solder/tank
             soldier.setPair(tank);
             tank.setPair(soldier);
+            tank.setEjected(true);
             //Add to game
             game.addSoldier(soldier);
             //Add event
@@ -243,13 +278,13 @@ public class InMemoryGameRepository implements GameRepository {
      * Checks constraints and moves a token
      * @param tokenId Token to be moved
      * @param direction direction to move token in
-     * @return Returns false if constraints are violated. Returns true if move is successful.
+     * @return TEMPORARY: RETURNS LONG FROM MOVERESULT. RETURN TO ORIGINAL LATER. Returns false if constraints are violated. Returns true if move is successful.
      * @throws TokenDoesNotExistException Throws if there is no thank corresponding to tokenID.
      * @throws IllegalTransitionException I'm not sure here because this exception is specifically about turns.
      * @throws LimitExceededException Don't know here
      */
     @Override
-    public boolean move(long tokenId, Direction direction)
+    public long move(long tokenId, Direction direction)
             throws TokenDoesNotExistException, IllegalTransitionException, LimitExceededException {
         synchronized (this.monitor) {
             checkNotNull(direction);
@@ -258,14 +293,14 @@ public class InMemoryGameRepository implements GameRepository {
             if (token == null) {
                 token = game.getSoldiers().get(tokenId);
                 if (token == null) {
-                    throw new TokenDoesNotExistException(tokenId);
+                    return 0;
                 }
             }
 
             //Token constraints
-            long millis = eventHistory.getClock().millis();
+            long millis = c.millis();
             if (!token.canMove(millis, direction)) {
-                return false;
+                return 0;
             }
 
             int moveResult = token.move(millis, direction);
@@ -273,13 +308,13 @@ public class InMemoryGameRepository implements GameRepository {
             if (moveResult == 1) {
                 //Add move event
                 eventHistory.addEvent(new TokenMoveEvent(token.getId(), direction, token.getIntValue(), getGrid()));
-                return true;
+                return 1;
             } else if (moveResult == 2) {
                 game.removeSoldier(tokenId);
                 eventHistory.addEvent(new TokenLeaveEvent(token.getId(), token.getIntValue()));
-                return true;
+                return 2;
             }
-            return false;
+            return 0;
         }
     }
 
@@ -301,20 +336,21 @@ public class InMemoryGameRepository implements GameRepository {
             if (token == null) {
                 token = game.getSoldiers().get(tokenId);
                 if (token == null) {
-                    throw new TokenDoesNotExistException(tokenId);
+                    return false;
                 }
             }
 
-            long millis = eventHistory.getClock().millis();
+            long millis = c.millis();
             //Constraint Checking
             if (!token.canFire(millis)) {
                 return false;
             }
             //Set new timestamp
-            token.setLastFireTime(millis + bulletDelay[bulletType - 1]);
+            token.setLastFireTime(millis + token.getAllowedFireInterval());
 
             //fire bullet//add fire event
             token.getBulletTracker().fire(bulletType, game, monitor);
+            token.cleanPair();
             eventHistory.addEvent(new FireEvent(token.getId()));
             return true;
         }
@@ -362,27 +398,23 @@ public class InMemoryGameRepository implements GameRepository {
             return;
         }
         synchronized (this.monitor) {
-
             //Load data from JSON file using loaders
             MapLoader mapLoader = new MapLoader(mapPath);
-            GameMap gMap = mapLoader.load();
-            List<GameMap.WallLoader> wallData = gMap.getWalls();
-            GameBuilder gameBuilder = new GameBuilder();
-
-            //Push data into builders
-            for (int i = 0; i < wallData.size(); i++) {
-
-                gameBuilder.setWall(wallData.get(i).getPos(), wallData.get(i).getDestructVal());
-            }
+            GameBuilder gameBuilder = mapLoader.load();
 
             //Build map and holder grid
             this.game = gameBuilder.build();
             //Add creation event
             eventHistory.addEvent(new BoardCreationEvent());
-            ItemSpawnTimerController.createTimer(this.game);
+            itemTimer.schedule(new ItemSpawnTimer(game, idGenerator, monitor), 0, ITEM_PERIOD);
         }
     }
 
+    /**
+     * Generates a list of JSON strings representing a list of events since millis.
+     * @param millis A timestamp in milliseconds
+     * @return Array of JSON events that happened since millis
+     */
     public String[] event(long millis) {
         synchronized (this.monitor) {
             List<GridEvent> events = eventHistory.getEventsAfter(millis);

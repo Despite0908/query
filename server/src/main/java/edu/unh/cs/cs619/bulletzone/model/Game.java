@@ -1,8 +1,14 @@
 package edu.unh.cs.cs619.bulletzone.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+<<<<<<< HEAD
 
 import java.util.Collection;
+=======
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+
+>>>>>>> origin
 import java.util.Optional;
 
 import java.util.ArrayList;
@@ -10,10 +16,20 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+<<<<<<< HEAD
 import edu.unh.cs.cs619.bulletzone.datalayer.BulletZoneData;
 import edu.unh.cs.cs619.bulletzone.datalayer.account.BankAccount;
 import edu.unh.cs.cs619.bulletzone.datalayer.user.GameUser;
 import edu.unh.cs.cs619.bulletzone.repository.DataRepository;
+=======
+import edu.unh.cs.cs619.bulletzone.events.BusProvider;
+import edu.unh.cs.cs619.bulletzone.events.CustomEvent;
+import edu.unh.cs.cs619.bulletzone.events.CustomEventTypes;
+import edu.unh.cs.cs619.bulletzone.events.EventListener;
+import edu.unh.cs.cs619.bulletzone.model.entities.FieldEntity;
+import edu.unh.cs.cs619.bulletzone.model.entities.Soldier;
+import edu.unh.cs.cs619.bulletzone.model.entities.Tank;
+>>>>>>> origin
 
 public final class Game {
     /**
@@ -29,13 +45,17 @@ public final class Game {
     BulletZoneData data = new DataRepository().getbzData();
 
     //associate the inventory with username
+    EventBus eventBus = BusProvider.BusProvider().eventBus;
+
+    //EventBus eventBus = new AppConfig().eventBus();
+    // was working EventBus eventBus = new EventBus();
 
     /**
      * Map of Items on the Grid
      * Key = grid cell location
      * Item = Powerup
      */
-    private final ConcurrentMap<Integer, Item> items = new ConcurrentHashMap<>();
+    private int numItems = 0;
 
     /**
      * Key: IP Address
@@ -46,7 +66,16 @@ public final class Game {
     private final Object monitor = new Object();
 
     public Game() {
+        EventListener listener = new EventListener(eventBus);
+        eventBus.register(this);
+        //eventBus.register(listener);
+        //CustomEvent customEvent = new CustomEvent("Custom Event");
+        //eventBus.post(customEvent);
         this.id = 0;
+    }
+
+    public EventBus getGameEventBus() {
+        return eventBus;
     }
 
     @JsonIgnore
@@ -66,8 +95,16 @@ public final class Game {
         }
     }
 
-    public ConcurrentMap<Integer, Item> getItems() {
-        return items;
+    public void incrementItems() {
+        numItems++;
+    }
+
+    public void decrementItems() {
+        numItems--;
+    }
+
+    public int getNumItems() {
+        return numItems;
     }
 
     public Tank getTank(int tankId) {
@@ -164,6 +201,7 @@ public final class Game {
         }
     }
 
+    //TODO: IMPROVEMENTS BEING IN HERE IS TEMPORARY!!! CHANGE TO 3 LAYER MODEL WHEN EVENT SYSTEM IS FINISHED
     public int[][] getGrid2D() {
         int[][] grid = new int[FIELD_DIM][FIELD_DIM];
 
@@ -174,13 +212,43 @@ public final class Game {
                     holder = holderGrid.get(i * FIELD_DIM + j);
                     if (holder.isPresent()) {
                         grid[i][j] = holder.getEntity().getIntValue();
+                    }else if (holder.isImproved()) {
+                        grid[i][j] = holder.getImprovement().getIntValue();
+                    }else {
+                        grid[i][j] = Terrain.toByte(holder.getTerrain());
+                    }
+                }
+            }
+        }
+        return grid;
+    }
+
+    /**
+     * Compiles a 2D grid of terrain from the field.
+     * @return 2D integer array representation of the field terrain.
+     */
+    public int[][] getTerrainGrid() {
+        int[][] grid = new int[FIELD_DIM][FIELD_DIM];
+
+        synchronized (holderGrid) {
+            FieldHolder holder;
+            for (int i = 0; i < FIELD_DIM; i++) {
+                for (int j = 0; j < FIELD_DIM; j++) {
+                    holder = holderGrid.get(i * FIELD_DIM + j);
+                    if (holder.isPresent()) {
+                        grid[i][j] = Terrain.toByte(holder.getTerrain());
                     } else {
                         grid[i][j] = 0;
                     }
                 }
             }
         }
-
         return grid;
+    }
+
+    @Subscribe
+    public void someCustomEvent(CustomEvent customEvent) {
+        System.out.println("Received event " + customEvent.getEventType().name() + " in class game -- numItems is " + numItems + " about to decrement");
+        decrementItems();
     }
 }

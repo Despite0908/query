@@ -2,6 +2,10 @@ package edu.unh.cs.cs619.bulletzone.model;
 
 import java.util.Random;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicLong;
+
+import edu.unh.cs.cs619.bulletzone.model.entities.Item;
+import edu.unh.cs.cs619.bulletzone.model.entities.ItemTypes;
 
 /**
  * Timer Task for Updating the positions of bullets
@@ -10,13 +14,17 @@ import java.util.TimerTask;
 public class ItemSpawnTimer extends TimerTask {
     Object monitor;
     Game theGame;
+
+    AtomicLong idGenerator;
     private static final int FIELD_DIM = 16;
     /**
      * Constructor. Passes values for task.
      */
-    public ItemSpawnTimer(Game passedGame) {
+    public ItemSpawnTimer(Game passedGame, AtomicLong idGenerator, Object monitor) {
         super();
         this.theGame = passedGame;
+        this.idGenerator = idGenerator;
+        this.monitor = monitor;
     }
 
     /**
@@ -25,13 +33,13 @@ public class ItemSpawnTimer extends TimerTask {
     @Override
     public void run() {
         //TODO
-        //synchronized (monitor) {
+        synchronized (monitor) {
             Random randomArea = new Random();
             // placeholder for adding logic for the possibility of a powerup spawn
             if (true) {
 
                 int numPlayers = theGame.getTanks().size();
-                int numItems = theGame.getItems().size();
+                int numItems = theGame.getNumItems();
 
                 // TODO aiden just here to not fill entire board remove when ready!!!!
                 if(numItems > 10) {
@@ -50,12 +58,12 @@ public class ItemSpawnTimer extends TimerTask {
 
                 if (createdRanNum < probability) {
                     while(!successFlag) {
-                        if (!fieldElement.isPresent()) {
-                            Item myTestItem = new Item(randomItem(), randomPlace);
+                        if (!fieldElement.isPresent() && !(fieldElement.isImproved() && fieldElement.getImprovement().isSolid())) {
+                            Item myTestItem = new Item(idGenerator.getAndIncrement(), randomItem(), randomPlace);
                             fieldElement.setFieldEntity(myTestItem);
                             myTestItem.setParent(fieldElement);
-                            theGame.getItems().put(randomPlace, myTestItem);
-                            System.out.println("Added item " + myTestItem.getItemType());
+                            theGame.incrementItems();
+                            System.out.println("Added item " + myTestItem.getItemType() + " with value " + myTestItem.getItemType().getValue());
                             successFlag = true;
 
                         } else {
@@ -68,27 +76,27 @@ public class ItemSpawnTimer extends TimerTask {
 
             }
 
-        //}
+        }
     }
 
     /**
      * Decides the random Item we are using
      * @return int val representing the PowerUP
      */
-    public int randomItem() {
+    public ItemTypes randomItem() {
         Random randomItemNum = new Random();
         int randomItem = randomItemNum.nextInt(3) + 1;
-        int actualItem = 0;
+        ItemTypes randomItemType = null;
         if (randomItem == 1) {
             //Thingamagig
-            actualItem = 7;
+            randomItemType = ItemTypes.COIN;
         } else if(randomItem == 2) {
             //AntiGrav
-            actualItem = 2002;
+            randomItemType = ItemTypes.ANTI_GRAV;
         } else if(randomItem == 3) {
             //FusionReactor
-            actualItem = 2003;
+            randomItemType = ItemTypes.FUSION_REACTOR;
         }
-        return actualItem;
+        return randomItemType;
     }
 }

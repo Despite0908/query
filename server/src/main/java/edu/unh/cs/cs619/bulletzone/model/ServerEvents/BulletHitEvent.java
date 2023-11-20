@@ -2,8 +2,8 @@ package edu.unh.cs.cs619.bulletzone.model.ServerEvents;
 
 import org.json.JSONObject;
 
-import edu.unh.cs.cs619.bulletzone.model.Bullet;
-import edu.unh.cs.cs619.bulletzone.model.Wall;
+import edu.unh.cs.cs619.bulletzone.model.entities.Bullet;
+import edu.unh.cs.cs619.bulletzone.model.improvements.Wall;
 
 /**
  * Implementation of GridEvent for an object being hit.
