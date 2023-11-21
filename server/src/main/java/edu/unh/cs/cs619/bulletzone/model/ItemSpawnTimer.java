@@ -6,6 +6,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import edu.unh.cs.cs619.bulletzone.model.entities.Item;
 import edu.unh.cs.cs619.bulletzone.model.entities.ItemTypes;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.AddTokenEvent;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
 
 /**
  * Timer Task for Updating the positions of bullets
@@ -62,6 +64,8 @@ public class ItemSpawnTimer extends TimerTask {
                             Item myTestItem = new Item(idGenerator.getAndIncrement(), randomItem(), randomPlace);
                             fieldElement.setFieldEntity(myTestItem);
                             myTestItem.setParent(fieldElement);
+                            //Add to event history
+                            EventHistory.get_instance().addEvent(new AddTokenEvent(myTestItem.getIntValue(), randomPlace));
                             theGame.incrementItems();
                             System.out.println("Added item " + myTestItem.getItemType() + " with value " + myTestItem.getItemType().getValue());
                             successFlag = true;

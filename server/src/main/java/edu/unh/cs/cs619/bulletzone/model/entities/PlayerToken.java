@@ -10,7 +10,8 @@ import edu.unh.cs.cs619.bulletzone.events.CustomEventTypes;
 import edu.unh.cs.cs619.bulletzone.model.BulletTracker;
 import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
-
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
+import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
 public abstract class PlayerToken extends FieldEntity{
 
     private final String ip;
@@ -116,6 +117,8 @@ public abstract class PlayerToken extends FieldEntity{
             nextField.setFieldEntity(this);
             setParent(nextField);
             grabbedItem.movedIntoBy(this);
+            grabbedItem.movedIntoBy(this);
+            EventHistory.get_instance().addEvent(new TokenLeaveEvent(this.getId(), this.getIntValue()));
             CustomEvent customEvent = new CustomEvent(CustomEventTypes.ANTI_GRAV_PICKUP, grabbedItem);
             if (grabbedItem.getItemType() == ItemTypes.FUSION_REACTOR) {
                 numBulletsAfterReactor();
