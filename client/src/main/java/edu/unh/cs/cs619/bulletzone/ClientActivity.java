@@ -149,6 +149,7 @@ public class ClientActivity extends Activity {
 
         restClient.setRestErrorHandler(bzRestErrorhandler);
 
+        //Cam: work in progress
         user = GameUser.getInstance();
 //        tankControl.afterInject(busProvider, gridEventHandler);
     }
@@ -165,7 +166,7 @@ public class ClientActivity extends Activity {
     public void updateGrid(GridWrapper gw) {
         mGridAdapter.updateList(gw.getGrid());
 
-        getPlayerInfo();
+        //getPlayerInfo();
     }
 
     public void getPlayerInfo() {
