@@ -120,9 +120,7 @@ public class InMemoryGameRepositoryTest {
         Assert.assertTrue(tank.getDirection() == Direction.Up);
         Assert.assertNotNull(tank.getParent());
 
-        thrown.expect(TokenDoesNotExistException.class);
-        thrown.expectMessage("Token '1000' does not exist");
-        repo.turn(1000, Direction.Right);
+        Assert.assertFalse(repo.turn(1000, Direction.Right));
     }
 
     @Test
@@ -205,12 +203,12 @@ public class InMemoryGameRepositoryTest {
         Tank tank = repo.join("");
         Assert.assertTrue(tank.getDirection() == Direction.Up);
 
-        Assert.assertTrue(repo.move(tank.getId(), Direction.Up));
+        Assert.assertEquals(repo.move(tank.getId(), Direction.Up), 1);
         Assert.assertFalse(tank.getIntValue() == repo.getGrid()[12][12]);
         Assert.assertTrue(tank.getIntValue() == repo.getGrid()[11][12]);
 
         TimeUnit.MILLISECONDS.sleep(500);
-        Assert.assertTrue(repo.move(tank.getId(), Direction.Down));
+        Assert.assertEquals(repo.move(tank.getId(), Direction.Down), 1);
         Assert.assertFalse(tank.getIntValue() == repo.getGrid()[11][12]);
         Assert.assertTrue(tank.getIntValue() == repo.getGrid()[12][12]);
     }
@@ -225,12 +223,12 @@ public class InMemoryGameRepositoryTest {
         Assert.assertTrue(tank.getDirection() == Direction.Down);
 
         TimeUnit.MILLISECONDS.sleep(500);
-        Assert.assertTrue(repo.move(tank.getId(), Direction.Up));
+        Assert.assertEquals(repo.move(tank.getId(), Direction.Up), 1);
         Assert.assertFalse(tank.getIntValue() == repo.getGrid()[12][12]);
         Assert.assertTrue(tank.getIntValue() == repo.getGrid()[11][12]);
 
         TimeUnit.MILLISECONDS.sleep(500);
-        Assert.assertTrue(repo.move(tank.getId(), Direction.Down));
+        Assert.assertEquals(repo.move(tank.getId(), Direction.Down), 1);
         Assert.assertFalse(tank.getIntValue() == repo.getGrid()[11][12]);
         Assert.assertTrue(tank.getIntValue() == repo.getGrid()[12][12]);
     }
@@ -243,12 +241,12 @@ public class InMemoryGameRepositoryTest {
         Assert.assertTrue(tank.getDirection() == Direction.Right);
 
         TimeUnit.MILLISECONDS.sleep(500);
-        Assert.assertTrue(repo.move(tank.getId(), Direction.Right));
+        Assert.assertEquals(repo.move(tank.getId(), Direction.Right), 1);
         Assert.assertFalse(tank.getIntValue() == repo.getGrid()[12][12]);
         Assert.assertTrue(tank.getIntValue() == repo.getGrid()[12][13]);
 
         TimeUnit.MILLISECONDS.sleep(500);
-        Assert.assertTrue(repo.move(tank.getId(), Direction.Left));
+        Assert.assertEquals(repo.move(tank.getId(), Direction.Left), 1);
         Assert.assertFalse(tank.getIntValue() == repo.getGrid()[12][13]);
         Assert.assertTrue(tank.getIntValue() == repo.getGrid()[12][12]);
     }
@@ -261,12 +259,12 @@ public class InMemoryGameRepositoryTest {
         Assert.assertTrue(tank.getDirection() == Direction.Left);
 
         TimeUnit.MILLISECONDS.sleep(500);
-        Assert.assertTrue(repo.move(tank.getId(), Direction.Right));
+        Assert.assertEquals(repo.move(tank.getId(), Direction.Right), 1);
         Assert.assertFalse(tank.getIntValue() == repo.getGrid()[12][12]);
         Assert.assertTrue(tank.getIntValue() == repo.getGrid()[12][13]);
 
         TimeUnit.MILLISECONDS.sleep(500);
-        Assert.assertTrue(repo.move(tank.getId(), Direction.Left));
+        Assert.assertEquals(repo.move(tank.getId(), Direction.Left), 1);
         Assert.assertFalse(tank.getIntValue() == repo.getGrid()[12][13]);
         Assert.assertTrue(tank.getIntValue() == repo.getGrid()[12][12]);
     }
@@ -277,10 +275,10 @@ public class InMemoryGameRepositoryTest {
         Tank tank = repo.join("");
         Assert.assertTrue(tank.getDirection() == Direction.Up);
 
-        Assert.assertFalse(repo.move(tank.getId(), Direction.Right));
+        Assert.assertEquals(repo.move(tank.getId(), Direction.Right), 0);
 
         TimeUnit.MILLISECONDS.sleep(500);
-        Assert.assertFalse(repo.move(tank.getId(), Direction.Left));
+        Assert.assertEquals(repo.move(tank.getId(), Direction.Left), 0);
     }
 
     @Test
@@ -288,22 +286,22 @@ public class InMemoryGameRepositoryTest {
         Tank tank = repo.join("");
 
         repo.turn(tank.getId(), Direction.Right);
-        Assert.assertTrue(tank.getDirection() == Direction.Right);
+        Assert.assertSame(tank.getDirection(), Direction.Right);
 
         TimeUnit.MILLISECONDS.sleep(500);
-        Assert.assertFalse(repo.move(tank.getId(), Direction.Up));
+        Assert.assertEquals(repo.move(tank.getId(), Direction.Up), 0);
 
         TimeUnit.MILLISECONDS.sleep(500);
-        Assert.assertFalse(repo.move(tank.getId(), Direction.Down));
+        Assert.assertEquals(repo.move(tank.getId(), Direction.Down), 0);
     }
 
     @Test
     public void move_ConsecutiveMoves_ReturnsFalse() throws Exception {
         Tank tank = repo.join("");
-        Assert.assertTrue(tank.getDirection() == Direction.Up);
+        Assert.assertSame(tank.getDirection(), Direction.Up);
 
-        Assert.assertTrue(repo.move(tank.getId(), Direction.Up));
-        Assert.assertFalse(repo.move(tank.getId(), Direction.Down));
+        Assert.assertEquals(repo.move(tank.getId(), Direction.Up), 1);
+        Assert.assertEquals(repo.move(tank.getId(), Direction.Down), 0);
     }
 
     //Test Hitting Walls
@@ -314,10 +312,10 @@ public class InMemoryGameRepositoryTest {
         Tank tank = repo.join("");
 
         repo.turn(tank.getId(), Direction.Right);
-        Assert.assertTrue(tank.getDirection() == Direction.Right);
+        Assert.assertSame(tank.getDirection(), Direction.Right);
 
         TimeUnit.MILLISECONDS.sleep(500);
-        Assert.assertFalse(repo.move(tank.getId(), Direction.Right));
+        Assert.assertEquals(repo.move(tank.getId(), Direction.Right), 0);
     }
 
     @Test

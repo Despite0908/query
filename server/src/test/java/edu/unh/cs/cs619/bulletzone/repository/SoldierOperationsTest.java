@@ -65,20 +65,6 @@ public class SoldierOperationsTest {
         Assert.assertNull(soldier2);
     }
 
-    @Test
-    public void eject_afterSoldierDestroy_returnsSoldier() throws Exception {
-        Tank tank = repo.join("");
-        Soldier soldier = repo.eject(tank.getId());
-        Assert.assertNotNull(soldier);
-        //Destroy Soldier, doesn't remove from game.soldiers but it's fine for
-        //what we're doing
-        soldier.getParent().clearField();
-        soldier.setParent(null);
-        tank.setPair(null);
-        Soldier soldier2 = repo.eject(tank.getId());
-        Assert.assertNotNull(soldier2);
-    }
-
     //Timed tests for soldiers
 
     @Test
@@ -92,25 +78,25 @@ public class SoldierOperationsTest {
         Assert.assertTrue(repo.turn(soldier.getId(), Direction.Up));
     }
 
-//    @Test
-//    public void move_movesAtTankStep_returnsFalse() throws Exception {
-//        Tank tank = repo.join("");
-//        Soldier soldier = repo.eject(tank.getId());
-//        Assert.assertNotNull(soldier);
-//        Assert.assertTrue(repo.move(soldier.getId(), Direction.Up));
-//        TimeUnit.MILLISECONDS.sleep(500);
-//        Assert.assertFalse(repo.move(soldier.getId(), Direction.Up));
-//    }
+    @Test
+    public void move_movesAtTankStep_returnsFalse() throws Exception {
+        Tank tank = repo.join("");
+        Soldier soldier = repo.eject(tank.getId());
+        Assert.assertNotNull(soldier);
+        Assert.assertEquals(repo.move(soldier.getId(), Direction.Up), 1);
+        TimeUnit.MILLISECONDS.sleep(500);
+        Assert.assertEquals(repo.move(soldier.getId(), Direction.Up), 0);
+    }
 
-//    @Test
-//    public void move_movesAfter1Sec_returnsTrue() throws Exception {
-//        Tank tank = repo.join("");
-//        Soldier soldier = repo.eject(tank.getId());
-//        Assert.assertNotNull(soldier);
-//        Assert.assertTrue(repo.move(soldier.getId(), Direction.Up));
-//        TimeUnit.MILLISECONDS.sleep(1000);
-//        Assert.assertTrue(repo.move(soldier.getId(), Direction.Up));
-//    }
+    @Test
+    public void move_movesAfter1Sec_returnsTrue() throws Exception {
+        Tank tank = repo.join("");
+        Soldier soldier = repo.eject(tank.getId());
+        Assert.assertNotNull(soldier);
+        Assert.assertEquals(repo.move(soldier.getId(), Direction.Up), 1);
+        TimeUnit.MILLISECONDS.sleep(1000);
+        Assert.assertEquals(repo.move(soldier.getId(), Direction.Up), 1);
+    }
 
     @Test
     public void fire_multipleBullets_returnsFalse() throws Exception {
@@ -132,14 +118,25 @@ public class SoldierOperationsTest {
     }
 
     //Re-enter test
-//    @Test
-//    public void move_soldierEntersTank_TrueAndEjectedFalse() throws Exception {
-//        Tank tank = repo.join("");
-//        Soldier soldier = repo.eject(tank.getId());
-//        Assert.assertNotNull(soldier);
-//        Assert.assertTrue(repo.move(soldier.getId(), Direction.Down));
-//        Assert.assertNull(soldier.getParent());
-//        Assert.assertFalse(tank.isEjected());
-//    }
+    @Test
+    public void move_soldierEntersTank_TrueAndEjectedFalse() throws Exception {
+        Tank tank = repo.join("");
+        Soldier soldier = repo.eject(tank.getId());
+        Assert.assertNotNull(soldier);
+        Assert.assertEquals(repo.move(soldier.getId(), Direction.Down), 2);
+        Assert.assertNull(soldier.getParent());
+        Assert.assertFalse(tank.isEjected());
+    }
+
+    @Test
+    public void eject_afterSoldierReenter_returnsSoldier() throws Exception {
+        Tank tank = repo.join("");
+        Soldier soldier = repo.eject(tank.getId());
+        Assert.assertNotNull(soldier);
+        repo.turn(soldier.getId(), Direction.Down);
+        repo.move(soldier.getId(), Direction.Down);
+        Soldier soldier2 = repo.eject(tank.getId());
+        Assert.assertNotNull(soldier2);
+    }
 
 }
