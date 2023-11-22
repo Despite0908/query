@@ -117,7 +117,6 @@ public abstract class PlayerToken extends FieldEntity{
             nextField.setFieldEntity(this);
             setParent(nextField);
             grabbedItem.movedIntoBy(this);
-            grabbedItem.movedIntoBy(this);
             EventHistory.get_instance().addEvent(new TokenLeaveEvent(this.getId(), this.getIntValue()));
             CustomEvent customEvent = new CustomEvent(CustomEventTypes.ANTI_GRAV_PICKUP, grabbedItem);
             if (grabbedItem.getItemType() == ItemTypes.FUSION_REACTOR) {
