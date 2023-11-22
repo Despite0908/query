@@ -1,6 +1,7 @@
 package edu.unh.cs.cs619.bulletzone.model.entities;
 
 public enum ItemTypes {
+    NO_ITEM(0),
     ANTI_GRAV(2002),
     FUSION_REACTOR(2003),
     COIN(7);

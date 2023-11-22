@@ -4,7 +4,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
+import edu.unh.cs.cs619.bulletzone.model.entities.Item;
+import edu.unh.cs.cs619.bulletzone.model.entities.ItemTypes;
 import edu.unh.cs.cs619.bulletzone.model.improvements.Wall;
 
 /**
@@ -17,6 +20,8 @@ public class GameBuilder {
 
     private Map<Integer, Wall> wallMap;
     private Terrain[] fieldTerrain;
+    private ItemTypes[] fieldItems;
+    private final AtomicLong idGenerator = new AtomicLong();
 
     /**
      * Constructor that initializes a map of entities and an array of terrain.
@@ -24,7 +29,9 @@ public class GameBuilder {
     public GameBuilder() {
         this.wallMap = new HashMap<>();
         fieldTerrain = new Terrain[FIELD_DIM * FIELD_DIM];
+        fieldItems = new ItemTypes[FIELD_DIM * FIELD_DIM];
         Arrays.fill(fieldTerrain, Terrain.Normal);
+        Arrays.fill(fieldItems, ItemTypes.NO_ITEM);
     }
 
     /**
@@ -59,6 +66,15 @@ public class GameBuilder {
      */
     public void addTerrain(int position, Terrain terrain) {
         fieldTerrain[position] = terrain;
+    }
+
+    /**
+     * Add item to the map.
+     * @param position Position Item to be added at
+     * @param theItemType Type of Item
+     */
+    public void addItem(int position, ItemTypes theItemType) {
+        fieldItems[position] = theItemType;
     }
 
     /**
@@ -106,6 +122,16 @@ public class GameBuilder {
                 downHolder.addNeighbor(Direction.Up, targetHolder);
                 //Set terrain of target Holder
                 targetHolder.setTerrain(fieldTerrain[i * FIELD_DIM + j]);
+
+                // Adding field items
+                if (fieldItems[i * FIELD_DIM + j] == ItemTypes.NO_ITEM) {
+                    // do nothing
+                } else {
+                    Item myTestItem = new Item(idGenerator.getAndIncrement(), fieldItems[i * FIELD_DIM + j], (i * FIELD_DIM + j));
+                    targetHolder.setFieldEntity(myTestItem);
+                    myTestItem.setParent(targetHolder);
+                    game.incrementItems();
+                }
             }
         }
     }

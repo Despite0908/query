@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.unh.cs.cs619.bulletzone.model.entities.ItemTypes;
+
 /**
  * Loads map from a JSON map file.
  * @author Anthony Papetti
@@ -87,6 +89,30 @@ public class MapLoader {
                 }
             }
         }
+
+        //String to JSONArray for Items, parse JSON
+        Map<ItemTypes, JSONArray> itemPosMap = new HashMap<>();
+        try {
+            itemPosMap.put(ItemTypes.ANTI_GRAV, new JSONObject(str).getJSONArray("ANTI_GRAV"));
+        } catch (JSONException ignored) {}
+        try {
+            itemPosMap.put(ItemTypes.FUSION_REACTOR, new JSONObject(str).getJSONArray("FUSION_REACTOR"));
+        } catch (JSONException ignored) {}
+        try {
+            itemPosMap.put(ItemTypes.COIN, new JSONObject(str).getJSONArray("COIN"));
+        } catch (JSONException ignored) {}
+
+        for (ItemTypes t: itemPosMap.keySet()) {
+            JSONArray curArr = itemPosMap.get(t);
+            if (curArr != null) {
+                for (int i = 0; i < curArr.length(); i++) {
+                    g.addItem(curArr.getInt(i), t);
+                }
+            }
+        }
+
+
+
         return g;
     }
 }
