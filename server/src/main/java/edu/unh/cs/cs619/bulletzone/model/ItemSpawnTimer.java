@@ -44,9 +44,10 @@ public class ItemSpawnTimer extends TimerTask {
                 int numItems = theGame.getNumItems();
 
                 // TODO aiden just here to not fill entire board remove when ready!!!!
-                if(numItems > 10) {
-                    return;
-                }
+                //if(numItems > 10) {
+                //    return;
+                //}
+
                 int randomPlace = randomArea.nextInt(FIELD_DIM * FIELD_DIM);
                 FieldHolder fieldElement = theGame.getHolderGrid().get(randomPlace);
                 float baseProbability = 25.0f;
