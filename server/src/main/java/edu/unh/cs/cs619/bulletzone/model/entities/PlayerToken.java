@@ -31,16 +31,6 @@ public abstract class PlayerToken extends FieldEntity{
 
     PlayerToken pair;
 
-    //EventBus eventBus = new BusProvider().getEventBus();
-
-
-    //this is what was working
-    //EventBus eventBus;
-
-    EventBus eventBus2;
-
-
-
 
     /**
      * Constructor. Handles common data and functionality between tokens.
@@ -56,16 +46,8 @@ public abstract class PlayerToken extends FieldEntity{
         lastFireTime = 0;
         lastMoveTime = 0;
         pair = null;
-        eventBus2 = BusProvider.BusProvider().eventBus;
     }
 
-//    public void setEventBus(EventBus theBus) {
-//        eventBus = theBus;
-//    }
-
-//    public EventBus getEventBus() {
-//        return eventBus;
-//    }
     /**
      * Constraint checking for the token's turn operation.
      * @param millis Timestamp in milliseconds
@@ -110,32 +92,7 @@ public abstract class PlayerToken extends FieldEntity{
             return 0;
         }
 
-        //Check for Items
-        if (nextField.isPresent() && nextField.getEntity().getIsItem()) {
-            Item grabbedItem = (Item) nextField.getEntity();
-            parent.clearField();
-            nextField.setFieldEntity(this);
-            setParent(nextField);
-            grabbedItem.movedIntoBy(this);
-            EventHistory.get_instance().addEvent(new TokenLeaveEvent(this.getId(), this.getIntValue()));
-            CustomEvent customEvent = new CustomEvent(CustomEventTypes.ANTI_GRAV_PICKUP, grabbedItem);
-            if (grabbedItem.getItemType() == ItemTypes.FUSION_REACTOR) {
-                numBulletsAfterReactor();
-                fireRateAfterReactor();
-                movementSpeedAfterReactor();
-            } else if (grabbedItem.getItemType() == ItemTypes.ANTI_GRAV) {
-                movementSpeedAfterAntiGrav();
-                fireRateAfterAntiGrav();
-            }
-            // this was working
-            // eventBus.post(customEvent);
-            eventBus2.post(customEvent);
-            return 1;
-        }
-
-
-        //Check for entities
-        boolean isCompleted;
+        //Check for empty space
         if (!nextField.isPresent()) {
             // If the next field is empty move the user
             parent.clearField();
@@ -143,7 +100,15 @@ public abstract class PlayerToken extends FieldEntity{
             setParent(nextField);
             return 1;
         }
-        return nextField.getEntity().movedIntoBy(this);
+
+        //Check for entities
+        int moveResult = nextField.getEntity().movedIntoBy(this);
+        if (moveResult == 1) {
+            parent.clearField();
+            nextField.setFieldEntity(this);
+            setParent(nextField);
+        }
+        return moveResult;
     }
 
     /**
