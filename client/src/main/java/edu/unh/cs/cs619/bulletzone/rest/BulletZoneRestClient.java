@@ -14,6 +14,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.RestClientException;
 
 import edu.unh.cs.cs619.bulletzone.util.BooleanWrapper;
+import edu.unh.cs.cs619.bulletzone.util.DoubleWrapper;
 import edu.unh.cs.cs619.bulletzone.util.GridWrapper;
 import edu.unh.cs.cs619.bulletzone.util.InventoryWrapper;
 import edu.unh.cs.cs619.bulletzone.util.LongWrapper;
@@ -47,6 +48,9 @@ public interface BulletZoneRestClient extends RestClientErrorHandling {
 
     @Put("/account/login/{username}/{password}")
     LongWrapper login(@Path String username, @Path String password);
+
+    @Get("/account/balance/{id}")
+    DoubleWrapper balance(@Path long id);
 
     @Put("/{tankId}/move/{direction}")
     LongWrapper move(@Path long tankId, @Path byte direction);

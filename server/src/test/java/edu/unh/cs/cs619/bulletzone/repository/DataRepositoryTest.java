@@ -70,4 +70,12 @@ public class DataRepositoryTest {
             assert(account.getBalance() == 1000);
         }
     }
+
+    @Test
+    public void getBalance_withAccount_givesStartingCreditsOf1000() {
+        DataRepository repository = new DataRepository();
+        GameUser newUser = repository.validateUser("nicolas", "karpf", false);
+        double balance = repository.getCredits(newUser.getId());
+        assert(balance == 1000);
+    }
 }

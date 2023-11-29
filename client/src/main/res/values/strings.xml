@@ -11,5 +11,7 @@
     <string name="join">JOIN</string>
     <string name="leave">LEAVE</string>
     <string name="title_activity_my">MyActivity</string>
+    <string name="default_user">Guest</string>
+    <string name="default_credits">Credits: 0</string>
 
 </resources>

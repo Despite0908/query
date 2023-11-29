@@ -36,13 +36,17 @@ import org.androidannotations.api.BackgroundExecutor;
 import org.json.JSONException;
 import org.w3c.dom.Text;
 
+import java.util.Locale;
+
 import edu.unh.cs.cs619.bulletzone.events.BusProvider;
 import edu.unh.cs.cs619.bulletzone.rest.BZRestErrorhandler;
+import edu.unh.cs.cs619.bulletzone.rest.BalanceUpdateEvent;
 import edu.unh.cs.cs619.bulletzone.rest.BulletZoneRestClient;
 import edu.unh.cs.cs619.bulletzone.rest.GridPollerTask;
 import edu.unh.cs.cs619.bulletzone.rest.GridUpdateEvent;
 import edu.unh.cs.cs619.bulletzone.ui.GameUser;
 import edu.unh.cs.cs619.bulletzone.ui.GridAdapter;
+import edu.unh.cs.cs619.bulletzone.util.DoubleWrapper;
 import edu.unh.cs.cs619.bulletzone.util.GridWrapper;
 import edu.unh.cs.cs619.bulletzone.util.InventoryWrapper;
 
@@ -55,6 +59,7 @@ public class ClientActivity extends Activity {
     protected GridAdapter mGridAdapter;
 
     GameUser user;
+    long cachedID;
 
     @ViewById
     protected GridView gridView;
@@ -82,6 +87,7 @@ public class ClientActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        cachedID = -1;
         SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         Sensor shakeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
@@ -108,9 +114,22 @@ public class ClientActivity extends Activity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (cachedID != user.getId()) {
+            //login has changed
+            cachedID = user.getId();
+            gridPollTask.setId(cachedID);
+            TextView usernameView = findViewById(R.id.username);
+            usernameView.setText(user.getUsername());
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         busProvider.getEventBus().unregister(gridEventHandler);
+        busProvider.getEventBus().unregister(balanceEventHandler);
     }
 
     /**
@@ -131,6 +150,14 @@ public class ClientActivity extends Activity {
         }
     };
 
+    private Object balanceEventHandler = new Object()
+    {
+        @Subscribe
+        public void onUpdateBalance(BalanceUpdateEvent event) {
+            updateBalance(event.dw);
+        }
+    };
+
 
     @AfterViews
     protected void afterViewInjection() {
@@ -146,6 +173,7 @@ public class ClientActivity extends Activity {
     void afterInject() {
         tankControl.afterInject();
         busProvider.getEventBus().register(gridEventHandler);
+        busProvider.getEventBus().register(balanceEventHandler);
 
         restClient.setRestErrorHandler(bzRestErrorhandler);
 
@@ -167,6 +195,11 @@ public class ClientActivity extends Activity {
         mGridAdapter.updateList(gw.getGrid());
 
         //getPlayerInfo();
+    }
+
+    public void updateBalance(DoubleWrapper dw) {
+        TextView creditsView = findViewById(R.id.balance);
+        creditsView.setText(String.format(Locale.ENGLISH, "Credits: %d", (long) dw.getResult()));
     }
 
     public void getPlayerInfo() {

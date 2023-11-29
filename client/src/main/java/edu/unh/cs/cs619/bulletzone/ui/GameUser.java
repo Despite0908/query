@@ -8,7 +8,8 @@ public class GameUser {
 
 
 
-    String username;
+    private String username;
+    private long id = -1;
 
 
     public String getUsername() {
@@ -17,6 +18,14 @@ public class GameUser {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public static synchronized GameUser getInstance() {

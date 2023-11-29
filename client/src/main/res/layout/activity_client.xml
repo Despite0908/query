@@ -30,6 +30,26 @@
                 android:text="Login"
                 android:textColor="@color/text_color" />
 
+            <TextView
+                android:id="@+id/username"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_toEndOf="@id/buttonLogin"
+                android:text="@string/default_user"
+                android:gravity="center"
+                android:textColor="@color/text_color"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/balance"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_toStartOf="@id/buttonLeave"
+                android:text="@string/default_credits"
+                android:gravity="center"
+                android:textColor="@color/text_color"
+                android:textSize="15sp" />
+
 
 
             <Button

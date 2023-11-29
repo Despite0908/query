@@ -42,13 +42,14 @@ public class AuthenticationController {
      */
     public long login(String username, String password) {
         LongWrapper result = restClient.login(username, password);
-        user = GameUser.getInstance();
-        user.setUsername(username);
-
-
         if (result == null) {
             return -1;
         }
+
+        user = GameUser.getInstance();
+        user.setUsername(username);
+        user.setId(result.getResult());
+
         return result.getResult();
     }
 
