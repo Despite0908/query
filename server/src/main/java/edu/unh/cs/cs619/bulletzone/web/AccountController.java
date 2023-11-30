@@ -24,11 +24,9 @@ import edu.unh.cs.cs619.bulletzone.datalayer.user.GameUser;
 @RequestMapping(value = "/games/account")
 public class AccountController {
     private static final Logger log = LoggerFactory.getLogger(AccountController.class);
-    private final DataRepository data;
+    private final DataRepository data = DataRepository.get_instance();
     @Autowired
-    public AccountController(DataRepository repo) {
-        this.data = repo;
-    }
+    public AccountController() {}
 
     /**
      * Handles a PUT request to register a new user account. This calls the validateUser function on

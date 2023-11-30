@@ -13,6 +13,7 @@ import org.androidannotations.rest.spring.annotations.RestService;
 
 import edu.unh.cs.cs619.bulletzone.rest.BZRestErrorhandler;
 import edu.unh.cs.cs619.bulletzone.rest.BulletZoneRestClient;
+import edu.unh.cs.cs619.bulletzone.util.BooleanWrapper;
 
 
 /**
@@ -221,11 +222,24 @@ public class TankController {
     }
 
     @Background
-    void joinAsync() {
+    void joinAsync(int id) {
         try {
-            tankId = restClient.join().getResult();
+            tankId = restClient.join(id).getResult();
         } catch (Exception e) {
         }
+    }
+
+    /**
+     * Has the given tankId leave the game, then joins back
+     * @param accountID the current account ID
+     */
+    @Background
+    void reJoinAsync(int accountID) {
+        BooleanWrapper w = restClient.leave(tankId);
+        tankId = restClient.join(accountID).getResult();
+        direction = 0;
+        soldierDirection = 0;
+        soldierId = -1;
     }
 
     /**

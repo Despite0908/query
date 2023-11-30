@@ -2,11 +2,12 @@ package edu.unh.cs.cs619.bulletzone.model.entities;
 
 import com.google.common.eventbus.EventBus;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import edu.unh.cs.cs619.bulletzone.events.BusProvider;
 import edu.unh.cs.cs619.bulletzone.events.CustomEvent;
 import edu.unh.cs.cs619.bulletzone.events.CustomEventTypes;
-import edu.unh.cs.cs619.bulletzone.model.Direction;
-import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
+import edu.unh.cs.cs619.bulletzone.model.BankLinker;
 import edu.unh.cs.cs619.bulletzone.model.Game;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
@@ -86,6 +87,9 @@ public class Item extends FieldEntity {
         } else if (getItemType() == ItemTypes.ANTI_GRAV) {
             other.movementSpeedAfterAntiGrav();
             other.fireRateAfterAntiGrav();
+        } else if (getItemType() == ItemTypes.COIN) {
+            int credits = ThreadLocalRandom.current().nextInt(10, 100 + 1);
+            BankLinker.addCredits(other.getAccountID(), credits);
         }
         // this was working
         // eventBus.post(customEvent);

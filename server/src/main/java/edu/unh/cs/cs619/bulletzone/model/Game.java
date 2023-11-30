@@ -36,8 +36,6 @@ public final class Game {
     private final ConcurrentMap<Long, Tank> tanks = new ConcurrentHashMap<>();
     private final ConcurrentMap<Long, Soldier> soldiers = new ConcurrentHashMap<>();
 
-    BulletZoneData data = new DataRepository().getbzData();
-
     //associate the inventory with username
     EventBus eventBus = BusProvider.BusProvider().eventBus;
 
@@ -132,34 +130,6 @@ public final class Game {
         synchronized (soldiers) {
             soldiers.put(soldier.getId(), soldier);
         }
-    }
-
-    public int[] getInventory(String username){
-        int [] inventory = new int[1];
-
-        int balance = getCredits(username);
-
-        inventory[0] = balance;
-
-        return inventory;
-    }
-
-    public int getCredits(String username) {
-        try {
-            GameUser user = data.users.getUser(username);
-
-            Collection<BankAccount> accounts = user.getOwnedAccounts();
-
-            BankAccount ba = accounts.iterator().next();
-
-            double balance = ba.getBalance();
-
-            return (int) balance;
-        } catch (NullPointerException e) {
-            System.out.println("Error: getting coins, user not found");
-        }
-
-        return 0;
     }
 
 

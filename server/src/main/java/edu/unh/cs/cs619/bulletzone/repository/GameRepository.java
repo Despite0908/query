@@ -9,7 +9,7 @@ import edu.unh.cs.cs619.bulletzone.model.exceptions.TokenDoesNotExistException;
 
 public interface GameRepository {
 
-    Tank join(String ip);
+    Tank join(String ip, int id);
 
     int[][] getGrid();
 
@@ -31,7 +31,7 @@ public interface GameRepository {
 
     public Soldier eject(long tankId) throws TokenDoesNotExistException;
 
-    public int[] getInventory(String username);
+    public int[] getInventory(int id);
 
 
 }

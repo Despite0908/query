@@ -43,13 +43,13 @@ class GamesController {
         this.gameRepository = gameRepository;
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.POST, value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    ResponseEntity<LongWrapper> join(HttpServletRequest request) {
+    ResponseEntity<LongWrapper> join(HttpServletRequest request, @PathVariable int id) {
         Tank tank;
         try {
-            tank = gameRepository.join(request.getRemoteAddr());
+            tank = gameRepository.join(request.getRemoteAddr(), id);
             log.info("Player joined: tankId={} IP={}", tank.getId(), request.getRemoteAddr());
 
             return new ResponseEntity<LongWrapper>(
@@ -158,16 +158,16 @@ class GamesController {
 
     //return inventory to rest client call
 
-    @RequestMapping(method=RequestMethod.PUT, value="GetInventory/{username}/")
+    @RequestMapping(method=RequestMethod.PUT, value="GetInventory/{id}/")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
 
-    ResponseEntity<InventoryWrapper> getInventory(@PathVariable String username)
+    ResponseEntity<InventoryWrapper> getInventory(@PathVariable int id)
     {
 
         try
         {
-            int[] inventory = gameRepository.getInventory(username);
+            int[] inventory = gameRepository.getInventory(id);
 
             //boolean isPoweredUp =
             return new ResponseEntity<InventoryWrapper>(new InventoryWrapper(inventory), HttpStatus.OK);

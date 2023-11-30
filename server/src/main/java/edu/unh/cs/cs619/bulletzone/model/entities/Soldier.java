@@ -15,8 +15,8 @@ public class Soldier extends PlayerToken{
      * @param direction The initial direction of the soldier
      * @param ip IP of the player
      */
-    public Soldier(long id, Direction direction, String ip) {
-        super(id, direction, ip);
+    public Soldier(long id, Direction direction, String ip, int accountID) {
+        super(id, direction, ip, accountID);
         setLife(25);
         setAllowedNumberOfBullets(6);
         setAllowedMoveInterval(1000);
@@ -65,7 +65,7 @@ public class Soldier extends PlayerToken{
      */
     @Override
     public FieldEntity copy() {
-        return new Soldier(getId(), getDirection(), getIp());
+        return new Soldier(getId(), getDirection(), getIp(), accountID);
     }
 
     @Override

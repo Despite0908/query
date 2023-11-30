@@ -7,9 +7,8 @@ public class GameUser {
     private int[] inventory = new int[1];
 
 
-
     private String username;
-    private long id = -1;
+    private int id = -1;
 
 
     public String getUsername() {
@@ -20,11 +19,11 @@ public class GameUser {
         this.username = username;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 

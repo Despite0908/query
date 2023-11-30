@@ -110,7 +110,7 @@ public class InMemoryGameRepository implements GameRepository {
      * @return Returns the Tank object for the tank added to the game.
      */
     @Override
-    public Tank join(String ip) {
+    public Tank join(String ip, int accountID) {
         synchronized (this.monitor) {
             Tank tank;
             if (game == null) {
@@ -124,7 +124,7 @@ public class InMemoryGameRepository implements GameRepository {
 
             Long tankId = this.idGenerator.getAndIncrement();
 
-            tank = new Tank(tankId, Direction.Up, ip);
+            tank = new Tank(tankId, Direction.Up, ip, accountID);
             tank.setLife(TANK_LIFE);
 
             Random random = new Random();
@@ -255,7 +255,7 @@ public class InMemoryGameRepository implements GameRepository {
             //Spawn Soldier
             Soldier soldier;
             if (tank.getPair() == null) {
-                soldier = new Soldier(idGenerator.getAndIncrement(), Direction.Up, tank.getIp());
+                soldier = new Soldier(idGenerator.getAndIncrement(), Direction.Up, tank.getIp(), tank.getAccountID());
             } else {
                 soldier = (Soldier) tank.getPair();
             }
@@ -386,8 +386,9 @@ public class InMemoryGameRepository implements GameRepository {
         }
     }
 
-    public int[] getInventory(String username){
-        return game.getInventory(username);
+    @Override
+    public int[] getInventory(int id){
+        return getInventory(id);
     }
 
     /**

@@ -48,7 +48,7 @@ public class AuthenticationController {
 
         user = GameUser.getInstance();
         user.setUsername(username);
-        user.setId(result.getResult());
+        user.setId((int) result.getResult());
 
         return result.getResult();
     }

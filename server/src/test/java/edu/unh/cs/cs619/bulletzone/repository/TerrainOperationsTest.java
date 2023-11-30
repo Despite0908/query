@@ -38,7 +38,7 @@ public class TerrainOperationsTest {
     @Test
     public void move_hillsMoveNormalTankStep_returnFalse() throws Exception {
         when(mockClock.millis()).thenReturn((long)500);
-        Tank tank = repo.join("");
+        Tank tank = repo.join("", -1);
         Assert.assertNotNull(tank);
         Assert.assertEquals(repo.move(tank.getId(), Direction.Up), 1);
         when(mockClock.millis()).thenReturn((long)1000);
@@ -47,7 +47,7 @@ public class TerrainOperationsTest {
     @Test
     public void move_hillsMoveDelayTankStep_returnTrue() throws Exception {
         when(mockClock.millis()).thenReturn((long)750);
-        Tank tank = repo.join("");
+        Tank tank = repo.join("", -1);
         Assert.assertNotNull(tank);
         Assert.assertEquals(repo.move(tank.getId(), Direction.Up), 1);
         when(mockClock.millis()).thenReturn((long)1500);
@@ -56,7 +56,7 @@ public class TerrainOperationsTest {
     @Test
     public void move_hillsMoveNormalSoldierStep_returnTrue() throws Exception {
         when(mockClock.millis()).thenReturn((long)1000);
-        Tank tank = repo.join("");
+        Tank tank = repo.join("", -1);
         Soldier soldier = repo.eject(tank.getId());
         Assert.assertEquals(repo.move(soldier.getId(), Direction.Up), 1);
         when(mockClock.millis()).thenReturn((long)2000);
@@ -65,7 +65,7 @@ public class TerrainOperationsTest {
 
     @Test
     public void move_rockyMoveNormalSoliderStep_returnFalse() throws Exception {
-        Tank tank = repo.join("");
+        Tank tank = repo.join("", -1);
         Soldier soldier = repo.eject(tank.getId());
         Assert.assertNotNull(soldier);
         when(mockClock.millis()).thenReturn((long)1000);
@@ -80,7 +80,7 @@ public class TerrainOperationsTest {
     }
     @Test
     public void move_rockyMoveDelaySoldierStep_returnTrue() throws Exception {
-        Tank tank = repo.join("");
+        Tank tank = repo.join("", -1);
         Soldier soldier = repo.eject(tank.getId());
         Assert.assertNotNull(soldier);
         when(mockClock.millis()).thenReturn((long)1000);
@@ -95,7 +95,7 @@ public class TerrainOperationsTest {
     }
     @Test
     public void move_rockyMoveNormalTankStep_returnTrue() throws Exception {
-        Tank tank = repo.join("");
+        Tank tank = repo.join("", -1);
         Assert.assertNotNull(tank);
         when(mockClock.millis()).thenReturn((long)500);
         repo.turn(tank.getId(), Direction.Right);
@@ -109,7 +109,7 @@ public class TerrainOperationsTest {
 
     @Test
     public void move_forestTank_returnsFalse() throws Exception {
-        Tank tank = repo.join("");
+        Tank tank = repo.join("", -1);
         Assert.assertNotNull(tank);
         when(mockClock.millis()).thenReturn((long)500);
         repo.turn(tank.getId(), Direction.Right);
@@ -125,7 +125,7 @@ public class TerrainOperationsTest {
 
     @Test
     public void move_forestSoldier_returnsTrue() throws Exception {
-        Tank tank = repo.join("");
+        Tank tank = repo.join("", -1);
         Soldier soldier = repo.eject(tank.getId());
         Assert.assertNotNull(soldier);
         when(mockClock.millis()).thenReturn((long)1000);

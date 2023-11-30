@@ -31,6 +31,8 @@ public abstract class PlayerToken extends FieldEntity{
 
     PlayerToken pair;
 
+    int accountID;
+
 
     /**
      * Constructor. Handles common data and functionality between tokens.
@@ -38,7 +40,7 @@ public abstract class PlayerToken extends FieldEntity{
      * @param direction The initial direction of the token
      * @param ip IP of the player
      */
-    public PlayerToken(long id, Direction direction, String ip) {
+    public PlayerToken(long id, Direction direction, String ip, int accountID) {
         super(id);
         this.direction = direction;
         this.ip = ip;
@@ -46,6 +48,11 @@ public abstract class PlayerToken extends FieldEntity{
         lastFireTime = 0;
         lastMoveTime = 0;
         pair = null;
+        this.accountID = accountID;
+    }
+
+    public int getAccountID() {
+        return accountID;
     }
 
     /**

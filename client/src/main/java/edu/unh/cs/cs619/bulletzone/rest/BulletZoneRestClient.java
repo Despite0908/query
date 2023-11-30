@@ -34,8 +34,8 @@ import edu.unh.cs.cs619.bulletzone.util.StringArrayWrapper;
 public interface BulletZoneRestClient extends RestClientErrorHandling {
     void setRootUrl(String rootUrl);
 
-    @Post("")
-    LongWrapper join() throws RestClientException;
+    @Post("/{id}")
+    LongWrapper join(@Path int id) throws RestClientException;
 
     @Get("")
     GridWrapper grid();
@@ -64,8 +64,8 @@ public interface BulletZoneRestClient extends RestClientErrorHandling {
     @Delete("/{tankId}/leave")
     BooleanWrapper leave(@Path long tankId);
 
-    @Put("/GetInventory/{username}")
-    InventoryWrapper getInventory(@Path String username);
+    @Put("/GetInventory/{id}")
+    InventoryWrapper getInventory(@Path int id);
 
     @Put("/{tankId}/eject")
     LongWrapper eject(@Path long tankId);

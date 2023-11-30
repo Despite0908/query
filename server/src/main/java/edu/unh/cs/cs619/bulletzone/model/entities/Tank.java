@@ -24,8 +24,8 @@ public class Tank extends PlayerToken {
      * @param direction The initial direction of the tank
      * @param ip IP of the player
      */
-    public Tank(long id, Direction direction, String ip) {
-        super(id, direction, ip);
+    public Tank(long id, Direction direction, String ip, int accountID) {
+        super(id, direction, ip, accountID);
         setLife(100);
         setAllowedNumberOfBullets(2);
         setAllowedMoveInterval(500);
@@ -118,7 +118,7 @@ public class Tank extends PlayerToken {
 
     @Override
     public FieldEntity copy() {
-        return new Tank(getId(), getDirection(), getIp());
+        return new Tank(getId(), getDirection(), getIp(), accountID);
     }
 
     /**

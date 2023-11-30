@@ -27,13 +27,22 @@ import java.util.Collection;
 public class DataRepository {
     private BulletZoneData bzdata;
 
-    public DataRepository() {
+    private static DataRepository _instance;
+
+    private DataRepository() {
         String url = "jdbc:mysql://stman1.cs.unh.edu/cs61906";
         String username = "oberon";
         String password = "pibyad2ObIb";
 
         bzdata = new BulletZoneData(url, username, password);
        //bzdata = new BulletZoneData(); //just use in-memory database
+    }
+
+    public static DataRepository get_instance() {
+        if (_instance == null) {
+            _instance = new DataRepository();
+        }
+        return _instance;
     }
 
     public BulletZoneData getbzData() {
@@ -76,8 +85,9 @@ public class DataRepository {
             return -1;
         }
         Collection<BankAccount> accounts = user.getOwnedAccounts();
+        System.out.printf("Num of Accounts: %d\n", accounts.size());
         for (BankAccount account: accounts) {
-            return account.getBalance();
+            return bzdata.accounts.getAccount(account.getId()).getBalance();
         }
         return -1;
     }

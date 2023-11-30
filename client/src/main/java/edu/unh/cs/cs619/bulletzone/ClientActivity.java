@@ -59,7 +59,7 @@ public class ClientActivity extends Activity {
     protected GridAdapter mGridAdapter;
 
     GameUser user;
-    long cachedID;
+    int cachedID;
 
     @ViewById
     protected GridView gridView;
@@ -113,15 +113,25 @@ public class ClientActivity extends Activity {
         sensorManager.registerListener(sensorEventListener, shakeSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
+    /**
+     * When this activity resumes, check to see if account has changed. If it has,
+     * change account information and rejoin the game.
+     */
     @Override
     protected void onResume() {
         super.onResume();
         if (cachedID != user.getId()) {
-            //login has changed
+            //login has changed, change UI
             cachedID = user.getId();
             gridPollTask.setId(cachedID);
             TextView usernameView = findViewById(R.id.username);
             usernameView.setText(user.getUsername());
+            //leave and re-join game
+            tankControl.reJoinAsync(cachedID);
+            SystemClock.sleep(1000);
+            mGridAdapter.setPlayerTankId(tankControl.getTankId());
+            mGridAdapter.setPlayerSoldierId(-1);
+
         }
     }
 
@@ -161,7 +171,7 @@ public class ClientActivity extends Activity {
 
     @AfterViews
     protected void afterViewInjection() {
-        tankControl.joinAsync();
+        tankControl.joinAsync(user.getId());
         gridPollTask.doPoll();
         SystemClock.sleep(500);
         gridView.setAdapter(mGridAdapter);
@@ -206,7 +216,7 @@ public class ClientActivity extends Activity {
 
         TextView creditInfo = findViewById(R.id.bal);
 
-        InventoryWrapper in = restClient.getInventory(user.getUsername());
+        InventoryWrapper in = restClient.getInventory(user.getId());
 
         int[] inv = in.getResult();
 
