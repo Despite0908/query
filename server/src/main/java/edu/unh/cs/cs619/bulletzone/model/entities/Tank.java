@@ -11,6 +11,11 @@ import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
 import edu.unh.cs.cs619.bulletzone.model.Terrain;
 
+/**
+ * Tank Token. Spawned in when the player joins the game. Can do token actions
+ * such as move, turn and fire. Can also "eject" soldiers.
+ * @author Anthony Papetti
+ */
 public class Tank extends PlayerToken {
 
     private static final String TAG = "Tank";
@@ -42,7 +47,8 @@ public class Tank extends PlayerToken {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc} Cannot Move sideways. 500ms base speed, 50% longer for hilly
+     * terrain. Cannot enter forests.
      * @param millis Timestamp in milliseconds
      * @param direction Direction in which the token will be moved
      * @return {@inheritDoc}
@@ -71,7 +77,7 @@ public class Tank extends PlayerToken {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc} 500ms base turn speed. Can only turn 90 degrees.
      * @param millis Timestamp in milliseconds
      * @param direction Direction in which the token will turn
      * @return {@inheritDoc}
@@ -122,7 +128,8 @@ public class Tank extends PlayerToken {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc} Decreases life. If life is below 0, destroys Tank and it's
+     * pair (Soldier).
      * @param damage Damage done by the bullet.
      * @param game Current game.
      * @return {@inheritDoc}

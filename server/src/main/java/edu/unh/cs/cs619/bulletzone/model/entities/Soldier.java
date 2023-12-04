@@ -7,6 +7,11 @@ import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
 import edu.unh.cs.cs619.bulletzone.model.Terrain;
 
+/**
+ * Soldier token. Can be token actions such as move, fire, and turn. Can also re-enter a
+ * tank by moving into it.
+ * @author Anthony Papetti
+ */
 public class Soldier extends PlayerToken{
 
     /**
@@ -25,7 +30,7 @@ public class Soldier extends PlayerToken{
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc} No constraints for Soldiers.
      * @param millis Timestamp in milliseconds
      * @param direction Direction in which the token will turn
      * @return {@inheritDoc}
@@ -44,7 +49,7 @@ public class Soldier extends PlayerToken{
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc} 1000 ms base speed. Entering rocky terrian takes 50% longer.
      * @param millis Timestamp in milliseconds
      * @param direction Direction in which the token will be moved
      * @return {@inheritDoc}
@@ -94,7 +99,8 @@ public class Soldier extends PlayerToken{
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc} Decreases life. If life is below 0, destroys Soldier and it's
+     * pair (Tank).
      * @param damage Damage done by the bullet.
      * @param game Current game.
      * @return {@inheritDoc}

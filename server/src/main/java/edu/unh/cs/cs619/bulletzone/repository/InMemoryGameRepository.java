@@ -13,6 +13,7 @@ import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
 import edu.unh.cs.cs619.bulletzone.model.Game;
 import edu.unh.cs.cs619.bulletzone.model.GameBuilder;
 import edu.unh.cs.cs619.bulletzone.model.ItemSpawnTimer;
+import edu.unh.cs.cs619.bulletzone.model.entities.Builder;
 import edu.unh.cs.cs619.bulletzone.model.entities.PlayerToken;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenMoveEvent;
@@ -51,13 +52,13 @@ public class InMemoryGameRepository implements GameRepository {
     /**
      * Tank's default life [life]
      */
-    private static final int TANK_LIFE = 100;
     private final AtomicLong idGenerator = new AtomicLong();
     private final Object monitor = new Object();
     private Game game = null;
     private int bulletDelay[]={500,1000,1500,250};
 
     private int[] tankSpawn = null;
+    private int[] builderSpawn = null;
 
     private Clock c = Clock.systemUTC();
     private final EventHistory eventHistory = EventHistory.start(c);
@@ -102,7 +103,22 @@ public class InMemoryGameRepository implements GameRepository {
         }
     }
 
-
+    /**
+     * USED FOR TESTING PURPOSES ONLY. Sets tank spawn to a specific cell.
+     * @param x Row for tank to spawn in
+     * @param y Column for tank to spawn in.
+     */
+    public void setBuilderSpawn(int x, int y) {
+        if (x >= FIELD_DIM || y >= FIELD_DIM) {
+            return;
+        }
+        if (builderSpawn == null) {
+            builderSpawn = new int[]{x, y};
+        } else {
+            builderSpawn[0] = x;
+            builderSpawn[1] = y;
+        }
+    }
 
     /**
      * Adds a player to the current game. If there is no game occurring, it creates one.
@@ -113,6 +129,7 @@ public class InMemoryGameRepository implements GameRepository {
     public Tank join(String ip, int accountID) {
         synchronized (this.monitor) {
             Tank tank;
+            Builder builder;
             if (game == null) {
                 this.create();
             }
@@ -123,13 +140,15 @@ public class InMemoryGameRepository implements GameRepository {
             }
 
             Long tankId = this.idGenerator.getAndIncrement();
+            Long builderId = this.idGenerator.getAndIncrement();
 
             tank = new Tank(tankId, Direction.Up, ip, accountID);
-            tank.setLife(TANK_LIFE);
+            builder = new Builder(builderId, Direction.Up, ip, accountID);
 
             Random random = new Random();
 
-            // This may run for forever.. If there is no free space. XXX
+            //Spawn tank
+            //This may run for forever if there is no free space.
             boolean firstTry = true;
             for (; ; ) {
                 if (firstTry && tankSpawn == null) {
@@ -148,9 +167,33 @@ public class InMemoryGameRepository implements GameRepository {
                 }
                 firstTry = false;
             }
+            //Spawn builder
+            //This may run for forever if there is no free space.
+            firstTry = true;
+            for (; ; ) {
+                if (firstTry && builderSpawn == null) {
+                    builderSpawn = new int[2];
+                    builderSpawn[0] = random.nextInt(FIELD_DIM);
+                    builderSpawn[1] = random.nextInt(FIELD_DIM);
+                } else if (!firstTry && builderSpawn != null) {
+                    builderSpawn[0] = random.nextInt(FIELD_DIM);
+                    builderSpawn[1] = random.nextInt(FIELD_DIM);
+                }
+                FieldHolder fieldElement = game.getHolderGrid().get(builderSpawn[0] * FIELD_DIM + builderSpawn[1]);
+                if (!fieldElement.isPresent()) {
+                    fieldElement.setFieldEntity(builder);
+                    builder.setParent(fieldElement);
+                    break;
+                }
+                firstTry = false;
+            }
 
+            //Add tank
             game.addTank(ip, tank);
             eventHistory.addEvent(new AddTokenEvent(tank.getIntValue(), tankSpawn[0] * FIELD_DIM + tankSpawn[1]));
+
+            //Add builder
+            eventHistory.addEvent(new AddTokenEvent(tank.getIntValue(), builderSpawn[0] * FIELD_DIM + builderSpawn[1]));
             return tank;
         }
     }

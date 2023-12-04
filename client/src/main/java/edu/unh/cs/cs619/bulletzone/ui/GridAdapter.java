@@ -108,18 +108,22 @@ public class GridAdapter extends BaseAdapter {
                     int tankId = val /10000 % 1000;  // Extract the tankId
                     if (tankId == playerTankId) {
                         imageView.setImageResource(R.drawable.tank_sand);
-                        imageView.setRotation(tc.getDirection() * 45);  // Set rotation based on direction
                     } else {
                         imageView.setImageResource(R.drawable.tank_dark);
                     }
+                    // Set rotation based on direction
+                    int byteDirection = val % 10;
+                    imageView.setRotation(byteDirection * 45);
                 } else if (val >= 30000000 && val < 40000000) {
                     int soldierId = val /10000 % 1000;  // Extract the soldierId
                     if (soldierId == playerSoldierId) {
                         imageView.setImageResource(R.drawable.player_soldier);
-                        imageView.setRotation(tc.getSoldierDirection() * 45);  // Set rotation based on direction
                     } else {
                         imageView.setImageResource(R.drawable.enemy_soldier);
                     }
+                    // Set rotation based on direction
+                    int byteDirection = val % 10;
+                    imageView.setRotation(byteDirection * 45);
                 }else if (val >= 40000000 && val < 50000000) {
                     val = val % 100;
                     if (val == 30) {
@@ -129,6 +133,17 @@ public class GridAdapter extends BaseAdapter {
                     } else {
                         imageView.setImageResource(R.drawable.gold_coin);
                     }
+                } else if (val >= 50000000 && val < 60000000) {
+                    int soldierId = val /10000 % 1000;  // Extract the soldierId
+                    //TODO: NEED BUILDER ID, CLIENT SETS TO ENEMY FOR NOW
+                    if (soldierId == playerSoldierId) {
+                        imageView.setImageResource(R.drawable.player_builder);
+                    } else {
+                        imageView.setImageResource(R.drawable.enemy_builder);
+                    }
+                    // Set rotation based on direction
+                    int byteDirection = val % 10;
+                    imageView.setRotation(byteDirection * 45);
                 } else if (val == 2) {
                     imageView.setImageResource(R.drawable.tile_hilly);
                 } else if (val == 4) {
