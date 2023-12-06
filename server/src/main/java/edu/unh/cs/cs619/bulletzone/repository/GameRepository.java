@@ -34,5 +34,7 @@ public interface GameRepository {
 
     public int[] getInventory(int id);
 
-
+    int getTankHealth(long tankId) throws TokenDoesNotExistException;
+    int getSoldierHealth(long soldierId) throws TokenDoesNotExistException;
+    int getBuilderHealth(long builderId) throws TokenDoesNotExistException;
 }

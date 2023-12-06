@@ -15,6 +15,6 @@
     <string name="default_credits">Credits: 0</string>
     <string name="switch_builder">Switch To Builder</string>
     <string name="switch_tank">Switch To Tank</string>
-    <string name="switch_soldier">Switch To Solder</string>
+    <string name="switch_soldier">Switch To Soldier</string>
 
 </resources>

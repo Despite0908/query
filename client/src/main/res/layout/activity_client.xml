@@ -175,28 +175,27 @@
                 android:textColor="@color/text_color"
                 tools:ignore="SmallSp" />
         </RelativeLayout>
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:layout_gravity="bottom"
-            android:padding="8dp">
+            android:padding="8dp"
+            android:gravity="center">
 
-            <!-- Soldier Health Bar, Icon, and Text -->
             <RelativeLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center">
 
-                <!-- Soldier Health Icon -->
                 <ImageView
                     android:id="@+id/soldierHealthIcon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="50dp"
-                    android:src="@drawable/soldierhealth_icon" /> <!-- Replace with your soldier icon drawable resource -->
+                    android:src="@drawable/soldierhealth_icon" />
 
-                <!-- Soldier Health Bar -->
                 <ProgressBar
                     android:id="@+id/soldierHealthBar"
                     android:layout_width="100dp"
@@ -208,7 +207,7 @@
                     android:progressDrawable="@drawable/health_bar"
                     android:layout_toRightOf="@id/soldierHealthIcon" />
 
-                <!-- Soldier Health Value -->
+
                 <TextView
                     android:id="@+id/soldierHealthValue"
                     android:layout_width="wrap_content"
@@ -223,20 +222,19 @@
                     android:gravity="center_vertical" />
             </RelativeLayout>
 
-            <!-- Tank Health Bar, Icon, and Text -->
+
             <RelativeLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center">
 
-                <!-- Tank Health Icon -->
                 <ImageView
                     android:id="@+id/tankHealthIcon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/tankhealth_icon" />
 
-                <!-- Tank Health Bar -->
+
                 <ProgressBar
                     android:id="@+id/tankHealthBar"
                     android:layout_width="200dp"
@@ -248,7 +246,7 @@
                     android:progressDrawable="@drawable/health_bar"
                     android:layout_toRightOf="@id/tankHealthIcon" />
 
-                <!-- Tank Health Value -->
+
                 <TextView
                     android:id="@+id/tankHealthValue"
                     android:layout_width="wrap_content"
@@ -262,7 +260,49 @@
                     android:layout_marginStart="8dp"
                     android:gravity="center_vertical" />
             </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+
+                <ImageView
+                    android:id="@+id/builderHealthIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/builderhealth_icon" />
+
+
+                <ProgressBar
+                    android:id="@+id/builderHealthBar"
+                    android:layout_width="150dp"
+                    android:layout_height="25dp"
+                    android:max="50"
+                    android:progress="50"
+                    android:indeterminate="false"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:progressDrawable="@drawable/health_bar"
+                    android:layout_toRightOf="@id/builderHealthIcon" />
+
+
+                <TextView
+                    android:id="@+id/builderHealthValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignStart="@id/builderHealthBar"
+                    android:layout_alignTop="@id/builderHealthBar"
+                    android:text="50|50"
+                    android:textColor="@color/text_color"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp"
+                    android:gravity="center_vertical" />
+            </RelativeLayout>
         </LinearLayout>
+
+
+
 
 
     </LinearLayout>

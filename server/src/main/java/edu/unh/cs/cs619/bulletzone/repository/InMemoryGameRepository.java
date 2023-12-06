@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.concurrent.atomic.AtomicLong;
 
+
 import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
 import edu.unh.cs.cs619.bulletzone.model.Game;
@@ -31,6 +32,7 @@ import edu.unh.cs.cs619.bulletzone.model.entities.Tank;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.TokenDoesNotExistException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 
 /**
  * Class that changes the model based on requests passed from client. Only directly game-related
@@ -435,7 +437,7 @@ public class InMemoryGameRepository implements GameRepository {
     /**
      * Removes tank
      * @param tankId Tank to be removed
-     * @throws TokenDoesNotExistException Throws if there is no thank corresponding to tankID.
+     * @throws TokenDoesNotExistException Throws if there is no tank corresponding to tankID.
      */
     @Override
     public void leave(long tankId)
@@ -475,6 +477,46 @@ public class InMemoryGameRepository implements GameRepository {
     @Override
     public int[] getInventory(int id){
         return getInventory(id);
+    }
+
+    /**
+     *
+     * @param tankId tank to get health value from
+     * @return the tanks life
+     * @throws TokenDoesNotExistException if tank is not found
+     */
+    public int getTankHealth(long tankId) throws TokenDoesNotExistException {
+        Tank tank = game.getTanks().get(tankId);
+        if (tank == null) {
+            throw new TokenDoesNotExistException(tankId);
+        }
+        return tank.getLife();
+    }
+    /**
+     *
+     * @param soldierId soldier to get health value from
+     * @return the tanks life
+     * @throws TokenDoesNotExistException if tank is not found
+     */
+    public int getSoldierHealth(long soldierId) throws TokenDoesNotExistException {
+        Soldier soldier = game.getSoldiers().get(soldierId);
+        if (soldier == null) {
+            throw new TokenDoesNotExistException(soldierId);
+        }
+        return soldier.getLife();
+    }
+    /**
+     *
+     * @param builderId builder to get health value from
+     * @return the tanks life
+     * @throws TokenDoesNotExistException if tank is not found
+     */
+    public int getBuilderHealth(long builderId) throws TokenDoesNotExistException {
+        Builder builder = game.getBuilders().get(builderId);
+        if (builder == null) {
+            throw new TokenDoesNotExistException(builderId);
+        }
+        return builder.getLife();
     }
 
     /**

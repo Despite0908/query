@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -194,5 +195,35 @@ class GamesController {
         return null;
 
 
+    }
+
+    @GetMapping("/tank/health/{tankId}")
+    public ResponseEntity<Integer> getTankHealth(@PathVariable long tankId) {
+        try {
+            int health = gameRepository.getTankHealth(tankId);
+            return new ResponseEntity<>(health, HttpStatus.OK);
+        } catch (TokenDoesNotExistException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/soldier/health/{soldierId}")
+    public ResponseEntity<Integer> getSoldierHealth(@PathVariable long soldierId) {
+        try {
+            int health = gameRepository.getSoldierHealth(soldierId);
+            return new ResponseEntity<>(health, HttpStatus.OK);
+        } catch (TokenDoesNotExistException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/builder/health/{builderId}")
+    public ResponseEntity<Integer> getBuilderHealth(@PathVariable long builderId) {
+        try {
+            int health = gameRepository.getBuilderHealth(builderId);
+            return new ResponseEntity<>(health, HttpStatus.OK);
+        } catch (TokenDoesNotExistException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }

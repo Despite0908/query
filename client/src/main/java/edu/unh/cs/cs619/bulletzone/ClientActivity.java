@@ -337,48 +337,40 @@ public class ClientActivity extends Activity {
     private final Runnable updateInventoryRunnable = new Runnable() {
         @Override
         public void run() {
-            int ID = user.getId();
-            fetchAndDisplayInventory(ID);
+            fetchAndDisplayInventory();
             handler.postDelayed(this, 500);
 
         }
     };
 
-    private void fetchAndDisplayInventory(int ID) {
+    private void fetchAndDisplayInventory() {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    InventoryWrapper inventoryWrapper = restClient.getInventory(ID);
+                    //int tankHealth = restClient.getTankHealth(tankControl.getTankId());
+                    //int soldierHealth = restClient.getSoldierHealth(tankControl.getSoldierId());
+                    //int builderHealth = restClient.getBuilderHealth(tankControl.getBuilderId());
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if (inventoryWrapper != null) {
-                                int[] data = inventoryWrapper.getResult(); // Corrected typo here
-                                int tankHealth = data[1];
-                                int soldierHealth = data[2];
-                                //int credits = inventoryWrapper.getCredits();
+                            // Update your UI with these values
+                            //updateGameUI(tankHealth, soldierHealth, builderHealth);
 
-                                // Update your UI with these values
-                                updateGameUI(tankHealth, soldierHealth);
-                            } else {
-                                // Handle the case where inventoryWrapper is null
-                                //handleInventoryFetchError();
-                            }
                         }
                     });
                 } catch (RestClientException e) {
                     e.printStackTrace();
                     // Optionally handle the error on UI thread
-
                 }
             }
         }).start();
     }
 
 
-    protected void updateGameUI(final int tankHealth, final int soldierHealth) {
+
+    protected void updateGameUI(final int tankHealth, final int soldierHealth, final int builderHealth) {
         runOnUiThread(new Runnable() {
             @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
             @Override
@@ -398,6 +390,14 @@ public class ClientActivity extends Activity {
                 tankHealthBar.setMax(100);
                 tankHealthTextView.setText(tankHealth + "|" + "100");
                 updateHealthBarColor(tankHealth, tankHealthBar, 100);
+
+                //Update Builder Health
+                ProgressBar builderHealthBar = findViewById(R.id.builderHealthBar);
+                TextView builderHealthTextView = findViewById(R.id.builderHealthValue);
+
+                tankHealthBar.setMax(50);
+                builderHealthTextView.setText(builderHealth + "|" + "100");
+                updateHealthBarColor(builderHealth, builderHealthBar, 50);
 
             }
         });
