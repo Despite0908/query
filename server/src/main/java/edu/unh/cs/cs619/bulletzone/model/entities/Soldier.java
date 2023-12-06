@@ -3,6 +3,7 @@ package edu.unh.cs.cs619.bulletzone.model.entities;
 import edu.unh.cs.cs619.bulletzone.model.BulletTracker;
 import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.Game;
+import edu.unh.cs.cs619.bulletzone.model.Player;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
 import edu.unh.cs.cs619.bulletzone.model.Terrain;
@@ -17,11 +18,12 @@ public class Soldier extends PlayerToken{
     /**
      * Constructor. Handles values not set in PlayerToken.
      * @param id The ID of the soldier
-     * @param direction The initial direction of the soldier
+     * @param player The player object this token is associated with
      * @param ip IP of the player
+     * @param accountID ID of the account this token is associated with
      */
-    public Soldier(long id, Direction direction, String ip, int accountID) {
-        super(id, direction, ip, accountID);
+    public Soldier(long id, Player player, String ip, int accountID) {
+        super(id, player, ip, accountID);
         setLife(25);
         setAllowedNumberOfBullets(6);
         setAllowedMoveInterval(1000);
@@ -70,7 +72,7 @@ public class Soldier extends PlayerToken{
      */
     @Override
     public FieldEntity copy() {
-        return new Soldier(getId(), getDirection(), getIp(), accountID);
+        return new Soldier(getId(), getPlayer(), getIp(), accountID);
     }
 
     @Override
@@ -119,12 +121,21 @@ public class Soldier extends PlayerToken{
             eventHistory.addEvent(new TokenLeaveEvent(getId(), getIntValue()));
 
             //Remove Tank
-            Tank t = (Tank) getPair();
+            Tank t = getPlayer().getTank();
             t.getParent().clearField();
             t.setParent(null);
             game.removeTank(t.getId());
             //Add soldier hit event
             eventHistory.addEvent(new TokenLeaveEvent(t.getId(), t.getIntValue()));
+
+            //Remove builder
+            Builder builder = getPlayer().getBuilder();
+            if (builder != null) {
+                builder.getParent().clearField();
+                builder.setParent(null);
+                game.removeBuilder(builder.getId());
+                eventHistory.addEvent(new TokenLeaveEvent(builder.getId(), builder.getIntValue()));
+            }
             return true;
         }
         return false;

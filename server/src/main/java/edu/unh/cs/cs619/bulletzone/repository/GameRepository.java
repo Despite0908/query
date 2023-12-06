@@ -1,6 +1,7 @@
 package edu.unh.cs.cs619.bulletzone.repository;
 
 import edu.unh.cs.cs619.bulletzone.model.Direction;
+import edu.unh.cs.cs619.bulletzone.model.Player;
 import edu.unh.cs.cs619.bulletzone.model.entities.Soldier;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.IllegalTransitionException;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.LimitExceededException;
@@ -9,7 +10,7 @@ import edu.unh.cs.cs619.bulletzone.model.exceptions.TokenDoesNotExistException;
 
 public interface GameRepository {
 
-    Tank join(String ip, int id);
+    Player join(String ip, int id);
 
     int[][] getGrid();
 

@@ -2,16 +2,10 @@ package edu.unh.cs.cs619.bulletzone.model.entities;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.eventbus.EventBus;
-
-import edu.unh.cs.cs619.bulletzone.events.BusProvider;
-import edu.unh.cs.cs619.bulletzone.events.CustomEvent;
-import edu.unh.cs.cs619.bulletzone.events.CustomEventTypes;
 import edu.unh.cs.cs619.bulletzone.model.BulletTracker;
 import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
-import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
-import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
+import edu.unh.cs.cs619.bulletzone.model.Player;
 public abstract class PlayerToken extends FieldEntity{
 
     private final String ip;
@@ -28,31 +22,33 @@ public abstract class PlayerToken extends FieldEntity{
     private BulletTracker bulletTracker;
 
     private Direction direction;
-
-    PlayerToken pair;
-
+    private Player player;
     int accountID;
 
 
     /**
      * Constructor. Handles common data and functionality between tokens.
      * @param id The ID of the token
-     * @param direction The initial direction of the token
+     * @param player The player object this token is associated with
      * @param ip IP of the player
      */
-    public PlayerToken(long id, Direction direction, String ip, int accountID) {
+    public PlayerToken(long id, Player player, String ip, int accountID) {
         super(id);
-        this.direction = direction;
+        direction = Direction.Up;
+        this.player = player;
         this.ip = ip;
         numberOfBullets = 0;
         lastFireTime = 0;
         lastMoveTime = 0;
-        pair = null;
         this.accountID = accountID;
     }
 
     public int getAccountID() {
         return accountID;
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 
     /**
@@ -213,14 +209,6 @@ public abstract class PlayerToken extends FieldEntity{
 
     public String getIp(){
         return ip;
-    }
-
-    public PlayerToken getPair() {
-        return pair;
-    }
-
-    public void setPair(PlayerToken pair) {
-        this.pair = pair;
     }
 
     /**

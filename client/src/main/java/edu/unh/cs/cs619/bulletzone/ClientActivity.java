@@ -130,6 +130,7 @@ public class ClientActivity extends Activity {
             tankControl.reJoinAsync(cachedID);
             SystemClock.sleep(1000);
             mGridAdapter.setPlayerTankId(tankControl.getTankId());
+            mGridAdapter.setPlayerBuilderId(tankControl.getBuilderId());
             mGridAdapter.setPlayerSoldierId(-1);
 
         }
@@ -176,6 +177,7 @@ public class ClientActivity extends Activity {
         SystemClock.sleep(500);
         gridView.setAdapter(mGridAdapter);
         mGridAdapter.setPlayerTankId(tankControl.getTankId());
+        mGridAdapter.setPlayerBuilderId(tankControl.getBuilderId());
         mGridAdapter.setTankController(tankControl);
     }
 
@@ -214,16 +216,12 @@ public class ClientActivity extends Activity {
 
     public void getPlayerInfo() {
 
-        TextView creditInfo = findViewById(R.id.bal);
-
         InventoryWrapper in = restClient.getInventory(user.getId());
 
         int[] inv = in.getResult();
 
 
         String text = "Credits: " + inv[0] + "\n";
-
-        creditInfo.setText(text);
 
     }
 
@@ -253,16 +251,6 @@ public class ClientActivity extends Activity {
 //        this.turnAsync(tankId, tankControl.turnRight());
     }
 
-//    @Background
-//    void moveAsync(long tankId, byte direction) {
-//        restClient.move(tankId, direction);
-//    }
-
-//    @Background
-//    void turnAsync(long tankId, byte direction) {
-//        restClient.turn(tankId, direction);
-//    }
-
     @Click(R.id.buttonFire)
     @Background
     protected void onButtonFire() {
@@ -274,6 +262,21 @@ public class ClientActivity extends Activity {
     protected void onButtonEject() {
         tankControl.eject(tankControl.getTankId());
         mGridAdapter.setPlayerSoldierId(tankControl.getSoldierId());
+    }
+
+    @Click(R.id.buttonSwitch)
+    protected void onButtonSwitch() {
+        tankControl.setBuilderFocus(!tankControl.isBuilderFocus());
+        TextView v = findViewById(R.id.buttonSwitch);
+        if (!tankControl.isBuilderFocus()) {
+            v.setText(getResources().getString(R.string.switch_builder));
+        } else {
+            if (tankControl.getSoldierId() == -1) {
+                v.setText(getResources().getString(R.string.switch_tank));
+            } else {
+                v.setText(getResources().getString(R.string.switch_soldier));
+            }
+        }
     }
 
     @Click(R.id.buttonLeave)

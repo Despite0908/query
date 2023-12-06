@@ -80,19 +80,6 @@
             android:layout_height="wrap_content"
             android:paddingBottom="4dp">
 
-            <TextView
-                android:id="@+id/bal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="4dp"
-                android:gravity="center"
-                android:layout_toEndOf="@+id/buttonLeft"
-                android:layout_toStartOf="@+id/buttonRight"
-                android:textColor="#FFFFFF"
-            android:textSize="12sp"
-                />
-
 
             <Button
                 android:id="@+id/buttonLeft"
@@ -155,23 +142,36 @@
                 android:layout_width="wrap_content"
                 android:layout_height="35dp"
                 android:textSize="10sp"
-                android:layout_below="@+id/buttonUp"
                 android:layout_marginLeft="12dp"
                 android:layout_toRightOf="@+id/buttonLeft"
                 android:background="@drawable/button_background"
                 android:text="@string/fire"
                 android:textColor="@color/text_color"
                 tools:ignore="SmallSp" />
+
             <Button
                 android:id="@+id/buttonEject"
                 android:layout_width="wrap_content"
                 android:layout_height="35dp"
                 android:textSize="10sp"
                 android:layout_toRightOf="@id/buttonFire"
-                android:layout_below="@id/buttonDown"
                 android:layout_marginLeft="12dp"
                 android:background="@drawable/button_background"
                 android:text="EJECT"
+                android:textColor="@color/text_color"
+                tools:ignore="SmallSp" />
+
+            <Button
+                android:id="@+id/buttonSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:textSize="10sp"
+                android:layout_toRightOf="@id/buttonUp"
+                android:layout_below="@+id/buttonFire"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="14dp"
+                android:background="@drawable/button_background"
+                android:text="@string/switch_builder"
                 android:textColor="@color/text_color"
                 tools:ignore="SmallSp" />
         </RelativeLayout>

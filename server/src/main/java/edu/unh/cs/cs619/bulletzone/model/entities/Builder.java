@@ -3,6 +3,7 @@ package edu.unh.cs.cs619.bulletzone.model.entities;
 import edu.unh.cs.cs619.bulletzone.model.BulletTracker;
 import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.Game;
+import edu.unh.cs.cs619.bulletzone.model.Player;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
 import edu.unh.cs.cs619.bulletzone.model.Terrain;
@@ -14,8 +15,15 @@ import edu.unh.cs.cs619.bulletzone.model.Terrain;
  */
 public class Builder extends PlayerToken {
 
-    public Builder(long id, Direction direction, String ip, int accountID) {
-        super(id, direction, ip, accountID);
+    /**
+     * Constructor. Handles values not set in PlayerToken.
+     * @param id The ID of the tank
+     * @param player The player object this token is associated with
+     * @param ip IP of the player
+     * @param accountID ID of the account this token is associated with
+     */
+    public Builder(long id, Player player, String ip, int accountID) {
+        super(id, player, ip, accountID);
         setLife(50);
         setAllowedNumberOfBullets(4);
         setAllowedMoveInterval(250);
@@ -99,7 +107,7 @@ public class Builder extends PlayerToken {
 
     @Override
     public FieldEntity copy() {
-        return new Builder(getId(), getDirection(), getIp(), accountID);
+        return new Builder(getId(), getPlayer(), getIp(), accountID);
     }
 
     @Override
@@ -135,11 +143,30 @@ public class Builder extends PlayerToken {
         setLife(life);
 
         if (life <= 0) {
-            //Remove Tank
+            //Remove Builder
             getParent().clearField();
             setParent(null);
-            game.removeTank(getId());
+            game.removeBuilder(getId());
             eventHistory.addEvent(new TokenLeaveEvent(getId(), getIntValue()));
+
+            //Remove Soldier If exists
+            Soldier s = getPlayer().getSoldier();
+            if (s != null) {
+                s.getParent().clearField();
+                s.setParent(null);
+                game.removeSoldier(s.getId());
+                //Add soldier hit event
+                eventHistory.addEvent(new TokenLeaveEvent(s.getId(), s.getIntValue()));
+            }
+
+            //Remove Tank
+            Tank t = getPlayer().getTank();
+            t.getParent().clearField();
+            t.setParent(null);
+            game.removeTank(t.getId());
+            //Add soldier hit event
+            eventHistory.addEvent(new TokenLeaveEvent(t.getId(), t.getIntValue()));
+            return true;
         }
         return false;
     }

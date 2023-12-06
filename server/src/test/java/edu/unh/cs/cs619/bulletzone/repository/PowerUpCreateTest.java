@@ -41,7 +41,7 @@ public class PowerUpCreateTest {
      */
     @Test
     public void addAntiGravTest() throws Exception {
-        Tank tank = repo.join("", -1);
+        Tank tank = repo.join("", -1).getTank();
         AtomicLong idGenerator = new AtomicLong();
         Item myTestItem = new Item(idGenerator.getAndIncrement(), ItemTypes.ANTI_GRAV, 188);
         Assert.assertNotNull(myTestItem);
@@ -53,7 +53,7 @@ public class PowerUpCreateTest {
      */
     @Test
     public void addFusionReactorTest() throws Exception {
-        Tank tank = repo.join("", -1);
+        Tank tank = repo.join("", -1).getTank();
         AtomicLong idGenerator = new AtomicLong();
         Item myTestItem = new Item(idGenerator.getAndIncrement(), ItemTypes.FUSION_REACTOR, 188);
         Assert.assertNotNull(myTestItem);
@@ -65,7 +65,7 @@ public class PowerUpCreateTest {
      */
     @Test
     public void addThingamagigTest() throws Exception {
-        Tank tank = repo.join("", -1);
+        Tank tank = repo.join("", -1).getTank();
         AtomicLong idGenerator = new AtomicLong();
         Item myTestItem = new Item(idGenerator.getAndIncrement(), ItemTypes.COIN, 188);
         Assert.assertNotNull(myTestItem);

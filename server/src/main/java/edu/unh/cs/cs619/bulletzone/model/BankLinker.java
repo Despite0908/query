@@ -23,6 +23,7 @@ public class BankLinker {
 
     /**
      * Gets the current balance in the users account.
+     * @param id The account ID to get credits from
      * @return Returns current balance if there is a user. Returns 0 otherwise.
      */
     public static int getBalance(int id) {
@@ -40,6 +41,7 @@ public class BankLinker {
 
     /**
      * Adds credits to the current user's account.
+     * @param id The account ID to get credits from
      * @param credits The number of credits to be addded.
      * @return True if successful. False if there is no current user.
      */
@@ -58,6 +60,7 @@ public class BankLinker {
 
     /**
      * Subtracts credits to the current user's account.
+     * @param id The account ID to get credits from
      * @param credits The number of credits to be spent.
      * @return True if successful. False if there is no current user.
      */

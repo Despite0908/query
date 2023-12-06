@@ -18,6 +18,7 @@ import org.springframework.web.client.RestClientException;
 import javax.servlet.http.HttpServletRequest;
 
 import edu.unh.cs.cs619.bulletzone.model.Direction;
+import edu.unh.cs.cs619.bulletzone.model.Player;
 import edu.unh.cs.cs619.bulletzone.model.entities.Soldier;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.IllegalTransitionException;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.LimitExceededException;
@@ -28,6 +29,7 @@ import edu.unh.cs.cs619.bulletzone.util.BooleanWrapper;
 import edu.unh.cs.cs619.bulletzone.util.GridWrapper;
 import edu.unh.cs.cs619.bulletzone.util.InventoryWrapper;
 import edu.unh.cs.cs619.bulletzone.util.LongWrapper;
+import edu.unh.cs.cs619.bulletzone.util.PlayerWrapper;
 import edu.unh.cs.cs619.bulletzone.util.StringArrayWrapper;
 
 @RestController
@@ -46,14 +48,26 @@ class GamesController {
     @RequestMapping(method = RequestMethod.POST, value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    ResponseEntity<LongWrapper> join(HttpServletRequest request, @PathVariable int id) {
-        Tank tank;
+    ResponseEntity<PlayerWrapper> join(HttpServletRequest request, @PathVariable int id) {
+        Player player;
         try {
-            tank = gameRepository.join(request.getRemoteAddr(), id);
-            log.info("Player joined: tankId={} IP={}", tank.getId(), request.getRemoteAddr());
+            player = gameRepository.join(request.getRemoteAddr(), id);
+            log.info("Player joined: tankId={} IP={}", player.getTank().getId(), request.getRemoteAddr());
+            long tankId;
+            if (player.getTank() == null) {
+                tankId = -1;
+            } else {
+                tankId = player.getTank().getId();
+            }
+            long builderId;
+            if (player.getBuilder() == null) {
+                builderId = -1;
+            } else {
+                builderId = player.getBuilder().getId();
+            }
 
-            return new ResponseEntity<LongWrapper>(
-                    new LongWrapper(tank.getId()),
+            return new ResponseEntity<PlayerWrapper>(
+                    new PlayerWrapper(tankId, builderId),
                     HttpStatus.CREATED
             );
         } catch (RestClientException e) {

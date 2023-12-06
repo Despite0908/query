@@ -13,6 +13,7 @@ import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
 import edu.unh.cs.cs619.bulletzone.model.Game;
 import edu.unh.cs.cs619.bulletzone.model.GameBuilder;
 import edu.unh.cs.cs619.bulletzone.model.ItemSpawnTimer;
+import edu.unh.cs.cs619.bulletzone.model.Player;
 import edu.unh.cs.cs619.bulletzone.model.entities.Builder;
 import edu.unh.cs.cs619.bulletzone.model.entities.PlayerToken;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
@@ -126,24 +127,39 @@ public class InMemoryGameRepository implements GameRepository {
      * @return Returns the Tank object for the tank added to the game.
      */
     @Override
-    public Tank join(String ip, int accountID) {
+    public Player join(String ip, int accountID) {
         synchronized (this.monitor) {
             Tank tank;
             Builder builder;
+            Player player = new Player();
             if (game == null) {
                 this.create();
             }
 
+            boolean joined = false;
             //If tank is already in the game
             if( (tank = game.getTank(ip)) != null){
-                return tank;
+                player.setTank(tank);
+                joined = true;
+            }
+            //builder is already in the game
+            if ( (builder = game.getBuilder(ip)) != null) {
+                player.setBuilder(builder);
+                joined = true;
+            }
+            //return out early
+            if (joined) {
+                return player;
             }
 
             Long tankId = this.idGenerator.getAndIncrement();
             Long builderId = this.idGenerator.getAndIncrement();
 
-            tank = new Tank(tankId, Direction.Up, ip, accountID);
-            builder = new Builder(builderId, Direction.Up, ip, accountID);
+            tank = new Tank(tankId, player, ip, accountID);
+            builder = new Builder(builderId, player, ip, accountID);
+
+            player.setTank(tank);
+            player.setBuilder(builder);
 
             Random random = new Random();
 
@@ -189,12 +205,13 @@ public class InMemoryGameRepository implements GameRepository {
             }
 
             //Add tank
-            game.addTank(ip, tank);
+            game.addPlayer(ip, player);
             eventHistory.addEvent(new AddTokenEvent(tank.getIntValue(), tankSpawn[0] * FIELD_DIM + tankSpawn[1]));
 
+            //TODO: Add builder to game
             //Add builder
             eventHistory.addEvent(new AddTokenEvent(tank.getIntValue(), builderSpawn[0] * FIELD_DIM + builderSpawn[1]));
-            return tank;
+            return player;
         }
     }
 
@@ -240,12 +257,18 @@ public class InMemoryGameRepository implements GameRepository {
             throws TokenDoesNotExistException, IllegalTransitionException, LimitExceededException {
         synchronized (this.monitor) {
             checkNotNull(direction);
-            // Find token
+            // Find token- tanks
             PlayerToken token = game.getTanks().get(tokenId);
             if (token == null) {
+                //find token- soldiers
                 token = game.getSoldiers().get(tokenId);
                 if (token == null) {
-                    return false;
+                    //find token- builders
+                    token = game.getBuilders().get(tokenId);
+                    if (token == null) {
+                        //If no token found for tokenId
+                        return false;
+                    }
                 }
             }
 
@@ -296,17 +319,17 @@ public class InMemoryGameRepository implements GameRepository {
                 return null;
             }
             //Spawn Soldier
+            Player player = tank.getPlayer();
             Soldier soldier;
-            if (tank.getPair() == null) {
-                soldier = new Soldier(idGenerator.getAndIncrement(), Direction.Up, tank.getIp(), tank.getAccountID());
+            if (player.getSoldier() == null) {
+                soldier = new Soldier(idGenerator.getAndIncrement(), player, tank.getIp(), tank.getAccountID());
             } else {
-                soldier = (Soldier) tank.getPair();
+                soldier = player.getSoldier();
             }
             soldier.setParent(holder);
             holder.setFieldEntity(soldier);
             //Pair solder/tank
-            soldier.setPair(tank);
-            tank.setPair(soldier);
+            player.setSoldier(soldier);
             tank.setEjected(true);
             //Add to game
             game.addSoldier(soldier);
@@ -331,12 +354,18 @@ public class InMemoryGameRepository implements GameRepository {
             throws TokenDoesNotExistException, IllegalTransitionException, LimitExceededException {
         synchronized (this.monitor) {
             checkNotNull(direction);
-            // Find token
+            // Find token- tanks
             PlayerToken token = game.getTanks().get(tokenId);
             if (token == null) {
+                //find token- soldiers
                 token = game.getSoldiers().get(tokenId);
                 if (token == null) {
-                    return 0;
+                    //find token- builders
+                    token = game.getBuilders().get(tokenId);
+                    if (token == null) {
+                        //If no token found for tokenId
+                        return 0;
+                    }
                 }
             }
 
@@ -373,16 +402,20 @@ public class InMemoryGameRepository implements GameRepository {
     public boolean fire(long tokenId, int bulletType)
             throws TokenDoesNotExistException, LimitExceededException {
         synchronized (this.monitor) {
-
-            // Find token
+            // Find token- tanks
             PlayerToken token = game.getTanks().get(tokenId);
             if (token == null) {
+                //find token- soldiers
                 token = game.getSoldiers().get(tokenId);
                 if (token == null) {
-                    return false;
+                    //find token- builders
+                    token = game.getBuilders().get(tokenId);
+                    if (token == null) {
+                        //If no token found for tokenId
+                        return false;
+                    }
                 }
             }
-
             long millis = c.millis();
             //Constraint Checking
             if (!token.canFire(millis)) {
@@ -417,15 +450,25 @@ public class InMemoryGameRepository implements GameRepository {
             Tank tank = game.getTanks().get(tankId);
             FieldHolder parent = tank.getParent();
             parent.clearField();
+            String ip = tank.getIp();
             game.removeTank(tankId);
+            eventHistory.addEvent(new TokenLeaveEvent(tank.getId(), tank.getIntValue()));
             //Remove soldier if it exists
-            Soldier soldier = (Soldier) tank.getPair();
+            Soldier soldier = tank.getPlayer().getSoldier();
             if (soldier != null) {
                 soldier.getParent().clearField();
                 soldier.setParent(null);
                 game.removeSoldier(soldier.getId());
+                eventHistory.addEvent(new TokenLeaveEvent(soldier.getId(), soldier.getIntValue()));
             }
-            eventHistory.addEvent(new TokenLeaveEvent(tank.getId(), tank.getIntValue()));
+            //Remove builder
+            Builder builder = tank.getPlayer().getBuilder();
+            if (builder != null) {
+                builder.getParent().clearField();
+                builder.setParent(null);
+                game.removeBuilder(builder.getId());
+                eventHistory.addEvent(new TokenLeaveEvent(builder.getId(), builder.getIntValue()));
+            }
         }
     }
 

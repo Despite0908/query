@@ -33,7 +33,7 @@ public class SoldierOperationsTest {
     //Eject Tests
     @Test
     public void eject_normalEjection_ReturnsSoldier() throws Exception {
-        Tank tank = repo.join("", -1);
+        Tank tank = repo.join("", -1).getTank();
         Soldier soldier = repo.eject(tank.getId());
         Assert.assertNotNull(soldier);
     }
@@ -41,7 +41,7 @@ public class SoldierOperationsTest {
     @Test
     public void eject_SomeSpace_ReturnsSoldier() throws Exception {
         repo.setMapPath("BoxedIn.json");
-        Tank tank = repo.join("", -1);
+        Tank tank = repo.join("", -1).getTank();
         Soldier soldier = repo.eject(tank.getId());
         Assert.assertNotNull(soldier);
     }
@@ -50,14 +50,14 @@ public class SoldierOperationsTest {
     public void eject_noSpace_returnsNull() throws Exception {
         repo.setMapPath("TrueBox.json");
         repo.setTankSpawn(1, 1);
-        Tank tank = repo.join("", -1);
+        Tank tank = repo.join("", -1).getTank();
         Soldier soldier = repo.eject(tank.getId());
         Assert.assertNull(soldier);
     }
 
     @Test
     public void eject_multipleEjections_returnsNull() throws Exception {
-        Tank tank = repo.join("", -1);
+        Tank tank = repo.join("", -1).getTank();
         Soldier soldier = repo.eject(tank.getId());
         long soldierIntVal = soldier.getIntValue();
         Assert.assertNotNull(soldier);
@@ -70,7 +70,7 @@ public class SoldierOperationsTest {
 
     @Test
     public void turn_multipleTurnsSoldier_returnsTrue() throws Exception {
-        Tank tank = repo.join("", -1);
+        Tank tank = repo.join("", -1).getTank();
         Soldier soldier = repo.eject(tank.getId());
         Assert.assertNotNull(soldier);
         Assert.assertTrue(repo.turn(soldier.getId(), Direction.Right));
@@ -81,7 +81,7 @@ public class SoldierOperationsTest {
 
     @Test
     public void move_movesAtTankStep_returnsFalse() throws Exception {
-        Tank tank = repo.join("", -1);
+        Tank tank = repo.join("", -1).getTank();
         Soldier soldier = repo.eject(tank.getId());
         Assert.assertNotNull(soldier);
         Assert.assertEquals(repo.move(soldier.getId(), Direction.Up), 1);
@@ -91,7 +91,7 @@ public class SoldierOperationsTest {
 
     @Test
     public void move_movesAfter1Sec_returnsTrue() throws Exception {
-        Tank tank = repo.join("", -1);
+        Tank tank = repo.join("", -1).getTank();
         Soldier soldier = repo.eject(tank.getId());
         Assert.assertNotNull(soldier);
         Assert.assertEquals(repo.move(soldier.getId(), Direction.Up), 1);
@@ -101,7 +101,7 @@ public class SoldierOperationsTest {
 
     @Test
     public void fire_multipleBullets_returnsFalse() throws Exception {
-        Tank tank = repo.join("", -1);
+        Tank tank = repo.join("", -1).getTank();
         Soldier soldier = repo.eject(tank.getId());
         Assert.assertNotNull(soldier);
         Assert.assertTrue(repo.fire(soldier.getId(), 4));
@@ -110,7 +110,7 @@ public class SoldierOperationsTest {
 
     @Test
     public void fire_after250ms_returnsTrue() throws Exception {
-        Tank tank = repo.join("", -1);
+        Tank tank = repo.join("", -1).getTank();
         Soldier soldier = repo.eject(tank.getId());
         Assert.assertNotNull(soldier);
         Assert.assertTrue(repo.fire(soldier.getId(), 4));
@@ -121,7 +121,7 @@ public class SoldierOperationsTest {
     //Re-enter test
     @Test
     public void move_soldierEntersTank_TrueAndEjectedFalse() throws Exception {
-        Tank tank = repo.join("", -1);
+        Tank tank = repo.join("", -1).getTank();
         Soldier soldier = repo.eject(tank.getId());
         Assert.assertNotNull(soldier);
         Assert.assertEquals(repo.move(soldier.getId(), Direction.Down), 2);
@@ -131,7 +131,7 @@ public class SoldierOperationsTest {
 
     @Test
     public void eject_afterSoldierReenter_returnsSoldier() throws Exception {
-        Tank tank = repo.join("", -1);
+        Tank tank = repo.join("", -1).getTank();
         Soldier soldier = repo.eject(tank.getId());
         Assert.assertNotNull(soldier);
         repo.turn(soldier.getId(), Direction.Down);

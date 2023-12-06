@@ -30,6 +30,8 @@ public class GridAdapter extends BaseAdapter {
 
     private long playerSoldierId = -1;  // Initialize with an invalid ID
 
+    private long playerBuilderId = -1;  // Initialize with an invalid ID
+
     private ClientActivity clientActivity;
     private BulletZoneRestClient restClient;
     private TankController tc;
@@ -50,6 +52,9 @@ public class GridAdapter extends BaseAdapter {
         this.playerSoldierId = soldierId;
     }
 
+    public void setPlayerBuilderId(long playerBuilderId) {
+        this.playerBuilderId = playerBuilderId;
+    }
 
     public void setTankController(TankController tc) {
         this.tc = tc;
@@ -135,8 +140,7 @@ public class GridAdapter extends BaseAdapter {
                     }
                 } else if (val >= 50000000 && val < 60000000) {
                     int soldierId = val /10000 % 1000;  // Extract the soldierId
-                    //TODO: NEED BUILDER ID, CLIENT SETS TO ENEMY FOR NOW
-                    if (soldierId == playerSoldierId) {
+                    if (soldierId == playerBuilderId) {
                         imageView.setImageResource(R.drawable.player_builder);
                     } else {
                         imageView.setImageResource(R.drawable.enemy_builder);

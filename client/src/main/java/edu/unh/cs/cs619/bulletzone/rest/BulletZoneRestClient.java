@@ -18,6 +18,7 @@ import edu.unh.cs.cs619.bulletzone.util.DoubleWrapper;
 import edu.unh.cs.cs619.bulletzone.util.GridWrapper;
 import edu.unh.cs.cs619.bulletzone.util.InventoryWrapper;
 import edu.unh.cs.cs619.bulletzone.util.LongWrapper;
+import edu.unh.cs.cs619.bulletzone.util.PlayerWrapper;
 import edu.unh.cs.cs619.bulletzone.util.StringArrayWrapper;
 
 /** "http://stman1.cs.unh.edu:6191/games"
@@ -35,7 +36,7 @@ public interface BulletZoneRestClient extends RestClientErrorHandling {
     void setRootUrl(String rootUrl);
 
     @Post("/{id}")
-    LongWrapper join(@Path int id) throws RestClientException;
+    PlayerWrapper join(@Path int id) throws RestClientException;
 
     @Get("")
     GridWrapper grid();
