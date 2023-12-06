@@ -9,6 +9,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
@@ -34,6 +35,7 @@ import org.androidannotations.rest.spring.annotations.RestService;
 import org.androidannotations.rest.spring.api.RestClientHeaders;
 import org.androidannotations.api.BackgroundExecutor;
 import org.json.JSONException;
+import org.springframework.web.client.RestClientException;
 import org.w3c.dom.Text;
 
 import java.util.Locale;
@@ -120,6 +122,7 @@ public class ClientActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        handler.post(updateInventoryRunnable);
         if (cachedID != user.getId()) {
             //login has changed, change UI
             cachedID = user.getId();
@@ -323,72 +326,97 @@ public class ClientActivity extends Activity {
         thread.start();
     }
 
-
-    protected void updateTankHealth(final int health) {
-        runOnUiThread(new Runnable() {
-            @SuppressLint("UseCompatLoadingForDrawables")
-            @Override
-            public void run() {
-
-                ProgressBar tankHealth = findViewById(R.id.tankHealthBar);
-                TextView tankTextView = findViewById(R.id.tankHealthValue);
-
-                tankHealth.setMax(100);
-                Log.d("ProgressBarDebug", "Current progress: " + tankHealth.getProgress());
-
-
-                tankTextView.setText(health + "|" + "100");
-
-                if (health > 66) {
-                    // Green color for health > 66%
-                    tankHealth.setProgressDrawable(getResources().getDrawable(R.drawable.health_bar));
-                } else if (health > 33) {
-                    // Yellow color for health between 33% and 66%
-                    tankHealth.setProgressDrawable(getResources().getDrawable(R.drawable.health_baryellow));
-                } else {
-                    // Red color for health <= 33%
-                    tankHealth.setProgressDrawable(getResources().getDrawable(R.drawable.health_barred));
-                }
-                tankHealth.setProgress(health);
-
-            }
-        });
-
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        handler.removeCallbacks(updateInventoryRunnable);
     }
 
-    protected void updateSoldierHealth(final int health) {
-        runOnUiThread(new Runnable() {
-            @SuppressLint("UseCompatLoadingForDrawables")
+    private final Handler handler = new Handler();
+    private final Runnable updateInventoryRunnable = new Runnable() {
+        @Override
+        public void run() {
+            int ID = user.getId();
+            fetchAndDisplayInventory(ID);
+            handler.postDelayed(this, 500);
+
+        }
+    };
+
+    private void fetchAndDisplayInventory(int ID) {
+        new Thread(new Runnable() {
             @Override
             public void run() {
+                try {
+                    InventoryWrapper inventoryWrapper = restClient.getInventory(ID);
 
-                ProgressBar soldierHealth = findViewById(R.id.soldierHealthBar);
-                TextView soldierTextView = findViewById(R.id.soldierHealthValue);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (inventoryWrapper != null) {
+                                int[] data = inventoryWrapper.getResult(); // Corrected typo here
+                                int tankHealth = data[1];
+                                int soldierHealth = data[2];
+                                //int credits = inventoryWrapper.getCredits();
 
-                soldierHealth.setMax(25);
-                Log.d("ProgressBarDebug", "Current progress: " + soldierHealth.getProgress());
+                                // Update your UI with these values
+                                updateGameUI(tankHealth, soldierHealth);
+                            } else {
+                                // Handle the case where inventoryWrapper is null
+                                //handleInventoryFetchError();
+                            }
+                        }
+                    });
+                } catch (RestClientException e) {
+                    e.printStackTrace();
+                    // Optionally handle the error on UI thread
 
-
-                soldierTextView.setText(health + "|" + "25");
-
-                if (health > 16) {
-                    // Green color for health > 66%
-                    soldierHealth.setProgressDrawable(getResources().getDrawable(R.drawable.health_bar));
-                } else if (health > 8) {
-                    // Yellow color for health between 33% and 66%
-                    soldierHealth.setProgressDrawable(getResources().getDrawable(R.drawable.health_baryellow));
-                } else {
-                    // Red color for health <= 33%
-                    soldierHealth.setProgressDrawable(getResources().getDrawable(R.drawable.health_barred));
                 }
-                soldierHealth.setProgress(health);
-
             }
-        });
-
+        }).start();
     }
 
 
+    protected void updateGameUI(final int tankHealth, final int soldierHealth) {
+        runOnUiThread(new Runnable() {
+            @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
+            @Override
+            public void run() {
+                // Update Soldier Health
+                ProgressBar soldierHealthBar = findViewById(R.id.soldierHealthBar);
+                TextView soldierHealthTextView = findViewById(R.id.soldierHealthValue);
+
+                soldierHealthBar.setMax(25);
+                soldierHealthTextView.setText(soldierHealth + "|" + "25");
+                updateHealthBarColor(soldierHealth, soldierHealthBar, 25);
+
+                // Update Tank Health
+                ProgressBar tankHealthBar = findViewById(R.id.tankHealthBar);
+                TextView tankHealthTextView = findViewById(R.id.tankHealthValue);
+
+                tankHealthBar.setMax(100);
+                tankHealthTextView.setText(tankHealth + "|" + "100");
+                updateHealthBarColor(tankHealth, tankHealthBar, 100);
+
+            }
+        });
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void updateHealthBarColor(int health, ProgressBar healthBar, int maxHealth) {
+        int thresholdOne = (int) (maxHealth * 0.66);
+        int thresholdTwo = (int) (maxHealth * 0.33);
+
+        if (health > thresholdOne) {
+            healthBar.setProgressDrawable(getResources().getDrawable(R.drawable.health_bar));
+        } else if (health > thresholdTwo) {
+            healthBar.setProgressDrawable(getResources().getDrawable(R.drawable.health_baryellow));
+        } else {
+            healthBar.setProgressDrawable(getResources().getDrawable(R.drawable.health_barred));
+        }
+        healthBar.setProgress(health);
+    }
 
 
     @Click(R.id.buttonLogin)

@@ -4,13 +4,33 @@ public class GameUser {
 
     private static GameUser user;
 
-    private int[] inventory = new int[1];
+    private int[] inventory = new int[3];
+
+    private int tankHealth;
+
+    private int soldierHealth;
+
+
 
 
     private String username;
     private int id = -1;
 
+    public void setTankHealth(int tankHealth) {
+        this.tankHealth = tankHealth;
+    }
 
+    public int getTankHealth() {
+        return tankHealth;
+    }
+
+    public void setSoldierHealth(int soldierHealth) {
+        this.soldierHealth = soldierHealth;
+    }
+
+    public int getSoldierHealth(){
+        return soldierHealth;
+    }
     public String getUsername() {
         return username;
     }
