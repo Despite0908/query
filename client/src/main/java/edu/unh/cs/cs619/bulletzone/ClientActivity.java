@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.GridView;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -36,11 +37,17 @@ import org.androidannotations.rest.spring.api.RestClientHeaders;
 import org.androidannotations.api.BackgroundExecutor;
 import org.json.JSONException;
 import org.springframework.web.client.RestClientException;
-import org.w3c.dom.Text;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import edu.unh.cs.cs619.bulletzone.events.BusProvider;
+import edu.unh.cs.cs619.bulletzone.model.BuilderState;
+import edu.unh.cs.cs619.bulletzone.model.SoldierState;
+import edu.unh.cs.cs619.bulletzone.model.TankState;
 import edu.unh.cs.cs619.bulletzone.rest.BZRestErrorhandler;
 import edu.unh.cs.cs619.bulletzone.rest.BalanceUpdateEvent;
 import edu.unh.cs.cs619.bulletzone.rest.BulletZoneRestClient;
@@ -85,6 +92,8 @@ public class ClientActivity extends Activity {
 
     @Bean
     TankController tankControl;
+
+    Map<String, Button> buttons;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,6 +144,8 @@ public class ClientActivity extends Activity {
             mGridAdapter.setPlayerTankId(tankControl.getTankId());
             mGridAdapter.setPlayerBuilderId(tankControl.getBuilderId());
             mGridAdapter.setPlayerSoldierId(-1);
+            //set state
+            tankControl.setState(new TankState(buttons));
 
         }
     }
@@ -182,6 +193,19 @@ public class ClientActivity extends Activity {
         mGridAdapter.setPlayerTankId(tankControl.getTankId());
         mGridAdapter.setPlayerBuilderId(tankControl.getBuilderId());
         mGridAdapter.setTankController(tankControl);
+
+        //get buttons for state (this is bad, do better if time)
+        buttons = new HashMap<>();
+        buttons.put("UP", (Button) findViewById(R.id.buttonUp));
+        buttons.put("DOWN", (Button) findViewById(R.id.buttonLeft));
+        buttons.put("RIGHT", (Button) findViewById(R.id.buttonRight));
+        buttons.put("DOWN", (Button) findViewById(R.id.buttonDown));
+        buttons.put("FIRE", (Button) findViewById(R.id.buttonFire));
+        buttons.put("EJECT", (Button) findViewById(R.id.buttonEject));
+        buttons.put("BUILD", (Button) findViewById(R.id.buttonBuild));
+        buttons.put("DISMANTLE", (Button) findViewById(R.id.buttonDismantle));
+        //create inital state
+        tankControl.setState(new TankState(buttons));
     }
 
     @AfterInject
@@ -235,6 +259,12 @@ public class ClientActivity extends Activity {
         final int viewId = view.getId();
         long moveResult = tankControl.moveTank(viewId);
         if (moveResult == 2) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    tankControl.setState(new TankState(buttons));
+                }
+            });
             mGridAdapter.setPlayerSoldierId(-1);
         }
 //        this.moveAsync(tankId, tankControl.moveTank(viewId));
@@ -265,15 +295,29 @@ public class ClientActivity extends Activity {
     protected void onButtonEject() {
         tankControl.eject(tankControl.getTankId());
         mGridAdapter.setPlayerSoldierId(tankControl.getSoldierId());
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tankControl.setState(new SoldierState(buttons));
+            }
+        });
     }
 
     @Click(R.id.buttonSwitch)
     protected void onButtonSwitch() {
         tankControl.setBuilderFocus(!tankControl.isBuilderFocus());
         TextView v = findViewById(R.id.buttonSwitch);
+        //If not builder
         if (!tankControl.isBuilderFocus()) {
             v.setText(getResources().getString(R.string.switch_builder));
+            //if no soldier
+            if (tankControl.getSoldierId() == -1) {
+                tankControl.setState(new TankState(buttons));
+            } else {
+                tankControl.setState(new SoldierState(buttons));
+            }
         } else {
+            tankControl.setState(new BuilderState(buttons));
             if (tankControl.getSoldierId() == -1) {
                 v.setText(getResources().getString(R.string.switch_tank));
             } else {

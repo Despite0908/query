@@ -86,6 +86,7 @@ public class GridAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        long currentId = tc.getCurrentUnitId();
 
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.field_item, null);
@@ -139,8 +140,8 @@ public class GridAdapter extends BaseAdapter {
                         imageView.setImageResource(R.drawable.gold_coin);
                     }
                 } else if (val >= 50000000 && val < 60000000) {
-                    int soldierId = val /10000 % 1000;  // Extract the soldierId
-                    if (soldierId == playerBuilderId) {
+                    int builderId = val /10000 % 1000;  // Extract the soldierId
+                    if (builderId == playerBuilderId) {
                         imageView.setImageResource(R.drawable.player_builder);
                     } else {
                         imageView.setImageResource(R.drawable.enemy_builder);
