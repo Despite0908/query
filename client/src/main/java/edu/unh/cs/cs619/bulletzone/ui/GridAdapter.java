@@ -38,6 +38,25 @@ public class GridAdapter extends BaseAdapter {
 
     private HashMap<Integer, Integer> bulletDirections = new HashMap<>();
 
+    public boolean isPlayerTankPresent() {
+        int playerTankIdentifier = (int) tc.getTankId();
+
+        synchronized (monitor) {
+            for (int row = 0; row < mEntities.length; row++) {
+                for (int col = 0; col < mEntities[row].length; col++) {
+                    int val = mEntities[row][col];
+                    //Check if this cell contains the player's tank
+                    if (val == playerTankIdentifier) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+
 
     public void setClientActivityAndRestClient(ClientActivity clientActivity, BulletZoneRestClient restClient) {
         this.clientActivity = clientActivity;

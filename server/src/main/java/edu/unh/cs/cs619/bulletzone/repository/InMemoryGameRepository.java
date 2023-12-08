@@ -9,6 +9,8 @@ import java.util.Timer;
 import java.util.concurrent.atomic.AtomicLong;
 
 
+
+
 import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
 import edu.unh.cs.cs619.bulletzone.model.Game;
@@ -30,6 +32,7 @@ import edu.unh.cs.cs619.bulletzone.model.ServerEvents.FireEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.GridEvent;
 import edu.unh.cs.cs619.bulletzone.model.entities.Tank;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.TokenDoesNotExistException;
+
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -71,6 +74,9 @@ public class InMemoryGameRepository implements GameRepository {
     // adding item spawn timer
     private static final int ITEM_PERIOD = 1000;
     private final Timer itemTimer = new Timer();
+
+
+
 
     /**
      * ONLY USED FOR TESTING. Changes the system clock.
@@ -489,8 +495,10 @@ public class InMemoryGameRepository implements GameRepository {
         Tank tank = game.getTanks().get(tankId);
         if (tank == null) {
             throw new TokenDoesNotExistException(tankId);
+        } else {
+            return tank.getLife();
         }
-        return tank.getLife();
+
     }
     /**
      *
