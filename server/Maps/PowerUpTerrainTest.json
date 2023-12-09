@@ -1,0 +1,18 @@
+{
+  "dimensions": 16,
+  "map" : [1],
+  "FUSION_REACTOR": [
+    224
+  ],
+  "ANTI_GRAV": [
+    225
+  ],
+  "rocky": [
+    192,
+    208
+  ],
+  "hilly": [
+    193,
+    209
+  ]
+}
