@@ -8,6 +8,8 @@ import edu.unh.cs.cs619.bulletzone.datalayer.user.GameUser;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Collection;
+
 /**
  * This class provides tailored access to objects that are needed by the REST API/Controller
  * classes. The idea is that it will interface with a BulletZoneData instance as well as
@@ -25,13 +27,22 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class DataRepository {
     private BulletZoneData bzdata;
 
-    public DataRepository() {
+    private static DataRepository _instance;
+
+    private DataRepository() {
         String url = "jdbc:mysql://stman1.cs.unh.edu/cs61906";
         String username = "oberon";
         String password = "pibyad2ObIb";
 
         bzdata = new BulletZoneData(url, username, password);
        //bzdata = new BulletZoneData(); //just use in-memory database
+    }
+
+    public static DataRepository get_instance() {
+        if (_instance == null) {
+            _instance = new DataRepository();
+        }
+        return _instance;
     }
 
     public BulletZoneData getbzData() {
@@ -51,15 +62,33 @@ public class DataRepository {
      * @return GameUser corresponding to the username/password if successful, null otherwise
      */
     public GameUser validateUser(String username, String password, boolean create) {
-        //TODO: something that invokes users.createUser(name, password) or
-        //      users.validateLogin(name, password) as appropriate, maybe does other bookkeeping
+        if (username == null || password == null) {
+            return null;
+        }
         if (create) {
             GameUser newUser = bzdata.users.createUser(username, username, password);
+            //If user exists, return null
+            if (newUser == null) {
+                return null;
+            }
             BankAccount bankAcc = bzdata.accounts.create();
             bzdata.accounts.modifyBalance(bankAcc, 1000);
             bzdata.permissions.setOwner(bankAcc, newUser);
             return newUser;
         }
         return bzdata.users.validateLogin(username, password);
+    }
+
+    public double getCredits(long id) {
+        GameUser user = bzdata.users.getUser((int) id);
+        if (user == null) {
+            return -1;
+        }
+        Collection<BankAccount> accounts = user.getOwnedAccounts();
+        System.out.printf("Num of Accounts: %d\n", accounts.size());
+        for (BankAccount account: accounts) {
+            return bzdata.accounts.getAccount(account.getId()).getBalance();
+        }
+        return -1;
     }
 }

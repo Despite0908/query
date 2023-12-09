@@ -1,7 +1,5 @@
 package edu.unh.cs.cs619.bulletzone.repository;
 
-import junit.framework.TestCase;
-
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -18,17 +16,16 @@ import edu.unh.cs.cs619.bulletzone.datalayer.user.GameUser;
  */
 public class DataRepositoryTest {
 
+    DataRepository repository = DataRepository.get_instance();
 
     @Test
     public void validateUser_withCreateStatusTrue_returnsNewAccount() {
-        DataRepository repository = new DataRepository();
         GameUser newUser = repository.validateUser("nicolas", "karpf", true);
         assert(newUser != null);
     }
 
     @Test
     public void validateUser_withCreateStatusTrueandDuplicateUsername_returnsNull() {
-        DataRepository repository = new DataRepository();
         GameUser newUser = repository.validateUser("nicolas", "karpf", true);
         assert(newUser != null);
         GameUser newUser2 = repository.validateUser("nicolas", "1234", true);
@@ -37,14 +34,12 @@ public class DataRepositoryTest {
 
     @Test
     public void validateUser_withCreateStatusFalseAndNoExistingUser_returnsNull() {
-        DataRepository repository = new DataRepository();
         GameUser newUser = repository.validateUser("nicolas", "karpf", false);
         assert(newUser == null);
     }
 
     @Test
     public void validateUser_withCreateStatusFalseAndExistingUser_returnsExistingUser() {
-        DataRepository repository = new DataRepository();
         GameUser newUser = repository.validateUser("nicolas", "karpf", true);
         assert(newUser != null);
         GameUser newUser2 = repository.validateUser("nicolas", "karpf", false);
@@ -53,7 +48,6 @@ public class DataRepositoryTest {
 
     @Test
     public void validateUser_withCreateStatusTrueAndNoExistingUser_createsNewBankAccount() {
-        DataRepository repository = new DataRepository();
         GameUser newUser = repository.validateUser("nicolas", "karpf", true);
         assert(newUser != null);
         assert(!newUser.getOwnedAccounts().isEmpty());
@@ -62,12 +56,18 @@ public class DataRepositoryTest {
 
     @Test
     public void validateUser_withCreateStatusTrue_givesStartingCreditsOf1000() {
-        DataRepository repository = new DataRepository();
         GameUser newUser = repository.validateUser("nicolas", "karpf", true);
         Iterator<BankAccount> it = newUser.getOwnedAccounts().iterator();
         while (it.hasNext()) {
             BankAccount account = it.next();
             assert(account.getBalance() == 1000);
         }
+    }
+
+    @Test
+    public void getBalance_withAccount_givesStartingCreditsOf1000() {
+        GameUser newUser = repository.validateUser("nicolas", "karpf", false);
+        double balance = repository.getCredits(newUser.getId());
+        assert(balance == 1000);
     }
 }

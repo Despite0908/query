@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentMap;
 import edu.unh.cs.cs619.bulletzone.datalayer.BulletZoneData;
 import edu.unh.cs.cs619.bulletzone.datalayer.account.BankAccount;
 import edu.unh.cs.cs619.bulletzone.datalayer.user.GameUser;
+import edu.unh.cs.cs619.bulletzone.model.entities.Builder;
 import edu.unh.cs.cs619.bulletzone.repository.DataRepository;
 import edu.unh.cs.cs619.bulletzone.events.BusProvider;
 import edu.unh.cs.cs619.bulletzone.events.CustomEvent;
@@ -34,9 +35,9 @@ public final class Game {
     private final ArrayList<FieldHolder> holderGrid = new ArrayList<>();
 
     private final ConcurrentMap<Long, Tank> tanks = new ConcurrentHashMap<>();
-    private final ConcurrentMap<Long, Soldier> soldiers = new ConcurrentHashMap<>();
 
-    BulletZoneData data = new DataRepository().getbzData();
+    private final ConcurrentMap<Long, Builder> builders = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Long, Soldier> soldiers = new ConcurrentHashMap<>();
 
     //associate the inventory with username
     EventBus eventBus = BusProvider.BusProvider().eventBus;
@@ -55,7 +56,7 @@ public final class Game {
      * Key: IP Address
      * Value: The ID of it's associated Tank
      */
-    private final ConcurrentMap<String, Long> playersIP = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Player> playersIP = new ConcurrentHashMap<>();
 
     private final Object monitor = new Object();
 
@@ -82,10 +83,11 @@ public final class Game {
         return holderGrid;
     }
 
-    public void addTank(String ip, Tank tank) {
+    public void addPlayer(String ip, Player player) {
         synchronized (tanks) {
-            tanks.put(tank.getId(), tank);
-            playersIP.put(ip, tank.getId());
+            tanks.put(player.getTank().getId(), player.getTank());
+            builders.put(player.getBuilder().getId(), player.getBuilder());
+            playersIP.put(ip, player);
         }
     }
 
@@ -134,34 +136,6 @@ public final class Game {
         }
     }
 
-    public int[] getInventory(String username){
-        int [] inventory = new int[1];
-
-        int balance = getCredits(username);
-
-        inventory[0] = balance;
-
-        return inventory;
-    }
-
-    public int getCredits(String username) {
-        try {
-            GameUser user = data.users.getUser(username);
-
-            Collection<BankAccount> accounts = user.getOwnedAccounts();
-
-            BankAccount ba = accounts.iterator().next();
-
-            double balance = ba.getBalance();
-
-            return (int) balance;
-        } catch (NullPointerException e) {
-            System.out.println("Error: getting coins, user not found");
-        }
-
-        return 0;
-    }
-
 
 
     //TODO: This is bad
@@ -173,9 +147,20 @@ public final class Game {
 
     public Tank getTank(String ip){
         if (playersIP.containsKey(ip)){
-            return tanks.get(playersIP.get(ip));
+            return tanks.get(playersIP.get(ip).getTank().getId());
         }
         return null;
+    }
+
+    public Builder getBuilder(String ip) {
+        if (playersIP.containsKey(ip)) {
+            return builders.get(playersIP.get(ip).getBuilder().getId());
+        }
+        return null;
+    }
+
+    public ConcurrentMap<Long, Builder> getBuilders() {
+       return builders;
     }
 
     public ConcurrentMap<Long, Soldier> getSoldiers() {
@@ -186,11 +171,28 @@ public final class Game {
         return soldiers.get(soldierId);
     }
 
+    public void removeBuilder(long builderId) {
+        synchronized (builders) {
+            Builder b = builders.remove(builderId);
+            if (b != null) {
+                Player p = playersIP.get(b.getIp());
+                p.setBuilder(null);
+                if (p.getTank() == null) {
+                    playersIP.remove(b.getIp());
+                }
+            }
+        }
+    }
+
     public void removeTank(long tankId){
         synchronized (tanks) {
             Tank t = tanks.remove(tankId);
             if (t != null) {
-                playersIP.remove(t.getIp());
+                Player p = playersIP.get(t.getIp());
+                p.setTank(null);
+                if (p.getBuilder() == null) {
+                    playersIP.remove(t.getIp());
+                }
             }
         }
     }

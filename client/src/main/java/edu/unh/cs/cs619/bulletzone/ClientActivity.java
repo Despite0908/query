@@ -9,14 +9,17 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.GridView;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
@@ -34,15 +37,28 @@ import org.androidannotations.rest.spring.annotations.RestService;
 import org.androidannotations.rest.spring.api.RestClientHeaders;
 import org.androidannotations.api.BackgroundExecutor;
 import org.json.JSONException;
+import org.springframework.web.client.RestClientException;
 import org.w3c.dom.Text;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import edu.unh.cs.cs619.bulletzone.events.BusProvider;
 import edu.unh.cs.cs619.bulletzone.rest.BZRestErrorhandler;
+import edu.unh.cs.cs619.bulletzone.model.BuilderState;
+import edu.unh.cs.cs619.bulletzone.model.SoldierState;
+import edu.unh.cs.cs619.bulletzone.model.TankState;
+import edu.unh.cs.cs619.bulletzone.rest.BalanceUpdateEvent;
 import edu.unh.cs.cs619.bulletzone.rest.BulletZoneRestClient;
 import edu.unh.cs.cs619.bulletzone.rest.GridPollerTask;
 import edu.unh.cs.cs619.bulletzone.rest.GridUpdateEvent;
+import edu.unh.cs.cs619.bulletzone.rest.HealthPollerTask;
+import edu.unh.cs.cs619.bulletzone.rest.HealthUpdateEvent;
 import edu.unh.cs.cs619.bulletzone.ui.GameUser;
 import edu.unh.cs.cs619.bulletzone.ui.GridAdapter;
+import edu.unh.cs.cs619.bulletzone.util.DoubleWrapper;
 import edu.unh.cs.cs619.bulletzone.util.GridWrapper;
 import edu.unh.cs.cs619.bulletzone.util.InventoryWrapper;
 
@@ -54,7 +70,10 @@ public class ClientActivity extends Activity {
     @Bean
     protected GridAdapter mGridAdapter;
 
+
+
     GameUser user;
+    int cachedID;
 
     @ViewById
     protected GridView gridView;
@@ -65,6 +84,11 @@ public class ClientActivity extends Activity {
     @NonConfigurationInstance
     @Bean
     GridPollerTask gridPollTask;
+
+    @NonConfigurationInstance
+    @Bean
+    HealthPollerTask healthPollerTask;
+
     @RestService
     BulletZoneRestClient restClient;
     @Bean
@@ -79,11 +103,21 @@ public class ClientActivity extends Activity {
     @Bean
     TankController tankControl;
 
+    Map<String, Button> buttons;
+
+    private int tankHealth;
+    private int soldierHealth;
+    private int builderHealth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        cachedID = -1;
+
+
         SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         Sensor shakeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        busProvider.getEventBus().register(healthEventHandler);
 
         SensorEventListener sensorEventListener = new SensorEventListener() {
             @Override
@@ -107,10 +141,60 @@ public class ClientActivity extends Activity {
         sensorManager.registerListener(sensorEventListener, shakeSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
+    /**
+     * When this activity resumes, check to see if account has changed. If it has,
+     * change account information and rejoin the game.
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Log.d("MyActivity", "onResume called");
+        healthPollerTask.setIds(tankControl.getTankId(), tankControl.getSoldierId(), tankControl.getBuilderId());
+        healthPollerTask.doPoll();
+        //Toast.makeText(ClientActivity.this, "tank id is " + tankControl.getTankId(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(ClientActivity.this, "soldier id is " + tankControl.getSoldierId(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(ClientActivity.this, "builder id is " + tankControl.getBuilderId(), Toast.LENGTH_SHORT).show();
+        if (cachedID != user.getId()) {
+            //login has changed, change UI
+            cachedID = user.getId();
+            gridPollTask.setId(cachedID);
+            TextView usernameView = findViewById(R.id.username);
+            usernameView.setText(user.getUsername());
+            //leave and re-join game
+            tankControl.reJoinAsync(cachedID);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mGridAdapter.setPlayerTankId(tankControl.getTankId());
+                    mGridAdapter.setPlayerBuilderId(tankControl.getBuilderId());
+                    mGridAdapter.setPlayerSoldierId(-1);
+                    //set state
+                    tankControl.setState(new TankState(buttons));
+                    healthPollerTask.setIds(tankControl.getTankId(), tankControl.getSoldierId(), tankControl.getBuilderId());
+                    healthPollerTask.doPoll();
+                }
+            }, 1000);
+
+
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        healthPollerTask.stopPolling();
+
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         busProvider.getEventBus().unregister(gridEventHandler);
+        busProvider.getEventBus().unregister(balanceEventHandler);
+        healthPollerTask.stopPolling();
+        busProvider.getEventBus().unregister(healthEventHandler);
+
     }
 
     /**
@@ -131,24 +215,48 @@ public class ClientActivity extends Activity {
         }
     };
 
+    private Object balanceEventHandler = new Object()
+    {
+        @Subscribe
+        public void onUpdateBalance(BalanceUpdateEvent event) {
+            updateBalance(event.dw);
+        }
+    };
+
 
     @AfterViews
     protected void afterViewInjection() {
-        tankControl.joinAsync();
+        tankControl.joinAsync(user.getId());
         gridPollTask.doPoll();
-        SystemClock.sleep(500);
+        healthPollerTask.setIds(tankControl.getTankId(), tankControl.getSoldierId(), tankControl.getBuilderId());
+        healthPollerTask.doPoll();
+        SystemClock.sleep(250);
         gridView.setAdapter(mGridAdapter);
         mGridAdapter.setPlayerTankId(tankControl.getTankId());
+        mGridAdapter.setPlayerBuilderId(tankControl.getBuilderId());
         mGridAdapter.setTankController(tankControl);
+
+        buttons = new HashMap<>();
+        buttons.put("UP", (Button) findViewById(R.id.buttonUp));
+        buttons.put("DOWN", (Button) findViewById(R.id.buttonLeft));
+        buttons.put("RIGHT", (Button) findViewById(R.id.buttonRight));
+        buttons.put("DOWN", (Button) findViewById(R.id.buttonDown));
+        buttons.put("FIRE", (Button) findViewById(R.id.buttonFire));
+        buttons.put("EJECT", (Button) findViewById(R.id.buttonEject));
+        buttons.put("BUILD", (Button) findViewById(R.id.buttonBuild));
+        buttons.put("DISMANTLE", (Button) findViewById(R.id.buttonDismantle));
+        //create inital state
+        tankControl.setState(new TankState(buttons));
     }
 
     @AfterInject
     void afterInject() {
         tankControl.afterInject();
         busProvider.getEventBus().register(gridEventHandler);
-
+        busProvider.getEventBus().register(balanceEventHandler);
+        busProvider.getEventBus().register(healthPollerTask);
         restClient.setRestErrorHandler(bzRestErrorhandler);
-
+        healthPollerTask.doPoll();
         //Cam: work in progress
         user = GameUser.getInstance();
 //        tankControl.afterInject(busProvider, gridEventHandler);
@@ -169,18 +277,19 @@ public class ClientActivity extends Activity {
         //getPlayerInfo();
     }
 
+    public void updateBalance(DoubleWrapper dw) {
+        TextView creditsView = findViewById(R.id.balance);
+        creditsView.setText(String.format(Locale.ENGLISH, "Credits: %d", (long) dw.getResult()));
+    }
+
     public void getPlayerInfo() {
 
-        TextView creditInfo = findViewById(R.id.bal);
-
-        InventoryWrapper in = restClient.getInventory(user.getUsername());
+        InventoryWrapper in = restClient.getInventory(user.getId());
 
         int[] inv = in.getResult();
 
 
         String text = "Credits: " + inv[0] + "\n";
-
-        creditInfo.setText(text);
 
     }
 
@@ -191,6 +300,12 @@ public class ClientActivity extends Activity {
         final int viewId = view.getId();
         long moveResult = tankControl.moveTank(viewId);
         if (moveResult == 2) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    tankControl.setState(new TankState(buttons));
+                }
+            });
             mGridAdapter.setPlayerSoldierId(-1);
         }
 //        this.moveAsync(tankId, tankControl.moveTank(viewId));
@@ -210,16 +325,6 @@ public class ClientActivity extends Activity {
 //        this.turnAsync(tankId, tankControl.turnRight());
     }
 
-//    @Background
-//    void moveAsync(long tankId, byte direction) {
-//        restClient.move(tankId, direction);
-//    }
-
-//    @Background
-//    void turnAsync(long tankId, byte direction) {
-//        restClient.turn(tankId, direction);
-//    }
-
     @Click(R.id.buttonFire)
     @Background
     protected void onButtonFire() {
@@ -231,6 +336,39 @@ public class ClientActivity extends Activity {
     protected void onButtonEject() {
         tankControl.eject(tankControl.getTankId());
         mGridAdapter.setPlayerSoldierId(tankControl.getSoldierId());
+        //Log.d("soldier", "soldier id is " + tankControl.getSoldierId());
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tankControl.setState(new SoldierState(buttons));
+            }
+        });
+
+
+    }
+
+    @Click(R.id.buttonSwitch)
+    protected void onButtonSwitch() {
+        tankControl.setBuilderFocus(!tankControl.isBuilderFocus());
+        TextView v = findViewById(R.id.buttonSwitch);
+        //If not builder
+
+        if (!tankControl.isBuilderFocus()) {
+            v.setText(getResources().getString(R.string.switch_builder));
+            //if no soldier
+            if (tankControl.getSoldierId() == -1) {
+                tankControl.setState(new TankState(buttons));
+            } else {
+                tankControl.setState(new SoldierState(buttons));
+            }
+        } else {
+            tankControl.setState(new BuilderState(buttons));
+            if (tankControl.getSoldierId() == -1) {
+                v.setText(getResources().getString(R.string.switch_tank));
+            } else {
+                v.setText(getResources().getString(R.string.switch_soldier));
+            }
+        }
     }
 
     @Click(R.id.buttonLeave)
@@ -277,72 +415,88 @@ public class ClientActivity extends Activity {
         thread.start();
     }
 
+    private Object healthEventHandler = new Object() {
+        @Subscribe
+        public void onHealthUpdate(HealthUpdateEvent event) {
+            tankHealth = event.getTankHealth();
+            soldierHealth = event.getSoldierHealth();
+            builderHealth = event.getBuilderHealth();
+            updateHealthUI(tankHealth, soldierHealth, builderHealth);
+        }
+    };
 
-    protected void updateTankHealth(final int health) {
-        runOnUiThread(new Runnable() {
-            @SuppressLint("UseCompatLoadingForDrawables")
-            @Override
-            public void run() {
-
-                ProgressBar tankHealth = findViewById(R.id.tankHealthBar);
-                TextView tankTextView = findViewById(R.id.tankHealthValue);
-
-                tankHealth.setMax(100);
-                Log.d("ProgressBarDebug", "Current progress: " + tankHealth.getProgress());
-
-
-                tankTextView.setText(health + "|" + "100");
-
-                if (health > 66) {
-                    // Green color for health > 66%
-                    tankHealth.setProgressDrawable(getResources().getDrawable(R.drawable.health_bar));
-                } else if (health > 33) {
-                    // Yellow color for health between 33% and 66%
-                    tankHealth.setProgressDrawable(getResources().getDrawable(R.drawable.health_baryellow));
-                } else {
-                    // Red color for health <= 33%
-                    tankHealth.setProgressDrawable(getResources().getDrawable(R.drawable.health_barred));
-                }
-                tankHealth.setProgress(health);
-
-            }
-        });
-
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("tankHealth", tankHealth);
+        outState.putInt("soldierHealth", soldierHealth);
+        outState.putInt("builderHealth", builderHealth);
     }
+    //TO FIX HEALTH VALUES BEING INCORRECT AFTER ROTATION
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState != null) {
+            tankHealth = savedInstanceState.getInt("tankHealth", -1);
+            soldierHealth = savedInstanceState.getInt("soldierHealth", -1);
+            builderHealth = savedInstanceState.getInt("builderHealth", -1);
 
-    protected void updateSoldierHealth(final int health) {
-        runOnUiThread(new Runnable() {
-            @SuppressLint("UseCompatLoadingForDrawables")
-            @Override
-            public void run() {
-
-                ProgressBar soldierHealth = findViewById(R.id.soldierHealthBar);
-                TextView soldierTextView = findViewById(R.id.soldierHealthValue);
-
-                soldierHealth.setMax(25);
-                Log.d("ProgressBarDebug", "Current progress: " + soldierHealth.getProgress());
-
-
-                soldierTextView.setText(health + "|" + "25");
-
-                if (health > 16) {
-                    // Green color for health > 66%
-                    soldierHealth.setProgressDrawable(getResources().getDrawable(R.drawable.health_bar));
-                } else if (health > 8) {
-                    // Yellow color for health between 33% and 66%
-                    soldierHealth.setProgressDrawable(getResources().getDrawable(R.drawable.health_baryellow));
-                } else {
-                    // Red color for health <= 33%
-                    soldierHealth.setProgressDrawable(getResources().getDrawable(R.drawable.health_barred));
-                }
-                soldierHealth.setProgress(health);
-
+            //update UI only if values were saved
+            if (tankHealth != -1 && soldierHealth != -1 && builderHealth != -1) {
+                updateHealthUI(tankHealth, soldierHealth, builderHealth);
             }
-        });
-
+        }
     }
 
 
+    protected void updateHealthUI(final int tankHealth, final int soldierHealth, final int builderHealth) {
+        runOnUiThread(new Runnable() {
+            @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
+            @Override
+            public void run() {
+
+                // Update Soldier Health
+                ProgressBar soldierHealthBar = findViewById(R.id.soldierHealthBar);
+                TextView soldierHealthTextView = findViewById(R.id.soldierHealthValue);
+
+                soldierHealthBar.setMax(25);
+                soldierHealthTextView.setText(soldierHealth + "|" + "25");
+                updateHealthBarColor(soldierHealth, soldierHealthBar, 25);
+
+                // Update Tank Health
+                ProgressBar tankHealthBar = findViewById(R.id.tankHealthBar);
+                TextView tankHealthTextView = findViewById(R.id.tankHealthValue);
+
+                tankHealthBar.setMax(100);
+                tankHealthTextView.setText(tankHealth + "|" + "100");
+                updateHealthBarColor(tankHealth, tankHealthBar, 100);
+
+                //Update Builder Health
+                ProgressBar builderHealthBar = findViewById(R.id.builderHealthBar);
+                TextView builderHealthTextView = findViewById(R.id.builderHealthValue);
+
+                builderHealthBar.setMax(50);
+                builderHealthTextView.setText(builderHealth + "|" + "50");
+                updateHealthBarColor(builderHealth, builderHealthBar, 50);
+
+            }
+        });
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void updateHealthBarColor(int health, ProgressBar healthBar, int maxHealth) {
+        int thresholdOne = (int) (maxHealth * 0.66);
+        int thresholdTwo = (int) (maxHealth * 0.33);
+
+        if (health > thresholdOne) {
+            healthBar.setProgressDrawable(getResources().getDrawable(R.drawable.health_bar));
+        } else if (health > thresholdTwo) {
+            healthBar.setProgressDrawable(getResources().getDrawable(R.drawable.health_baryellow));
+        } else {
+            healthBar.setProgressDrawable(getResources().getDrawable(R.drawable.health_barred));
+        }
+        healthBar.setProgress(health);
+    }
 
 
     @Click(R.id.buttonLogin)

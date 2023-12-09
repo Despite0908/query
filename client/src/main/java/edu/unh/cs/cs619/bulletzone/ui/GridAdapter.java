@@ -30,11 +30,32 @@ public class GridAdapter extends BaseAdapter {
 
     private long playerSoldierId = -1;  // Initialize with an invalid ID
 
+    private long playerBuilderId = -1;  // Initialize with an invalid ID
+
     private ClientActivity clientActivity;
     private BulletZoneRestClient restClient;
     private TankController tc;
 
     private HashMap<Integer, Integer> bulletDirections = new HashMap<>();
+
+    public boolean isPlayerTankPresent() {
+        int playerTankIdentifier = (int) tc.getTankId();
+
+        synchronized (monitor) {
+            for (int row = 0; row < mEntities.length; row++) {
+                for (int col = 0; col < mEntities[row].length; col++) {
+                    int val = mEntities[row][col];
+                    //Check if this cell contains the player's tank
+                    if (val == playerTankIdentifier) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
 
 
     public void setClientActivityAndRestClient(ClientActivity clientActivity, BulletZoneRestClient restClient) {
@@ -50,6 +71,9 @@ public class GridAdapter extends BaseAdapter {
         this.playerSoldierId = soldierId;
     }
 
+    public void setPlayerBuilderId(long playerBuilderId) {
+        this.playerBuilderId = playerBuilderId;
+    }
 
     public void setTankController(TankController tc) {
         this.tc = tc;
@@ -81,6 +105,7 @@ public class GridAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        long currentId = tc.getCurrentUnitId();
 
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.field_item, null);
@@ -108,18 +133,22 @@ public class GridAdapter extends BaseAdapter {
                     int tankId = val /10000 % 1000;  // Extract the tankId
                     if (tankId == playerTankId) {
                         imageView.setImageResource(R.drawable.tank_sand);
-                        imageView.setRotation(tc.getDirection() * 45);  // Set rotation based on direction
                     } else {
                         imageView.setImageResource(R.drawable.tank_dark);
                     }
+                    // Set rotation based on direction
+                    int byteDirection = val % 10;
+                    imageView.setRotation(byteDirection * 45);
                 } else if (val >= 30000000 && val < 40000000) {
                     int soldierId = val /10000 % 1000;  // Extract the soldierId
                     if (soldierId == playerSoldierId) {
                         imageView.setImageResource(R.drawable.player_soldier);
-                        imageView.setRotation(tc.getSoldierDirection() * 45);  // Set rotation based on direction
                     } else {
                         imageView.setImageResource(R.drawable.enemy_soldier);
                     }
+                    // Set rotation based on direction
+                    int byteDirection = val % 10;
+                    imageView.setRotation(byteDirection * 45);
                 }else if (val >= 40000000 && val < 50000000) {
                     val = val % 100;
                     if (val == 30) {
@@ -129,6 +158,16 @@ public class GridAdapter extends BaseAdapter {
                     } else {
                         imageView.setImageResource(R.drawable.gold_coin);
                     }
+                } else if (val >= 50000000 && val < 60000000) {
+                    int builderId = val /10000 % 1000;  // Extract the soldierId
+                    if (builderId == playerBuilderId) {
+                        imageView.setImageResource(R.drawable.player_builder);
+                    } else {
+                        imageView.setImageResource(R.drawable.enemy_builder);
+                    }
+                    // Set rotation based on direction
+                    int byteDirection = val % 10;
+                    imageView.setRotation(byteDirection * 45);
                 } else if (val == 2) {
                     imageView.setImageResource(R.drawable.tile_hilly);
                 } else if (val == 4) {

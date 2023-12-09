@@ -6,11 +6,17 @@ import edu.unh.cs.cs619.bulletzone.events.BusProvider;
 import edu.unh.cs.cs619.bulletzone.model.BulletTracker;
 import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.Game;
+import edu.unh.cs.cs619.bulletzone.model.Player;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BulletHitEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
 import edu.unh.cs.cs619.bulletzone.model.Terrain;
 
+/**
+ * Tank Token. Spawned in when the player joins the game. Can do token actions
+ * such as move, turn and fire. Can also "eject" soldiers.
+ * @author Anthony Papetti
+ */
 public class Tank extends PlayerToken {
 
     private static final String TAG = "Tank";
@@ -21,11 +27,12 @@ public class Tank extends PlayerToken {
     /**
      * Constructor. Handles values not set in PlayerToken.
      * @param id The ID of the tank
-     * @param direction The initial direction of the tank
+     * @param player The player object this token is associated with
      * @param ip IP of the player
+     * @param accountID ID of the account this token is associated with
      */
-    public Tank(long id, Direction direction, String ip) {
-        super(id, direction, ip);
+    public Tank(long id, Player player, String ip, int accountID) {
+        super(id, player, ip, accountID);
         setLife(100);
         setAllowedNumberOfBullets(2);
         setAllowedMoveInterval(500);
@@ -42,7 +49,8 @@ public class Tank extends PlayerToken {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc} Cannot Move sideways. 500ms base speed, 50% longer for hilly
+     * terrain. Cannot enter forests.
      * @param millis Timestamp in milliseconds
      * @param direction Direction in which the token will be moved
      * @return {@inheritDoc}
@@ -71,7 +79,7 @@ public class Tank extends PlayerToken {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc} 500ms base turn speed. Can only turn 90 degrees.
      * @param millis Timestamp in milliseconds
      * @param direction Direction in which the token will turn
      * @return {@inheritDoc}
@@ -118,11 +126,12 @@ public class Tank extends PlayerToken {
 
     @Override
     public FieldEntity copy() {
-        return new Tank(getId(), getDirection(), getIp());
+        return new Tank(getId(), getPlayer(), getIp(), accountID);
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc} Decreases life. If life is below 0, destroys Tank and it's
+     * pair (Soldier).
      * @param damage Damage done by the bullet.
      * @param game Current game.
      * @return {@inheritDoc}
@@ -141,13 +150,21 @@ public class Tank extends PlayerToken {
             eventHistory.addEvent(new TokenLeaveEvent(getId(), getIntValue()));
 
             //Remove Soldier If exists
-            Soldier s = (Soldier) getPair();
+            Soldier s = getPlayer().getSoldier();
             if (s != null) {
                 s.getParent().clearField();
                 s.setParent(null);
                 game.removeSoldier(s.getId());
                 //Add soldier hit event
                 eventHistory.addEvent(new TokenLeaveEvent(s.getId(), s.getIntValue()));
+            }
+            //Remove builder
+            Builder builder = getPlayer().getBuilder();
+            if (builder != null) {
+                builder.getParent().clearField();
+                builder.setParent(null);
+                game.removeBuilder(builder.getId());
+                eventHistory.addEvent(new TokenLeaveEvent(builder.getId(), builder.getIntValue()));
             }
             return true;
         }
@@ -171,7 +188,7 @@ public class Tank extends PlayerToken {
      * @return {@inheritDoc}
      */
     public int movedIntoBy(PlayerToken other) {
-        if (other == pair) {
+        if (other == getPlayer().getSoldier()) {
             //Remove from tank and field holder
             other.getParent().clearField();
             other.setParent(null);
@@ -183,7 +200,7 @@ public class Tank extends PlayerToken {
 
     @Override
     public void cleanPair() {
-        Soldier s = (Soldier) getPair();
+        Soldier s = getPlayer().getSoldier();
         if (s != null) {
             //Clear bullets
             s.getBulletTracker().clear();
@@ -195,7 +212,7 @@ public class Tank extends PlayerToken {
                 e.addEvent(new TokenLeaveEvent(s.getId(), s.getIntValue()));
             }
             //clear pair
-            setPair(null);
+            getPlayer().setSoldier(null);
             ejected = false;
         }
     }

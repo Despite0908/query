@@ -14,9 +14,11 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.RestClientException;
 
 import edu.unh.cs.cs619.bulletzone.util.BooleanWrapper;
+import edu.unh.cs.cs619.bulletzone.util.DoubleWrapper;
 import edu.unh.cs.cs619.bulletzone.util.GridWrapper;
 import edu.unh.cs.cs619.bulletzone.util.InventoryWrapper;
 import edu.unh.cs.cs619.bulletzone.util.LongWrapper;
+import edu.unh.cs.cs619.bulletzone.util.PlayerWrapper;
 import edu.unh.cs.cs619.bulletzone.util.StringArrayWrapper;
 
 /** "http://stman1.cs.unh.edu:6191/games"
@@ -33,8 +35,8 @@ import edu.unh.cs.cs619.bulletzone.util.StringArrayWrapper;
 public interface BulletZoneRestClient extends RestClientErrorHandling {
     void setRootUrl(String rootUrl);
 
-    @Post("")
-    LongWrapper join() throws RestClientException;
+    @Post("/{id}")
+    PlayerWrapper join(@Path int id) throws RestClientException;
 
     @Get("")
     GridWrapper grid();
@@ -48,6 +50,9 @@ public interface BulletZoneRestClient extends RestClientErrorHandling {
     @Put("/account/login/{username}/{password}")
     LongWrapper login(@Path String username, @Path String password);
 
+    @Get("/account/balance/{id}")
+    DoubleWrapper balance(@Path long id);
+
     @Put("/{tankId}/move/{direction}")
     LongWrapper move(@Path long tankId, @Path byte direction);
 
@@ -60,9 +65,20 @@ public interface BulletZoneRestClient extends RestClientErrorHandling {
     @Delete("/{tankId}/leave")
     BooleanWrapper leave(@Path long tankId);
 
-    @Put("/GetInventory/{username}")
-    InventoryWrapper getInventory(@Path String username);
+    @Put("/GetInventory/{id}")
+    InventoryWrapper getInventory(@Path int id);
 
     @Put("/{tankId}/eject")
     LongWrapper eject(@Path long tankId);
+
+    @Get("/tank/health/{tankId}")
+    Integer getTankHealth(@Path long tankId);
+
+    @Get("/soldier/health/{soldierId}")
+    Integer getSoldierHealth(@Path long soldierId);
+
+    @Get("/builder/health/{builderId}")
+    Integer getBuilderHealth(@Path long builderId);
+
+
 }

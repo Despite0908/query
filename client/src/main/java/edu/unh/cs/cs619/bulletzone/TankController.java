@@ -3,6 +3,8 @@ package edu.unh.cs.cs619.bulletzone;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
+import android.widget.Button;
+
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
@@ -10,9 +12,15 @@ import org.androidannotations.api.BackgroundExecutor;
 import org.androidannotations.rest.spring.annotations.RestService;
 
 
+import java.util.List;
 
+import edu.unh.cs.cs619.bulletzone.model.SoldierState;
+import edu.unh.cs.cs619.bulletzone.model.State;
+import edu.unh.cs.cs619.bulletzone.model.TankState;
 import edu.unh.cs.cs619.bulletzone.rest.BZRestErrorhandler;
 import edu.unh.cs.cs619.bulletzone.rest.BulletZoneRestClient;
+import edu.unh.cs.cs619.bulletzone.util.BooleanWrapper;
+import edu.unh.cs.cs619.bulletzone.util.PlayerWrapper;
 
 
 /**
@@ -27,6 +35,7 @@ import edu.unh.cs.cs619.bulletzone.rest.BulletZoneRestClient;
 public class TankController {
     private byte direction;
     private byte soldierDirection;
+    private byte builderDirection;
 
     /**
      * remote tank identifier
@@ -36,6 +45,10 @@ public class TankController {
      * Remote Soldier identifier
      */
     private long soldierId;
+
+    private long builderId;
+
+    private boolean builderFocus;
     /**
      * The ClientActivity. Used just as a Context parameter for the constructor due to EBean
      * constrictions.
@@ -52,6 +65,10 @@ public class TankController {
     @Bean
     BZRestErrorhandler bzRestErrorhandler;
 
+    //state info
+    private State state;
+
+
     /**
      * Constructor for the TankController class. Because TankController is an EBean, and because
      * TankController needs to be a singleton, the constructor is protected and has a parameter of
@@ -66,7 +83,14 @@ public class TankController {
         soldierDirection = 0;
         tankId = -1;
         soldierId = -1;
+        builderId = -1;
+        builderFocus = false;
         this.activity = activity;
+        state = null;
+    }
+
+    public void setState(State state) {
+        this.state = state;
     }
 
     /**
@@ -84,11 +108,7 @@ public class TankController {
         if (!(restClient.turn(getCurrentUnitId(), placeHolderDirection).isResult())) {
             return;
         }
-        if (soldierId == -1) {
-            direction = placeHolderDirection;
-        } else {
-            soldierDirection = placeHolderDirection;
-        }
+        setCurrentUnitDirection(placeHolderDirection);
     }
     /**
      * This method is used to turn the current direction of the tank right 90° of its currently-faced
@@ -105,11 +125,7 @@ public class TankController {
         if (!(restClient.turn(getCurrentUnitId(), placeHolderDirection).isResult())) {
             return;
         }
-        if (soldierId == -1) {
-            direction = placeHolderDirection;
-        } else {
-            soldierDirection = placeHolderDirection;
-        }
+        setCurrentUnitDirection(placeHolderDirection);
     }
 
     /**
@@ -142,7 +158,26 @@ public class TankController {
         this.soldierId = soldierId;
     }
 
+    public void setBuilderId(long builderId) {
+        this.builderId = builderId;
+    }
+
+    public long getBuilderId() {
+        return builderId;
+    }
+
+    public void setBuilderFocus(boolean builderFocus) {
+        this.builderFocus = builderFocus;
+    }
+
+    public boolean isBuilderFocus() {
+        return builderFocus;
+    }
+
     public long getCurrentUnitId() {
+        if (builderFocus) {
+            return builderId;
+        }
         if (soldierId != -1) {
             return soldierId;
         } else {
@@ -151,10 +186,23 @@ public class TankController {
     }
 
     public byte getCurrentUnitDirection() {
+        if (builderFocus) {
+            return builderDirection;
+        }
         if (soldierId != -1) {
             return soldierDirection;
         } else {
             return direction;
+        }
+    }
+
+    public void setCurrentUnitDirection(byte dir) {
+        if (builderFocus) {
+            builderDirection = dir;
+        }else if (soldierId != -1) {
+            soldierDirection = dir;
+        } else {
+            direction = dir;
         }
     }
 
@@ -197,10 +245,10 @@ public class TankController {
     public void onBulletFire() {
         long id = getCurrentUnitId();
         boolean test;
-        if (soldierId != -1) {
-            test = restClient.fire(getSoldierId(), 4).isResult();
+        if (soldierId == id) {
+            test = restClient.fire(id, 4).isResult();
         } else {
-            test = restClient.fire(getTankId(), 1).isResult();
+            test = restClient.fire(id, 1).isResult();
         }
         Log.d("fireTest", String.format("%b\n", test));
     }
@@ -221,11 +269,28 @@ public class TankController {
     }
 
     @Background
-    void joinAsync() {
+    void joinAsync(int id) {
         try {
-            tankId = restClient.join().getResult();
+            PlayerWrapper p = restClient.join(id);
+            tankId = p.getTankId();
+            builderId = p.getBuilderId();
         } catch (Exception e) {
         }
+    }
+
+    /**
+     * Has the given tankId leave the game, then joins back
+     * @param accountID the current account ID
+     */
+    @Background
+    void reJoinAsync(int accountID) {
+        BooleanWrapper w = restClient.leave(tankId);
+        PlayerWrapper p = restClient.join(accountID);
+        tankId = p.getTankId();
+        builderId = p.getBuilderId();
+        direction = 0;
+        soldierDirection = 0;
+        soldierId = -1;
     }
 
     /**

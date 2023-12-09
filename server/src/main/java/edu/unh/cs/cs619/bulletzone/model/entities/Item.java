@@ -1,6 +1,13 @@
 package edu.unh.cs.cs619.bulletzone.model.entities;
 
-import edu.unh.cs.cs619.bulletzone.model.Direction;
+import com.google.common.eventbus.EventBus;
+
+import java.util.concurrent.ThreadLocalRandom;
+
+import edu.unh.cs.cs619.bulletzone.events.BusProvider;
+import edu.unh.cs.cs619.bulletzone.events.CustomEvent;
+import edu.unh.cs.cs619.bulletzone.events.CustomEventTypes;
+import edu.unh.cs.cs619.bulletzone.model.BankLinker;
 import edu.unh.cs.cs619.bulletzone.model.Game;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
@@ -71,8 +78,23 @@ public class Item extends FieldEntity {
      * @return 1: Move was successful
      */
     public int movedIntoBy(PlayerToken other) {
-        //TODO aiden how to powerup tank after ran over
-        //From Anthony: Make sure to move the tank into the Item's spot
+        EventHistory.get_instance().addEvent(new TokenLeaveEvent(this.getId(), this.getIntValue()));
+        CustomEvent customEvent = new CustomEvent(CustomEventTypes.ANTI_GRAV_PICKUP, this);
+        if (getItemType() == ItemTypes.FUSION_REACTOR) {
+            other.numBulletsAfterReactor();
+            other.fireRateAfterReactor();
+            other.movementSpeedAfterReactor();
+        } else if (getItemType() == ItemTypes.ANTI_GRAV) {
+            other.movementSpeedAfterAntiGrav();
+            other.fireRateAfterAntiGrav();
+        } else if (getItemType() == ItemTypes.COIN) {
+            int credits = ThreadLocalRandom.current().nextInt(10, 100 + 1);
+            BankLinker.addCredits(other.getAccountID(), credits);
+        }
+        // this was working
+        // eventBus.post(customEvent);
+        EventBus eventBus = BusProvider.BusProvider().eventBus;
+        eventBus.post(customEvent);
         return 1;
     }
 }

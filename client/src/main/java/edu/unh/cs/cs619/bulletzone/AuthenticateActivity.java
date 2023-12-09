@@ -47,6 +47,7 @@ public class AuthenticateActivity extends AppCompatActivity {
     @AfterViews
     protected void afterViewInjection() {
         //Put any view-setup code here (that you might normally put in onCreate)
+        userID = -1;
     }
 
     @AfterInject
@@ -63,6 +64,10 @@ public class AuthenticateActivity extends AppCompatActivity {
     protected void onButtonRegister() {
         String username = username_editText.getText().toString();
         String password = password_editText.getText().toString();
+        if (username.equals("") || password.equals("")) {
+            setStatus("Please Enter All Fields");
+            return;
+        }
 
         boolean status = controller.register(username, password);
 
@@ -90,6 +95,10 @@ public class AuthenticateActivity extends AppCompatActivity {
     protected void onButtonLogin() {
         String username = username_editText.getText().toString();
         String password = password_editText.getText().toString();
+        if (username.equals("") || password.equals("")) {
+            setStatus("Please Enter All Fields");
+            return;
+        }
 
         userID = controller.login(username, password);
         if (userID < 0) {

@@ -2,16 +2,10 @@ package edu.unh.cs.cs619.bulletzone.model.entities;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.eventbus.EventBus;
-
-import edu.unh.cs.cs619.bulletzone.events.BusProvider;
-import edu.unh.cs.cs619.bulletzone.events.CustomEvent;
-import edu.unh.cs.cs619.bulletzone.events.CustomEventTypes;
 import edu.unh.cs.cs619.bulletzone.model.BulletTracker;
 import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
-import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
-import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
+import edu.unh.cs.cs619.bulletzone.model.Player;
 public abstract class PlayerToken extends FieldEntity{
 
     private final String ip;
@@ -28,44 +22,35 @@ public abstract class PlayerToken extends FieldEntity{
     private BulletTracker bulletTracker;
 
     private Direction direction;
-
-    PlayerToken pair;
-
-    //EventBus eventBus = new BusProvider().getEventBus();
-
-
-    //this is what was working
-    //EventBus eventBus;
-
-    EventBus eventBus2;
-
-
+    private Player player;
+    int accountID;
 
 
     /**
      * Constructor. Handles common data and functionality between tokens.
      * @param id The ID of the token
-     * @param direction The initial direction of the token
+     * @param player The player object this token is associated with
      * @param ip IP of the player
      */
-    public PlayerToken(long id, Direction direction, String ip) {
+    public PlayerToken(long id, Player player, String ip, int accountID) {
         super(id);
-        this.direction = direction;
+        direction = Direction.Up;
+        this.player = player;
         this.ip = ip;
         numberOfBullets = 0;
         lastFireTime = 0;
         lastMoveTime = 0;
-        pair = null;
-        eventBus2 = BusProvider.BusProvider().eventBus;
+        this.accountID = accountID;
     }
 
-//    public void setEventBus(EventBus theBus) {
-//        eventBus = theBus;
-//    }
+    public int getAccountID() {
+        return accountID;
+    }
 
-//    public EventBus getEventBus() {
-//        return eventBus;
-//    }
+    public Player getPlayer() {
+        return player;
+    }
+
     /**
      * Constraint checking for the token's turn operation.
      * @param millis Timestamp in milliseconds
@@ -110,32 +95,7 @@ public abstract class PlayerToken extends FieldEntity{
             return 0;
         }
 
-        //Check for Items
-        if (nextField.isPresent() && nextField.getEntity().getIsItem()) {
-            Item grabbedItem = (Item) nextField.getEntity();
-            parent.clearField();
-            nextField.setFieldEntity(this);
-            setParent(nextField);
-            grabbedItem.movedIntoBy(this);
-            EventHistory.get_instance().addEvent(new TokenLeaveEvent(this.getId(), this.getIntValue()));
-            CustomEvent customEvent = new CustomEvent(CustomEventTypes.ANTI_GRAV_PICKUP, grabbedItem);
-            if (grabbedItem.getItemType() == ItemTypes.FUSION_REACTOR) {
-                numBulletsAfterReactor();
-                fireRateAfterReactor();
-                movementSpeedAfterReactor();
-            } else if (grabbedItem.getItemType() == ItemTypes.ANTI_GRAV) {
-                movementSpeedAfterAntiGrav();
-                fireRateAfterAntiGrav();
-            }
-            // this was working
-            // eventBus.post(customEvent);
-            eventBus2.post(customEvent);
-            return 1;
-        }
-
-
-        //Check for entities
-        boolean isCompleted;
+        //Check for empty space
         if (!nextField.isPresent()) {
             // If the next field is empty move the user
             parent.clearField();
@@ -143,7 +103,15 @@ public abstract class PlayerToken extends FieldEntity{
             setParent(nextField);
             return 1;
         }
-        return nextField.getEntity().movedIntoBy(this);
+
+        //Check for entities
+        int moveResult = nextField.getEntity().movedIntoBy(this);
+        if (moveResult == 1) {
+            parent.clearField();
+            nextField.setFieldEntity(this);
+            setParent(nextField);
+        }
+        return moveResult;
     }
 
     /**
@@ -241,14 +209,6 @@ public abstract class PlayerToken extends FieldEntity{
 
     public String getIp(){
         return ip;
-    }
-
-    public PlayerToken getPair() {
-        return pair;
-    }
-
-    public void setPair(PlayerToken pair) {
-        this.pair = pair;
     }
 
     /**

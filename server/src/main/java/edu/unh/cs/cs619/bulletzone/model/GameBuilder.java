@@ -124,9 +124,7 @@ public class GameBuilder {
                 targetHolder.setTerrain(fieldTerrain[i * FIELD_DIM + j]);
 
                 // Adding field items
-                if (fieldItems[i * FIELD_DIM + j] == ItemTypes.NO_ITEM) {
-                    // do nothing
-                } else {
+                if (fieldItems[i * FIELD_DIM + j] != ItemTypes.NO_ITEM) {
                     Item myTestItem = new Item(idGenerator.getAndIncrement(), fieldItems[i * FIELD_DIM + j], (i * FIELD_DIM + j));
                     targetHolder.setFieldEntity(myTestItem);
                     myTestItem.setParent(targetHolder);

@@ -13,6 +13,7 @@ import org.androidannotations.rest.spring.api.RestClientHeaders;
 
 import edu.unh.cs.cs619.bulletzone.ClientActivity;
 import edu.unh.cs.cs619.bulletzone.events.BusProvider;
+import edu.unh.cs.cs619.bulletzone.util.DoubleWrapper;
 import edu.unh.cs.cs619.bulletzone.util.GridWrapper;
 
 /**
@@ -25,6 +26,9 @@ public class GridPollerTask {
     // Injected object
     @Bean
     BusProvider busProvider;
+    long id = -1;
+
+    Object monitor = new Object();
 
     @RestService
     BulletZoneRestClient restClient;
@@ -37,6 +41,12 @@ public class GridPollerTask {
 
             onGridUpdate(restClient.grid());
 
+            synchronized (monitor) {
+                if (id != -1) {
+                    onCreditUpdate(restClient.balance(id));
+                }
+            }
+
             // poll server every 100ms
             SystemClock.sleep(100);
         }
@@ -45,5 +55,16 @@ public class GridPollerTask {
     @UiThread
     public void onGridUpdate(GridWrapper gw) {
         busProvider.getEventBus().post(new GridUpdateEvent(gw));
+    }
+
+    @UiThread
+    public void onCreditUpdate(DoubleWrapper dw) {
+        busProvider.getEventBus().post(new BalanceUpdateEvent(dw));
+    }
+
+    public void setId(long id) {
+        synchronized (monitor) {
+            this.id = id;
+        }
     }
 }

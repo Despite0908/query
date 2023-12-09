@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import edu.unh.cs.cs619.bulletzone.repository.DataRepository;
 import edu.unh.cs.cs619.bulletzone.util.BooleanWrapper;
+import edu.unh.cs.cs619.bulletzone.util.DoubleWrapper;
 import edu.unh.cs.cs619.bulletzone.util.LongWrapper;
 import edu.unh.cs.cs619.bulletzone.datalayer.user.GameUser;
 
@@ -23,11 +24,9 @@ import edu.unh.cs.cs619.bulletzone.datalayer.user.GameUser;
 @RequestMapping(value = "/games/account")
 public class AccountController {
     private static final Logger log = LoggerFactory.getLogger(AccountController.class);
-    private final DataRepository data;
+    private final DataRepository data = DataRepository.get_instance();
     @Autowired
-    public AccountController(DataRepository repo) {
-        this.data = repo;
-    }
+    public AccountController() {}
 
     /**
      * Handles a PUT request to register a new user account. This calls the validateUser function on
@@ -88,6 +87,24 @@ public class AccountController {
                 id
                 ),
                 HttpStatus.OK);
+    }
+
+    /**
+     * Handles a GET request to get the credits for the bank account of the supplied ID.
+     * @param id ID of the account we're getting the balance from
+     * @return Balance of account
+     */
+    @RequestMapping(method = RequestMethod.GET, value = "balance/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public ResponseEntity<DoubleWrapper> balance(@PathVariable long id)
+    {
+        // Log the request
+        log.debug("Credits for ID:" + id);
+        // Return the response (return user ID if valid login)
+        double balance = data.getCredits(id);
+
+        return new ResponseEntity<DoubleWrapper>(new DoubleWrapper(balance), HttpStatus.OK);
     }
 
 }
