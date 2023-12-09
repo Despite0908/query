@@ -3,6 +3,8 @@ package edu.unh.cs.cs619.bulletzone;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
+import android.widget.Button;
+
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
@@ -10,7 +12,11 @@ import org.androidannotations.api.BackgroundExecutor;
 import org.androidannotations.rest.spring.annotations.RestService;
 
 
+import java.util.List;
 
+import edu.unh.cs.cs619.bulletzone.model.SoldierState;
+import edu.unh.cs.cs619.bulletzone.model.State;
+import edu.unh.cs.cs619.bulletzone.model.TankState;
 import edu.unh.cs.cs619.bulletzone.rest.BZRestErrorhandler;
 import edu.unh.cs.cs619.bulletzone.rest.BulletZoneRestClient;
 import edu.unh.cs.cs619.bulletzone.util.BooleanWrapper;
@@ -59,6 +65,10 @@ public class TankController {
     @Bean
     BZRestErrorhandler bzRestErrorhandler;
 
+    //state info
+    private State state;
+
+
     /**
      * Constructor for the TankController class. Because TankController is an EBean, and because
      * TankController needs to be a singleton, the constructor is protected and has a parameter of
@@ -76,6 +86,11 @@ public class TankController {
         builderId = -1;
         builderFocus = false;
         this.activity = activity;
+        state = null;
+    }
+
+    public void setState(State state) {
+        this.state = state;
     }
 
     /**
