@@ -176,6 +176,32 @@
                 tools:ignore="SmallSp" />
         </RelativeLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="16dp">
+
+            <Button
+                android:id="@+id/buttonBuild"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:textSize="10sp"
+                android:background="@drawable/button_background"
+                android:text="@string/button_build"
+                android:textColor="@color/text_color" />
+
+            <Button
+                android:id="@+id/buttonDismantle"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:textSize="10sp"
+                android:background="@drawable/button_background"
+                android:text="@string/button_dismantle"
+                android:textColor="@color/text_color" />
+        </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -220,28 +246,7 @@
                     android:textStyle="bold"
                     android:layout_marginStart="8dp"
                     android:gravity="center_vertical" />
-                <Button
-                    android:id="@+id/buttonBuild"
-                    android:layout_width="wrap_content"
-                    android:layout_height="35dp"
-                    android:textSize="10sp"
-                    android:layout_toRightOf="@id/soldierHealthBar"
-                    android:layout_marginLeft="12dp"
-                    android:background="@drawable/button_background"
-                    android:text="@string/button_build"
-                    android:textColor="@color/text_color"
-                    tools:ignore="SmallSp" />
-                <Button
-                    android:id="@+id/buttonDismantle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="35dp"
-                    android:textSize="10sp"
-                    android:layout_toRightOf="@id/buttonBuild"
-                    android:layout_marginLeft="12dp"
-                    android:background="@drawable/button_background"
-                    android:text="@string/button_dismantle"
-                    android:textColor="@color/text_color"
-                    tools:ignore="SmallSp" />
+
             </RelativeLayout>
 
 
