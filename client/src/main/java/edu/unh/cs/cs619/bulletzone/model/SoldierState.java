@@ -18,7 +18,9 @@ public class SoldierState  implements State{
     public SoldierState(Map<String, Button> buttons) {
         this.buttons = buttons;
         //Disable Builder actions and eject
-        buttons.get("BUILD").setEnabled(false);
+        buttons.get("BUILD_WALL").setEnabled(false);
+        buttons.get("BUILD_ROAD").setEnabled(false);
+        buttons.get("BUILD_DECK").setEnabled(false);
         buttons.get("DISMANTLE").setEnabled(false);
         buttons.get("EJECT").setEnabled(false);
     }

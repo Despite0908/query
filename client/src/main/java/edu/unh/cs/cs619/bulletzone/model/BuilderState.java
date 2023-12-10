@@ -20,7 +20,9 @@ public class BuilderState implements State{
         //disable eject
         buttons.get("EJECT").setEnabled(false);
         //enable builder actions
-        buttons.get("BUILD").setEnabled(true);
+        buttons.get("BUILD_WALL").setEnabled(true);
+        buttons.get("BUILD_ROAD").setEnabled(true);
+        buttons.get("BUILD_DECK").setEnabled(true);
         buttons.get("DISMANTLE").setEnabled(true);
     }
 

@@ -23,7 +23,7 @@ public abstract class PlayerToken extends FieldEntity{
 
     private Direction direction;
     private Player player;
-    int accountID;
+    private int accountID;
 
 
     /**
@@ -91,7 +91,7 @@ public abstract class PlayerToken extends FieldEntity{
         checkNotNull(parent.getNeighbor(direction), "Neighbor is not available");
 
         //Check for walls
-        if (nextField.isImproved() && nextField.getImprovement().isSolid()) {
+        if (nextField.isImproved() && !nextField.getImprovement().canMoveInto(this)) {
             return 0;
         }
 

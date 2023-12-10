@@ -72,7 +72,7 @@ public class BulletTimer extends TimerTask {
 
             //Checking for Walls
             //TODO: Nick Find a way to remove walls on events
-            if (nextField.isImproved() && nextField.getImprovement().isSolid()) {
+            if (nextField.isImproved() && !nextField.getImprovement().canMoveInto(token)) {
                 Improvement wall = nextField.getImprovement();
                 if (wall.getIntValue() >1000 && wall.getIntValue()<=2000 ){
                     nextField.clearImprovement();

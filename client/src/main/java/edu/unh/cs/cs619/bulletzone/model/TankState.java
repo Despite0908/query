@@ -17,8 +17,10 @@ public class TankState  implements State{
      */
     public TankState(Map<String, Button> buttons) {
         this.buttons = buttons;
-        //disable builder extra actions
-        buttons.get("BUILD").setEnabled(false);
+        //disable builder actions
+        buttons.get("BUILD_WALL").setEnabled(false);
+        buttons.get("BUILD_ROAD").setEnabled(false);
+        buttons.get("BUILD_DECK").setEnabled(false);
         buttons.get("DISMANTLE").setEnabled(false);
         //enable firing and ejecting
         buttons.get("EJECT").setEnabled(true);

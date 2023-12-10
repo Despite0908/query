@@ -238,12 +238,14 @@ public class ClientActivity extends Activity {
 
         buttons = new HashMap<>();
         buttons.put("UP", (Button) findViewById(R.id.buttonUp));
-        buttons.put("DOWN", (Button) findViewById(R.id.buttonLeft));
+        buttons.put("LEFT", (Button) findViewById(R.id.buttonLeft));
         buttons.put("RIGHT", (Button) findViewById(R.id.buttonRight));
         buttons.put("DOWN", (Button) findViewById(R.id.buttonDown));
         buttons.put("FIRE", (Button) findViewById(R.id.buttonFire));
         buttons.put("EJECT", (Button) findViewById(R.id.buttonEject));
-        buttons.put("BUILD", (Button) findViewById(R.id.buttonBuild));
+        buttons.put("BUILD_WALL", (Button) findViewById(R.id.buttonBuildWall));
+        buttons.put("BUILD_ROAD", (Button) findViewById(R.id.buttonBuildRoad));
+        buttons.put("BUILD_DECK", (Button) findViewById(R.id.buttonBuildDeck));
         buttons.put("DISMANTLE", (Button) findViewById(R.id.buttonDismantle));
         //create inital state
         tankControl.setState(new TankState(buttons));
@@ -369,6 +371,24 @@ public class ClientActivity extends Activity {
                 v.setText(getResources().getString(R.string.switch_soldier));
             }
         }
+    }
+
+    @Click(R.id.buttonBuildRoad)
+    @Background
+    public void buildRoad() {
+        tankControl.build((byte) 0);
+    }
+
+    @Click(R.id.buttonBuildWall)
+    @Background
+    public void buildWall() {
+        tankControl.build((byte) 1);
+    }
+
+    @Click(R.id.buttonBuildDeck)
+    @Background
+    public void buildDock() {
+        tankControl.build((byte) 2);
     }
 
     @Click(R.id.buttonLeave)

@@ -61,7 +61,7 @@ public class ItemSpawnTimer extends TimerTask {
 
                 if (createdRanNum < probability) {
                     while(!successFlag) {
-                        if (!fieldElement.isPresent() && !(fieldElement.isImproved() && fieldElement.getImprovement().isSolid())) {
+                        if (!fieldElement.isPresent() && !fieldElement.isImproved()) {
                             Item myTestItem = new Item(idGenerator.getAndIncrement(), randomItem(), randomPlace);
                             fieldElement.setFieldEntity(myTestItem);
                             myTestItem.setParent(fieldElement);

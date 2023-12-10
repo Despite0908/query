@@ -180,16 +180,34 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center"
+            android:gravity="left"
             android:layout_marginBottom="16dp">
 
             <Button
-                android:id="@+id/buttonBuild"
+                android:id="@+id/buttonBuildWall"
                 android:layout_width="wrap_content"
                 android:layout_height="35dp"
                 android:textSize="10sp"
                 android:background="@drawable/button_background"
-                android:text="@string/button_build"
+                android:text="@string/button_buildWall"
+                android:textColor="@color/text_color" />
+
+            <Button
+                android:id="@+id/buttonBuildRoad"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:textSize="10sp"
+                android:background="@drawable/button_background"
+                android:text="@string/button_buildRoad"
+                android:textColor="@color/text_color" />
+
+            <Button
+                android:id="@+id/buttonBuildDeck"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:textSize="10sp"
+                android:background="@drawable/button_background"
+                android:text="@string/button_buildDock"
                 android:textColor="@color/text_color" />
 
             <Button

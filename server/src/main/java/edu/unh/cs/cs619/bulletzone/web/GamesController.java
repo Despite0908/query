@@ -165,6 +165,14 @@ class GamesController {
         return HttpStatus.OK;
     }
 
+    @RequestMapping(method = RequestMethod.PUT, value = "{builderId}/build/{improvementType}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    ResponseEntity<BooleanWrapper> build(@PathVariable long builderId, @PathVariable byte improvementType)
+            throws TokenDoesNotExistException, LimitExceededException, IllegalTransitionException {
+        boolean result = gameRepository.build(builderId, improvementType);
+        return new ResponseEntity<>(new BooleanWrapper(result), HttpStatus.OK);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     String handleBadRequests(Exception e) {

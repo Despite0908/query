@@ -80,6 +80,9 @@ public class MapLoader {
         try {
             terrainPosMap.put(Terrain.Forest, new JSONObject(str).getJSONArray("forest"));
         } catch (JSONException ignored) {}
+        try {
+            terrainPosMap.put(Terrain.Water, new JSONObject(str).getJSONArray("water"));
+        } catch (JSONException ignored) {}
 
         for (Terrain t: terrainPosMap.keySet()) {
             JSONArray curArr = terrainPosMap.get(t);

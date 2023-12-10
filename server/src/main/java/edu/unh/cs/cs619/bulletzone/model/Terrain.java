@@ -1,7 +1,7 @@
 package edu.unh.cs.cs619.bulletzone.model;
 
 public enum Terrain {
-    Normal, Rocky, Hilly, Forest;
+    Normal, Rocky, Hilly, Forest, Water;
 
     public static Terrain fromByte(byte directionByte) {
         Terrain terrain = null;
@@ -19,10 +19,9 @@ public enum Terrain {
             case 6:
                 terrain = Forest;
                 break;
-
+            case 8:
+                terrain = Water;
             default:
-                // TODO Log unknown direction
-//                Log.d("Unknown direction", "Direction equal to: " + direction);
                 break;
         }
 
@@ -39,6 +38,8 @@ public enum Terrain {
                 return 4;
             case Forest:
                 return 6;
+            case Water:
+                return 8;
             default:
                 return -1;
         }

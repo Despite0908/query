@@ -1,12 +1,22 @@
 package edu.unh.cs.cs619.bulletzone.model.entities;
 
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
+
 import edu.unh.cs.cs619.bulletzone.model.BulletTracker;
 import edu.unh.cs.cs619.bulletzone.model.Direction;
+import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
 import edu.unh.cs.cs619.bulletzone.model.Game;
 import edu.unh.cs.cs619.bulletzone.model.Player;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
 import edu.unh.cs.cs619.bulletzone.model.Terrain;
+import edu.unh.cs.cs619.bulletzone.model.improvements.Deck;
+import edu.unh.cs.cs619.bulletzone.model.improvements.Improvement;
+import edu.unh.cs.cs619.bulletzone.model.improvements.ImprovementMapper;
+import edu.unh.cs.cs619.bulletzone.model.improvements.Road;
+import edu.unh.cs.cs619.bulletzone.model.improvements.Wall;
 
 /**
  * Builder token. Spawned in with item, can do normal token actions as well as "hit"
@@ -14,6 +24,10 @@ import edu.unh.cs.cs619.bulletzone.model.Terrain;
  * @author Anthony Papetti
  */
 public class Builder extends PlayerToken {
+
+    private boolean isBuilding;
+
+    private Timer buildTimer;
 
     /**
      * Constructor. Handles values not set in PlayerToken.
@@ -29,6 +43,8 @@ public class Builder extends PlayerToken {
         setAllowedMoveInterval(250);
         setAllowedFireInterval(500);
         setBulletTracker(new BulletTracker(this, 256));
+        isBuilding = false;
+        buildTimer = new Timer();
     }
 
     /**
@@ -40,12 +56,18 @@ public class Builder extends PlayerToken {
      */
     @Override
     public boolean canMove(long millis, Direction direction) {
+        //cannot move while building
+        if (isBuilding) {
+            return false;
+        }
         //Can enter forest
-        //Entering hilly terrain takes 50% longer
+        //Entering hilly terrain takes 50% longer, water takes 100% longer
         Terrain nextTerrain = getParent().getNeighbor(direction).getTerrain();
         long lastMoveTime = getLastMoveTime();
         if (nextTerrain == Terrain.Hilly) {
             millis = millis - (getAllowedMoveInterval() / 2);
+        } else if (nextTerrain == Terrain.Water) {
+            millis = millis - (getAllowedMoveInterval());
         }
         System.out.printf("System: %d, Against: %d\n", millis, lastMoveTime);
         if (millis < getLastMoveTime()) {
@@ -67,6 +89,10 @@ public class Builder extends PlayerToken {
      */
     @Override
     public boolean canTurn(long millis, Direction direction) {
+        //cannot turn while building
+        if (isBuilding) {
+            return false;
+        }
         if (millis < getLastMoveTime()) {
             return false;
         }
@@ -107,7 +133,7 @@ public class Builder extends PlayerToken {
 
     @Override
     public FieldEntity copy() {
-        return new Builder(getId(), getPlayer(), getIp(), accountID);
+        return new Builder(getId(), getPlayer(), getIp(), getAccountID());
     }
 
     @Override
@@ -169,5 +195,62 @@ public class Builder extends PlayerToken {
             return true;
         }
         return false;
+    }
+
+    public boolean canBuild(ImprovementMapper mapper) {
+        //If already building
+        if (isBuilding) {
+            return false;
+        }
+        FieldHolder parent = getParent();
+        //get holder behind builder
+        FieldHolder behind = parent.getNeighbor(Direction.opposite(getDirection()));
+        //If entity or improvement already there
+        if (behind.isPresent() || behind.isImproved()) {
+            return false;
+        }
+        //If creating dock and terrain not water
+        if (mapper == ImprovementMapper.Deck && behind.getTerrain() != Terrain.Water) {
+            return false;
+        } else if (mapper != ImprovementMapper.Deck && behind.getTerrain() == Terrain.Water) {
+            return false;
+        }
+        return true;
+    }
+
+    public void startBuilding(ImprovementMapper mapper) {
+        FieldHolder parent = getParent();
+        //get holder behind builder
+        FieldHolder behind = parent.getNeighbor(Direction.opposite(getDirection()));
+        isBuilding = true;
+        //Create improvement & spend credits
+        Improvement improvement = mapImprovement(mapper);
+        if (!improvement.buyImprovement(getAccountID())) {
+            return;
+        }
+        //set timer for building
+        byte time = 2;
+        if (behind.getTerrain() == Terrain.Normal || behind.getTerrain() == Terrain.Water) {
+            time = 1;
+        }
+        buildTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                //Place the improvement
+                behind.setImprovement(improvement);
+                isBuilding = false;
+            }
+        }, TimeUnit.SECONDS.toMillis(time));
+        //TODO: ADD EVENT (Low priority, we're never finishing event system)
+    }
+
+    private Improvement mapImprovement(ImprovementMapper mapper) {
+        if (mapper == ImprovementMapper.Road) {
+            return new Road();
+        } else if (mapper == ImprovementMapper.Deck) {
+            return new Deck();
+        } else {
+            return new Wall(-1, 1000);
+        }
     }
 }
