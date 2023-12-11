@@ -25,6 +25,8 @@ public interface GameRepository {
     boolean fire(long tankId, int strength)
             throws TokenDoesNotExistException, LimitExceededException;
 
+    public boolean build(long builderId, byte improvementType);
+
     public void leave(long tankId)
             throws TokenDoesNotExistException;
 

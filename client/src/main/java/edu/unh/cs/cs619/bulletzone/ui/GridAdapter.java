@@ -176,8 +176,14 @@ public class GridAdapter extends BaseAdapter {
                     imageView.setImageResource(R.drawable.tile_hilly);
                 } else if (val == 4) {
                     imageView.setImageResource(R.drawable.tile_rocky);
-                } else {
+                } else if (val == 6) {
                     imageView.setImageResource(R.drawable.tile_forest);
+                } else if (val == 8) {
+                    imageView.setImageResource(R.drawable.tile_water);
+                } else if (val == 50) {
+                    imageView.setImageResource(R.drawable.tile_dock);
+                } else if (val == 100) {
+                    imageView.setImageResource(R.drawable.tile_road);
                 }
             } else {
                 imageView.setImageResource(R.drawable.tile_grass);

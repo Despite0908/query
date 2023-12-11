@@ -47,4 +47,10 @@ public enum Direction {
                 return -1;
         }
     }
+
+    public static Direction opposite(Direction direction) {
+        byte dirByte = toByte(direction);
+        dirByte = (byte) ((dirByte + 4) % 8);
+        return fromByte(dirByte);
+    }
 }

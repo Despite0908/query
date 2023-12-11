@@ -1,5 +1,13 @@
 package edu.unh.cs.cs619.bulletzone.model.improvements;
 
+import edu.unh.cs.cs619.bulletzone.model.BankLinker;
+import edu.unh.cs.cs619.bulletzone.model.entities.PlayerToken;
+
+/**
+ * Wall improvement. Acts as obstacle for units to move around
+ * @author Anthony Papetti
+ */
+
 public class Wall extends Improvement {
     int destructValue, pos;
 
@@ -28,7 +36,17 @@ public class Wall extends Improvement {
     }
 
     @Override
-    public boolean isSolid() {
-        return true;
+    public boolean canMoveInto(PlayerToken token) {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @param accountId ID of the account that will buy the improvement.
+     * @return {@inheritDoc}
+     */
+    @Override
+    public boolean buyImprovement(int accountId) {
+        return BankLinker.spendCredits(accountId, 100);
     }
 }

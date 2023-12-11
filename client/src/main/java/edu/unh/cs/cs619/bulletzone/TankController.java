@@ -237,6 +237,10 @@ public class TankController {
         return moveResult;
     }
 
+    public void build(byte improvementType) {
+        restClient.build(getCurrentUnitId(), improvementType);
+    }
+
     /**
      * Interacts with the RestClient to fire a bullet from the tank that the user is currently
      * controlling.
@@ -291,6 +295,7 @@ public class TankController {
         direction = 0;
         soldierDirection = 0;
         soldierId = -1;
+        builderFocus = false;
     }
 
     /**

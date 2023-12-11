@@ -8,17 +8,7 @@ public abstract class Improvement {
      * Can a token move into a space with the improvement?
      * @return True if a token can, false if it can't.
      */
-    public boolean isSolid() {
-        return false;
-    }
-
-    /**
-     * Applies effects to token that has moved into space with improvement.
-     * @param token Token for effects to be applied to.
-     */
-    public void moveInto(PlayerToken token) {
-        return;
-    }
+    public abstract boolean canMoveInto(PlayerToken token);
 
     /**
      * Applies changes to timestamp to make movement slower or faster.
@@ -46,4 +36,11 @@ public abstract class Improvement {
      * @return Copy of improvement
      */
     public abstract Improvement copy();
+
+    /**
+     * Subtracts the cost of the improvement from the user's account.
+     * @param accountId ID of the account that will buy the improvement.
+     * @return Returns false if not enough credits in account. Returns true otherwise.
+     */
+    public abstract boolean buyImprovement(int accountId);
 }

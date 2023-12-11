@@ -71,7 +71,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="#FFFFFF"
+            android:background="#000000"
             android:numColumns="16"
             tools:listitem="@layout/field_item" />
 
@@ -87,7 +87,7 @@
                 android:layout_height="35dp"
                 android:textSize="10sp"
                 android:layout_alignParentStart="true"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="15dp"
                 android:background="@drawable/button_background"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
@@ -102,7 +102,7 @@
                 android:textSize="10sp"
                 android:layout_below="@+id/buttonLeft"
                 android:layout_alignParentStart="true"
-                android:layout_marginTop="14dp"
+                android:layout_marginTop="20dp"
                 android:background="@drawable/button_background"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
@@ -115,7 +115,7 @@
                 android:layout_height="35dp"
                 android:textSize="10sp"
                 android:layout_alignParentRight="true"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="15dp"
                 android:background="@drawable/button_background"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
@@ -130,7 +130,7 @@
                 android:textSize="10sp"
                 android:layout_below="@+id/buttonRight"
                 android:layout_alignParentRight="true"
-                android:layout_marginTop="14dp"
+                android:layout_marginTop="10dp"
                 android:background="@drawable/button_background"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
@@ -142,7 +142,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="35dp"
                 android:textSize="10sp"
-                android:layout_marginLeft="12dp"
+                android:layout_marginLeft="20dp"
                 android:layout_toRightOf="@+id/buttonLeft"
                 android:background="@drawable/button_background"
                 android:text="@string/fire"
@@ -155,7 +155,7 @@
                 android:layout_height="35dp"
                 android:textSize="10sp"
                 android:layout_toRightOf="@id/buttonFire"
-                android:layout_marginLeft="12dp"
+                android:layout_marginLeft="60dp"
                 android:background="@drawable/button_background"
                 android:text="EJECT"
                 android:textColor="@color/text_color"
@@ -180,16 +180,34 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center"
+            android:gravity="left"
             android:layout_marginBottom="16dp">
 
             <Button
-                android:id="@+id/buttonBuild"
+                android:id="@+id/buttonBuildWall"
                 android:layout_width="wrap_content"
                 android:layout_height="35dp"
                 android:textSize="10sp"
                 android:background="@drawable/button_background"
-                android:text="@string/button_build"
+                android:text="@string/button_buildWall"
+                android:textColor="@color/text_color" />
+
+            <Button
+                android:id="@+id/buttonBuildRoad"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:textSize="10sp"
+                android:background="@drawable/button_background"
+                android:text="@string/button_buildRoad"
+                android:textColor="@color/text_color" />
+
+            <Button
+                android:id="@+id/buttonBuildDeck"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:textSize="10sp"
+                android:background="@drawable/button_background"
+                android:text="@string/button_buildDock"
                 android:textColor="@color/text_color" />
 
             <Button

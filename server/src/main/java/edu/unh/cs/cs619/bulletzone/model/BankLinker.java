@@ -9,6 +9,7 @@ import edu.unh.cs.cs619.bulletzone.repository.DataRepository;
 
 /**
  * links to BulletZoneData for purposes of updating the number of credits in the account.
+ * @author Anthony Papetti
  */
 public class BankLinker {
 
@@ -69,6 +70,10 @@ public class BankLinker {
         try {
             Collection<BankAccount> accounts = user.getOwnedAccounts();
             BankAccount ba = accounts.iterator().next();
+            double balance = ba.getBalance();
+            if (credits > balance) {
+                return false;
+            }
             data.accounts.modifyBalance(ba, -credits);
         } catch (NullPointerException e) {
             System.out.println("Error: Adding coins, user not found");
@@ -77,4 +82,7 @@ public class BankLinker {
         return true;
     }
 
+    public void seamBZData(DataRepository dataRepo) {
+        data = dataRepo.getbzData();
+    }
 }

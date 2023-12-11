@@ -32,6 +32,7 @@ import edu.unh.cs.cs619.bulletzone.model.ServerEvents.FireEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.GridEvent;
 import edu.unh.cs.cs619.bulletzone.model.entities.Tank;
 import edu.unh.cs.cs619.bulletzone.model.exceptions.TokenDoesNotExistException;
+import edu.unh.cs.cs619.bulletzone.model.improvements.ImprovementMapper;
 
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -317,7 +318,7 @@ public class InMemoryGameRepository implements GameRepository {
             FieldHolder holder = null;
             for (Direction dir: Direction.values()) {
                 FieldHolder neighbor = parent.getNeighbor(dir);
-                if (!neighbor.isPresent() && !(neighbor.isImproved() && neighbor.getImprovement().isSolid())) {
+                if (!neighbor.isPresent() && !(neighbor.isImproved() && !neighbor.getImprovement().canMoveInto(tank))) {
                     holder = neighbor;
                     break;
                 }
@@ -460,6 +461,7 @@ public class InMemoryGameRepository implements GameRepository {
             parent.clearField();
             String ip = tank.getIp();
             game.removeTank(tankId);
+            tank.cashInPowerUps();
             eventHistory.addEvent(new TokenLeaveEvent(tank.getId(), tank.getIntValue()));
             //Remove soldier if it exists
             Soldier soldier = tank.getPlayer().getSoldier();
@@ -563,4 +565,25 @@ public class InMemoryGameRepository implements GameRepository {
         }
     }
 
+    /**
+     * Checks constraints and builds the requested improvement.
+     * @param builderId The ID of the builder unit that is building the improvement.
+     * @param improvementType The type of improvement that is being built.
+     * @return Whether the improvement was successfully built.
+     */
+    public boolean build(long builderId, byte improvementType) {
+        synchronized (monitor) {
+            // Find builder
+            Builder token = game.getBuilders().get(builderId);
+            if (token == null) {
+                return false;
+            }
+            //constraints
+            if (!token.canBuild(ImprovementMapper.fromByte(improvementType))) {
+                return false;
+            }
+            token.startBuilding(ImprovementMapper.fromByte(improvementType));
+            return true;
+        }
+    }
 }

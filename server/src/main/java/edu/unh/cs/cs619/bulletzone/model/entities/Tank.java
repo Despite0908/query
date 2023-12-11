@@ -57,11 +57,11 @@ public class Tank extends PlayerToken {
      */
     @Override
     public boolean canMove(long millis, Direction direction) {
-        //Cannot enter forest
+        //Cannot enter forest or water
         //Entering hilly terrain takes 50% longer
         Terrain nextTerrain = getParent().getNeighbor(direction).getTerrain();
         long lastMoveTime = getLastMoveTime();
-        if (nextTerrain == Terrain.Forest) {
+        if (nextTerrain == Terrain.Forest || nextTerrain == Terrain.Water) {
             return false;
         } else if (nextTerrain == Terrain.Hilly) {
             millis = millis - (getAllowedMoveInterval() / 2);
@@ -126,7 +126,7 @@ public class Tank extends PlayerToken {
 
     @Override
     public FieldEntity copy() {
-        return new Tank(getId(), getPlayer(), getIp(), accountID);
+        return new Tank(getId(), getPlayer(), getIp(), getAccountID());
     }
 
     /**

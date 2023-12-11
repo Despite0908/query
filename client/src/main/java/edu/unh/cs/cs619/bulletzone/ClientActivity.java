@@ -152,9 +152,6 @@ public class ClientActivity extends Activity {
         Log.d("MyActivity", "onResume called");
         healthPollerTask.setIds(tankControl.getTankId(), tankControl.getSoldierId(), tankControl.getBuilderId());
         healthPollerTask.doPoll();
-        //Toast.makeText(ClientActivity.this, "tank id is " + tankControl.getTankId(), Toast.LENGTH_SHORT).show();
-        //Toast.makeText(ClientActivity.this, "soldier id is " + tankControl.getSoldierId(), Toast.LENGTH_SHORT).show();
-        //Toast.makeText(ClientActivity.this, "builder id is " + tankControl.getBuilderId(), Toast.LENGTH_SHORT).show();
         if (cachedID != user.getId()) {
             //login has changed, change UI
             cachedID = user.getId();
@@ -183,7 +180,7 @@ public class ClientActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        healthPollerTask.stopPolling();
+        //healthPollerTask.stopPolling();
 
     }
 
@@ -238,12 +235,14 @@ public class ClientActivity extends Activity {
 
         buttons = new HashMap<>();
         buttons.put("UP", (Button) findViewById(R.id.buttonUp));
-        buttons.put("DOWN", (Button) findViewById(R.id.buttonLeft));
+        buttons.put("LEFT", (Button) findViewById(R.id.buttonLeft));
         buttons.put("RIGHT", (Button) findViewById(R.id.buttonRight));
         buttons.put("DOWN", (Button) findViewById(R.id.buttonDown));
         buttons.put("FIRE", (Button) findViewById(R.id.buttonFire));
         buttons.put("EJECT", (Button) findViewById(R.id.buttonEject));
-        buttons.put("BUILD", (Button) findViewById(R.id.buttonBuild));
+        buttons.put("BUILD_WALL", (Button) findViewById(R.id.buttonBuildWall));
+        buttons.put("BUILD_ROAD", (Button) findViewById(R.id.buttonBuildRoad));
+        buttons.put("BUILD_DECK", (Button) findViewById(R.id.buttonBuildDeck));
         buttons.put("DISMANTLE", (Button) findViewById(R.id.buttonDismantle));
         //create inital state
         tankControl.setState(new TankState(buttons));
@@ -336,7 +335,10 @@ public class ClientActivity extends Activity {
     protected void onButtonEject() {
         tankControl.eject(tankControl.getTankId());
         mGridAdapter.setPlayerSoldierId(tankControl.getSoldierId());
-        //Log.d("soldier", "soldier id is " + tankControl.getSoldierId());
+        //Reset ID's now that Soldier ID has been set to a non default value
+        healthPollerTask.setIds(tankControl.getTankId(), tankControl.getSoldierId(), tankControl.getBuilderId());
+        healthPollerTask.setShouldPollSoldierHealth(true);
+        Log.d("soldier", "soldier id is " + tankControl.getSoldierId());
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -371,6 +373,24 @@ public class ClientActivity extends Activity {
         }
     }
 
+    @Click(R.id.buttonBuildRoad)
+    @Background
+    public void buildRoad() {
+        tankControl.build((byte) 0);
+    }
+
+    @Click(R.id.buttonBuildWall)
+    @Background
+    public void buildWall() {
+        tankControl.build((byte) 1);
+    }
+
+    @Click(R.id.buttonBuildDeck)
+    @Background
+    public void buildDock() {
+        tankControl.build((byte) 2);
+    }
+
     @Click(R.id.buttonLeave)
     @Background
     void leaveGame() {
@@ -397,7 +417,9 @@ public class ClientActivity extends Activity {
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         System.out.println("leaveGame() called, tank ID: "+tankControl.getTankId());
                                         BackgroundExecutor.cancelAll("grid_poller_task", true);
+                                        //gridPollTask.stopPolling();
                                         tankControl.leaveAsync();
+
                                         //ClientActivity.super.onBackPressed();
                                     }
                                 })

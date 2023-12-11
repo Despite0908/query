@@ -2,6 +2,10 @@ package edu.unh.cs.cs619.bulletzone.model.entities;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.unh.cs.cs619.bulletzone.model.BankLinker;
 import edu.unh.cs.cs619.bulletzone.model.BulletTracker;
 import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
@@ -23,7 +27,9 @@ public abstract class PlayerToken extends FieldEntity{
 
     private Direction direction;
     private Player player;
-    int accountID;
+    private int accountID;
+
+    List<Item> heldItems;
 
 
     /**
@@ -41,6 +47,7 @@ public abstract class PlayerToken extends FieldEntity{
         lastFireTime = 0;
         lastMoveTime = 0;
         this.accountID = accountID;
+        heldItems = new ArrayList<>();
     }
 
     public int getAccountID() {
@@ -91,7 +98,7 @@ public abstract class PlayerToken extends FieldEntity{
         checkNotNull(parent.getNeighbor(direction), "Neighbor is not available");
 
         //Check for walls
-        if (nextField.isImproved() && nextField.getImprovement().isSolid()) {
+        if (nextField.isImproved() && !nextField.getImprovement().canMoveInto(this)) {
             return 0;
         }
 
@@ -243,4 +250,55 @@ public abstract class PlayerToken extends FieldEntity{
     public void movementSpeedAfterAntiGrav() {
         setAllowedMoveInterval(allowedMoveInterval / 2);
     }
+
+    public List<Item> getHeldItems() {
+        return heldItems;
+    }
+
+    /**
+     * Stores power-ups picked up by a player/user. Tracked for cashing in on leave as well as
+     * dropping items
+     * @param newItem Item to add into "heldItems"
+     */
+    public void storePowerUp(Item newItem) {
+        heldItems.add(newItem);
+    }
+
+    /**
+     * Removes power-ups picked up by a player/user that they want to discard. Tracked for both
+     * cashing in as well as removing power-ups to adjacent tiles.
+     * @param removableItem Item to remove from a player's possession.
+     */
+    public void removePowerUp(Item removableItem) {
+        heldItems.remove(removableItem);
+    }
+
+    /**
+     * Cashes in all power-ups in possession of the PlayerToken on leave. Only called in
+     * InMemoryGameRepository's leave function.
+     */
+    public void cashInPowerUps() {
+        for (int i = 0; i < heldItems.size(); i++) {
+            ItemTypes type = heldItems.get(i).getItemType();
+            if (type == ItemTypes.ANTI_GRAV) {
+                BankLinker.addCredits(accountID, 300);
+            } else if (type == ItemTypes.FUSION_REACTOR) {
+                BankLinker.addCredits(accountID, 400);
+            }
+        }
+        heldItems.clear();
+    }
+
+    public void cashInPowerUpsTestFunction(BankLinker testLinker) {
+        for (int i = 0; i < heldItems.size(); i++) {
+            ItemTypes type = heldItems.get(i).getItemType();
+            if (type == ItemTypes.ANTI_GRAV) {
+                testLinker.addCredits(accountID, 300);
+            } else if (type == ItemTypes.FUSION_REACTOR) {
+                testLinker.addCredits(accountID, 400);
+            }
+        }
+        heldItems.clear();
+    }
+
 }

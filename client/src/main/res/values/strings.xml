@@ -16,6 +16,8 @@
     <string name="switch_builder">Switch To Builder</string>
     <string name="switch_tank">Switch To Tank</string>
     <string name="switch_soldier">Switch To Solder</string>
-    <string name="button_build">Build</string>
+    <string name="button_buildWall">Build Wall</string>
+    <string name="button_buildRoad">Build Road</string>
+    <string name="button_buildDock">Build Dock</string>
     <string name="button_dismantle">Wreck</string>
 </resources>
