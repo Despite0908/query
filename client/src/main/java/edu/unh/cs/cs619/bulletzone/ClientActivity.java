@@ -152,9 +152,6 @@ public class ClientActivity extends Activity {
         Log.d("MyActivity", "onResume called");
         healthPollerTask.setIds(tankControl.getTankId(), tankControl.getSoldierId(), tankControl.getBuilderId());
         healthPollerTask.doPoll();
-        //Toast.makeText(ClientActivity.this, "tank id is " + tankControl.getTankId(), Toast.LENGTH_SHORT).show();
-        //Toast.makeText(ClientActivity.this, "soldier id is " + tankControl.getSoldierId(), Toast.LENGTH_SHORT).show();
-        //Toast.makeText(ClientActivity.this, "builder id is " + tankControl.getBuilderId(), Toast.LENGTH_SHORT).show();
         if (cachedID != user.getId()) {
             //login has changed, change UI
             cachedID = user.getId();
@@ -183,7 +180,7 @@ public class ClientActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        healthPollerTask.stopPolling();
+        //healthPollerTask.stopPolling();
 
     }
 
@@ -338,7 +335,10 @@ public class ClientActivity extends Activity {
     protected void onButtonEject() {
         tankControl.eject(tankControl.getTankId());
         mGridAdapter.setPlayerSoldierId(tankControl.getSoldierId());
-        //Log.d("soldier", "soldier id is " + tankControl.getSoldierId());
+        //Reset ID's now that Soldier ID has been set to a non default value
+        healthPollerTask.setIds(tankControl.getTankId(), tankControl.getSoldierId(), tankControl.getBuilderId());
+        healthPollerTask.setShouldPollSoldierHealth(true);
+        Log.d("soldier", "soldier id is " + tankControl.getSoldierId());
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -417,7 +417,9 @@ public class ClientActivity extends Activity {
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         System.out.println("leaveGame() called, tank ID: "+tankControl.getTankId());
                                         BackgroundExecutor.cancelAll("grid_poller_task", true);
+                                        //gridPollTask.stopPolling();
                                         tankControl.leaveAsync();
+
                                         //ClientActivity.super.onBackPressed();
                                     }
                                 })

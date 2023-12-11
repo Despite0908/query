@@ -30,9 +30,22 @@ public class HealthPollerTask {
     private long soldierId;
     private long builderId;
 
+    int soldierHealth = 25;
+
     GridAdapter mGridAdapter;
 
     private volatile boolean isRunning = true;
+
+    private boolean shouldPollSoldierHealth = false;
+
+
+    public void setShouldPollSoldierHealth(boolean shouldPoll) {
+        this.shouldPollSoldierHealth = shouldPoll;
+    }
+
+    public boolean shouldPollSoldierHealth() {
+        return this.shouldPollSoldierHealth;
+    }
 
     @Background(id = "health_poller_task")
     public void doPoll() {
@@ -50,19 +63,18 @@ public class HealthPollerTask {
 
     private void fetchAndUpdateHealth() {
         try {
+
             int tankHealth = restClient.getTankHealth(tankId);
             int builderHealth = restClient.getBuilderHealth(builderId);
-            int soldierHealth = 25;
-            if(soldierId != -1) {
-                soldierHealth = restClient.getSoldierHealth(soldierId);
-            } else {
+            if(shouldPollSoldierHealth) {
+                if (soldierId != -1) {
+                    soldierHealth = restClient.getSoldierHealth(soldierId);
+                } else {
+                    Log.d("Soldier", "id is " + soldierId + " and health is " + soldierHealth);
 
+                }
             }
 
-//            if(!mGridAdapter.isPlayerTankPresent()) {
-//                Log.d("poller", "tank is" + mGridAdapter.isPlayerTankPresent());
-//                stopPolling();
-//            }
 
 
 
