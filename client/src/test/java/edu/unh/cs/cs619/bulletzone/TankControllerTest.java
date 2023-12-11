@@ -107,4 +107,10 @@ public class TankControllerTest {
         controller.afterInject();
         verify(restClient).setRestErrorHandler(controller.bzRestErrorhandler);
     }
+
+    @Test
+    public void eject_inController_callsRestClientEject() {
+        controller.eject(controller.getTankId());
+        verify(restClient).eject(controller.getTankId());
+    }
 }

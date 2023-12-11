@@ -82,4 +82,7 @@ public class BankLinker {
         return true;
     }
 
+    public void seamBZData(DataRepository dataRepo) {
+        data = dataRepo.getbzData();
+    }
 }

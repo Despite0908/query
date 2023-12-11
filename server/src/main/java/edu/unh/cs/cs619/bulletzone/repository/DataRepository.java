@@ -29,12 +29,17 @@ public class DataRepository {
 
     private static DataRepository _instance;
 
-    private DataRepository() {
-        String url = "jdbc:mysql://stman1.cs.unh.edu/cs61906";
-        String username = "oberon";
-        String password = "pibyad2ObIb";
+    private static boolean usingProperURL = true;
 
-        bzdata = new BulletZoneData(url, username, password);
+    private DataRepository() {
+        if (usingProperURL) {
+            String url = "jdbc:mysql://stman1.cs.unh.edu/cs61906";
+            String username = "oberon";
+            String password = "pibyad2ObIb";
+            bzdata = new BulletZoneData(url, username, password);
+        } else {
+            bzdata = new BulletZoneData();
+        }
        //bzdata = new BulletZoneData(); //just use in-memory database
     }
 
@@ -90,5 +95,14 @@ public class DataRepository {
             return bzdata.accounts.getAccount(account.getId()).getBalance();
         }
         return -1;
+    }
+
+    public void seamBZData(BulletZoneData bz) {
+        bzdata = bz;
+    }
+
+    static public DataRepository testingInstance() {
+        usingProperURL = false;
+        return new DataRepository();
     }
 }

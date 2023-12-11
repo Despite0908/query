@@ -461,6 +461,7 @@ public class InMemoryGameRepository implements GameRepository {
             parent.clearField();
             String ip = tank.getIp();
             game.removeTank(tankId);
+            tank.cashInPowerUps();
             eventHistory.addEvent(new TokenLeaveEvent(tank.getId(), tank.getIntValue()));
             //Remove soldier if it exists
             Soldier soldier = tank.getPlayer().getSoldier();

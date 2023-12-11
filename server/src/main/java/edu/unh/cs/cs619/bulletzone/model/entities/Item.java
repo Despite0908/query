@@ -81,12 +81,16 @@ public class Item extends FieldEntity {
         EventHistory.get_instance().addEvent(new TokenLeaveEvent(this.getId(), this.getIntValue()));
         CustomEvent customEvent = new CustomEvent(CustomEventTypes.ANTI_GRAV_PICKUP, this);
         if (getItemType() == ItemTypes.FUSION_REACTOR) {
+            Item addingItem = new Item(this.getId(), ItemTypes.FUSION_REACTOR, this.gridLocation);
             other.numBulletsAfterReactor();
             other.fireRateAfterReactor();
             other.movementSpeedAfterReactor();
+            other.storePowerUp(addingItem);
         } else if (getItemType() == ItemTypes.ANTI_GRAV) {
+            Item addingItem = new Item(this.getId(), ItemTypes.ANTI_GRAV, this.gridLocation);
             other.movementSpeedAfterAntiGrav();
             other.fireRateAfterAntiGrav();
+            other.storePowerUp(addingItem);
         } else if (getItemType() == ItemTypes.COIN) {
             int credits = ThreadLocalRandom.current().nextInt(10, 100 + 1);
             BankLinker.addCredits(other.getAccountID(), credits);
@@ -97,4 +101,10 @@ public class Item extends FieldEntity {
         eventBus.post(customEvent);
         return 1;
     }
+
+//    public boolean droppedBy(PlayerToken other) {
+//        if (!other.heldItems.contains(this)) {
+//            return false;
+//        }
+//    }
 }
