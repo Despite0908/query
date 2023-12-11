@@ -16,7 +16,6 @@ import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
 public class ItemSpawnTimer extends TimerTask {
     Object monitor;
     Game theGame;
-
     AtomicLong idGenerator;
     private static final int FIELD_DIM = 16;
     /**
@@ -90,7 +89,7 @@ public class ItemSpawnTimer extends TimerTask {
      */
     public ItemTypes randomItem() {
         Random randomItemNum = new Random();
-        int randomItem = randomItemNum.nextInt(3) + 1;
+        int randomItem = randomItemNum.nextInt(5) + 1;
         ItemTypes randomItemType = null;
         if (randomItem == 1) {
             //Thingamagig
@@ -101,6 +100,12 @@ public class ItemSpawnTimer extends TimerTask {
         } else if(randomItem == 3) {
             //FusionReactor
             randomItemType = ItemTypes.FUSION_REACTOR;
+        } else if(randomItem == 4) {
+            //FusionReactor
+            randomItemType = ItemTypes.REPAIR_KIT;
+        } else if(randomItem == 5) {
+            //FusionReactor
+            randomItemType = ItemTypes.DEFLECTOR_SHIELD;
         }
         return randomItemType;
     }

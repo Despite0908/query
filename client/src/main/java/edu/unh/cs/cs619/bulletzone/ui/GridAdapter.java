@@ -1,13 +1,11 @@
 package edu.unh.cs.cs619.bulletzone.ui;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.SystemService;
@@ -123,6 +121,12 @@ public class GridAdapter extends BaseAdapter {
 
         synchronized (monitor) {
             if (val > 0) {
+                if (val == 3131) {
+                    imageView.setImageResource(R.drawable.shield);
+                }
+                if (val == 3141) {
+                    imageView.setImageResource(R.drawable.medkit);
+                }
                 if (val == 1000 || (val > 1000 && val <= 2000)) {
                     imageView.setImageResource(R.drawable.crate_metal);
                 } else if (val >= 2000000 && val < 3000000) {
