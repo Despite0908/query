@@ -31,6 +31,11 @@ public class Road extends Improvement{
         return true;
     }
 
+    @Override
+    public long mutateTime(long millis, long interval) {
+        return millis + (interval / 2);
+    }
+
     /**
      * {@inheritDoc}
      * @param accountId ID of the account that will buy the improvement.

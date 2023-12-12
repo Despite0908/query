@@ -15,7 +15,7 @@ public abstract class Improvement {
      * @param millis The "base" timestamp
      * @return The changed timestamp
      */
-    public long mutateTime(long millis) {
+    public long mutateTime(long millis, long interval) {
         return millis;
     }
 

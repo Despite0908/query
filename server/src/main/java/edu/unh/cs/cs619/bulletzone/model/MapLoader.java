@@ -69,6 +69,15 @@ public class MapLoader {
             }
         }
 
+        //String to JSONArray for docks, parse json
+        try {
+            JSONArray dockPos = new JSONObject(str).getJSONArray("docks");
+            for (int i = 0; i < dockPos.length(); i++) {
+                Object holder = dockPos.get(i);
+                g.setDock((Integer) holder);
+            }
+        } catch (Exception ignored) {}
+
         //String to JSONArray for terrain, parse JSON
         Map<Terrain, JSONArray> terrainPosMap = new HashMap<>();
         try {

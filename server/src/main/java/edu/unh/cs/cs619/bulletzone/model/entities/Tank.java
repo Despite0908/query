@@ -5,12 +5,14 @@ import com.google.common.eventbus.EventBus;
 import edu.unh.cs.cs619.bulletzone.events.BusProvider;
 import edu.unh.cs.cs619.bulletzone.model.BulletTracker;
 import edu.unh.cs.cs619.bulletzone.model.Direction;
+import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
 import edu.unh.cs.cs619.bulletzone.model.Game;
 import edu.unh.cs.cs619.bulletzone.model.Player;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BulletHitEvent;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
 import edu.unh.cs.cs619.bulletzone.model.Terrain;
+import edu.unh.cs.cs619.bulletzone.model.improvements.Improvement;
 
 /**
  * Tank Token. Spawned in when the player joins the game. Can do token actions
@@ -59,11 +61,25 @@ public class Tank extends PlayerToken {
     public boolean canMove(long millis, Direction direction) {
         //Cannot enter forest or water
         //Entering hilly terrain takes 50% longer
-        Terrain nextTerrain = getParent().getNeighbor(direction).getTerrain();
+        FieldHolder nextField = getParent().getNeighbor(direction);
+        Terrain nextTerrain = nextField.getTerrain();
+        Improvement i = null;
+        if (nextField.isImproved()) {
+            i = nextField.getImprovement();
+            millis = i.mutateTime(millis, getAllowedMoveInterval());
+        }
         long lastMoveTime = getLastMoveTime();
-        if (nextTerrain == Terrain.Forest || nextTerrain == Terrain.Water) {
+        if (nextTerrain == Terrain.Forest) {
             return false;
-        } else if (nextTerrain == Terrain.Hilly) {
+        } else if (nextTerrain == Terrain.Water) {
+            if (i != null) {
+                if (!i.isDock()) {
+                    return false;
+                }
+            }else {
+                return false;
+            }
+        }else if (nextTerrain == Terrain.Hilly) {
             millis = millis - (getAllowedMoveInterval() / 2);
         }
         System.out.printf("System: %d, Against: %d\n", millis, lastMoveTime);

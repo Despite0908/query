@@ -8,6 +8,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import edu.unh.cs.cs619.bulletzone.model.entities.Item;
 import edu.unh.cs.cs619.bulletzone.model.entities.ItemTypes;
+import edu.unh.cs.cs619.bulletzone.model.improvements.Deck;
+import edu.unh.cs.cs619.bulletzone.model.improvements.Improvement;
 import edu.unh.cs.cs619.bulletzone.model.improvements.Wall;
 
 /**
@@ -18,7 +20,7 @@ import edu.unh.cs.cs619.bulletzone.model.improvements.Wall;
 public class GameBuilder {
     private static final int FIELD_DIM = 16;
 
-    private Map<Integer, Wall> wallMap;
+    private Map<Integer, Improvement> improvementMap;
     private Terrain[] fieldTerrain;
     private ItemTypes[] fieldItems;
     private final AtomicLong idGenerator = new AtomicLong();
@@ -27,7 +29,7 @@ public class GameBuilder {
      * Constructor that initializes a map of entities and an array of terrain.
      */
     public GameBuilder() {
-        this.wallMap = new HashMap<>();
+        this.improvementMap = new HashMap<>();
         fieldTerrain = new Terrain[FIELD_DIM * FIELD_DIM];
         fieldItems = new ItemTypes[FIELD_DIM * FIELD_DIM];
         Arrays.fill(fieldTerrain, Terrain.Normal);
@@ -40,7 +42,7 @@ public class GameBuilder {
      * @return Returns this object
      */
     public GameBuilder setWall(int pos) {
-        wallMap.put(pos, new Wall(pos, 1000));
+        improvementMap.put(pos, new Wall(pos, 1000));
         return this;
     }
 
@@ -51,7 +53,12 @@ public class GameBuilder {
      * @return Returns this object
      */
     public GameBuilder setWall(int pos, int destructVal) {
-        wallMap.put(pos, new Wall(pos, destructVal));
+        improvementMap.put(pos, new Wall(pos, destructVal));
+        return this;
+    }
+
+    public GameBuilder setDock(int pos) {
+        improvementMap.put(pos, new Deck());
         return this;
     }
 
@@ -84,10 +91,10 @@ public class GameBuilder {
     public Game build() {
         Game g = new Game();
         createFieldHolderGrid(g);
-        Iterator<Integer> keys = wallMap.keySet().iterator();
+        Iterator<Integer> keys = improvementMap.keySet().iterator();
         while (keys.hasNext()) {
             Integer curr = keys.next();
-            g.getHolderGrid().get(curr).setImprovement(wallMap.get(curr));
+            g.getHolderGrid().get(curr).setImprovement(improvementMap.get(curr));
         }
         return g;
     }

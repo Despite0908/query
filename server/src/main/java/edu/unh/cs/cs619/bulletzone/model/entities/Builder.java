@@ -62,12 +62,24 @@ public class Builder extends PlayerToken {
         }
         //Can enter forest
         //Entering hilly terrain takes 50% longer, water takes 100% longer
-        Terrain nextTerrain = getParent().getNeighbor(direction).getTerrain();
+        FieldHolder nextField = getParent().getNeighbor(direction);
+        Terrain nextTerrain = nextField.getTerrain();
+        Improvement i = null;
+        if (nextField.isImproved()) {
+            i = nextField.getImprovement();
+            millis = i.mutateTime(millis, getAllowedMoveInterval());
+        }
         long lastMoveTime = getLastMoveTime();
         if (nextTerrain == Terrain.Hilly) {
             millis = millis - (getAllowedMoveInterval() / 2);
         } else if (nextTerrain == Terrain.Water) {
-            millis = millis - (getAllowedMoveInterval());
+            if (i != null) {
+                if (!i.isDock()) {
+                    millis = millis - (getAllowedMoveInterval());
+                }
+            } else {
+                millis = millis - (getAllowedMoveInterval());
+            }
         }
         System.out.printf("System: %d, Against: %d\n", millis, lastMoveTime);
         if (millis < getLastMoveTime()) {
@@ -222,12 +234,12 @@ public class Builder extends PlayerToken {
         FieldHolder parent = getParent();
         //get holder behind builder
         FieldHolder behind = parent.getNeighbor(Direction.opposite(getDirection()));
-        isBuilding = true;
         //Create improvement & spend credits
         Improvement improvement = mapImprovement(mapper);
         if (!improvement.buyImprovement(getAccountID())) {
             return;
         }
+        isBuilding = true;
         //set timer for building
         byte time = 2;
         if (behind.getTerrain() == Terrain.Normal || behind.getTerrain() == Terrain.Water) {
