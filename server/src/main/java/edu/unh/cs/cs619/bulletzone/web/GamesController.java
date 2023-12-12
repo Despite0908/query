@@ -169,7 +169,7 @@ class GamesController {
     @ResponseStatus(HttpStatus.OK)
     ResponseEntity<BooleanWrapper> build(@PathVariable long builderId, @PathVariable byte improvementType)
             throws TokenDoesNotExistException, LimitExceededException, IllegalTransitionException {
-        boolean result = gameRepository.build(builderId, improvementType);
+        boolean result = gameRepository.build(builderId, improvementType, false);
         return new ResponseEntity<>(new BooleanWrapper(result), HttpStatus.OK);
     }
 
@@ -177,7 +177,7 @@ class GamesController {
     @ResponseStatus(HttpStatus.OK)
     ResponseEntity<BooleanWrapper> dismantle(@PathVariable long builderId)
             throws TokenDoesNotExistException, LimitExceededException, IllegalTransitionException {
-        boolean result = gameRepository.dismantle(builderId);
+        boolean result = gameRepository.dismantle(builderId, false);
         return new ResponseEntity<>(new BooleanWrapper(result), HttpStatus.OK);
     }
 

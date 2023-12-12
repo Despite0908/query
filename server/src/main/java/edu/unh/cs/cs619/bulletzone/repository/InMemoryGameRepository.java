@@ -569,9 +569,10 @@ public class InMemoryGameRepository implements GameRepository {
      * Checks constraints and builds the requested improvement.
      * @param builderId The ID of the builder unit that is building the improvement.
      * @param improvementType The type of improvement that is being built.
+     * @param debugBuild Whether the action is happening in test mode (builder timer goes off instantly)
      * @return Whether the building was successfully started.
      */
-    public boolean build(long builderId, byte improvementType) {
+    public boolean build(long builderId, byte improvementType, boolean debugBuild) {
         synchronized (monitor) {
             // Find builder
             Builder token = game.getBuilders().get(builderId);
@@ -582,7 +583,7 @@ public class InMemoryGameRepository implements GameRepository {
             if (!token.canBuild(ImprovementMapper.fromByte(improvementType))) {
                 return false;
             }
-            token.startBuilding(ImprovementMapper.fromByte(improvementType));
+            token.startBuilding(ImprovementMapper.fromByte(improvementType), debugBuild);
             return true;
         }
     }
@@ -590,9 +591,10 @@ public class InMemoryGameRepository implements GameRepository {
     /**
      * Checks constraints and destroys improvement if present.
      * @param builderId The ID of the builder unit that is dismantling the improvement.
+     * @param debugBuild Whether the action is happening in test mode (builder timer goes off instantly)
      * @return Whether the dismantling was successfully started.
      */
-    public boolean dismantle(long builderId) {
+    public boolean dismantle(long builderId, boolean debugBuild) {
         synchronized (monitor) {
             // Find builder
             Builder token = game.getBuilders().get(builderId);
@@ -603,7 +605,7 @@ public class InMemoryGameRepository implements GameRepository {
             if (!token.canDismantle()) {
                 return false;
             }
-            token.startDismantle();
+            token.startDismantle(debugBuild);
             return true;
         }
     }
