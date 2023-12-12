@@ -25,7 +25,7 @@ public abstract class PlayerToken extends FieldEntity{
     private int maxLife;
     private int life;
     private BulletTracker bulletTracker;
-    private int medKitTimerCurrentSeconds;
+    private int medKitTimerCurrentSeconds = 0;
     private int medKitTimerMaxSeconds = 120;
     private boolean isDeflectorShieldActive = false;
     private Direction direction;
@@ -33,7 +33,7 @@ public abstract class PlayerToken extends FieldEntity{
     private int accountID;
     private final Timer medKitTimer = new Timer();
     private final Timer deflectorShieldTimer = new Timer();
-    Object monitor;
+    private final Object monitor = new Object();
     List<Item> heldItems;
 
 
@@ -288,11 +288,11 @@ public abstract class PlayerToken extends FieldEntity{
         heldItems.add(newItem);
 
         //Checking if medKit
-        if (medKitTimerCurrentSeconds > 0) {
+        if (newItem.getItemType() == ItemTypes.REPAIR_KIT && getMedKitTimerCurrentSeconds() > 0) {
 
-        } else {
+        } else if (newItem.getItemType() == ItemTypes.REPAIR_KIT) {
             setMedKitTimerCurrentSeconds(medKitTimerMaxSeconds);
-            medKitTimer.schedule(new medKitTimer(monitor, newItem, this), 0, 1000);
+            medKitTimer.schedule(new MedKitTimer(monitor, newItem, this), 0, 1000);
         }
     }
 
