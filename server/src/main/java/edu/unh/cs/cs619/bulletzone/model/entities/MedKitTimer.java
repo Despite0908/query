@@ -8,7 +8,6 @@ public class MedKitTimer extends TimerTask {
     Object monitor;
     PlayerToken token;
     Item itemTimed;
-    Game game;
 
     /**
      * Constructor. Passes values for task.
@@ -28,7 +27,7 @@ public class MedKitTimer extends TimerTask {
      */
     @Override
     public void run() {
-        synchronized (monitor) {
+        synchronized (this.monitor) {
             int currSeconds = token.getMedKitTimerCurrentSeconds();
             if (currSeconds == 0) {
                 // TODO AIDEN Need to trigger backup medkits if any
