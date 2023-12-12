@@ -32,6 +32,7 @@ public class MedKitTimer extends TimerTask {
             if (currSeconds == 0) {
                 // TODO AIDEN Need to trigger backup medkits if any
                 this.cancel();
+                token.processMedKitRemover(itemTimed);
             } else {
                 token.setMedKitTimerCurrentSeconds(currSeconds - 1);
                 if (token.getLife() == token.getMaxLife()) {

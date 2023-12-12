@@ -279,6 +279,20 @@ public abstract class PlayerToken extends FieldEntity{
         return heldItems;
     }
 
+    public void processMedKitRemover(Item medKitRemoved) {
+        heldItems.remove(medKitRemoved);
+
+        for (int i = 0; i < heldItems.size(); i++) {
+            if (heldItems.get(i).getItemType() == ItemTypes.REPAIR_KIT) {
+                //Extra Repair Kit
+                setMedKitTimerCurrentSeconds(0);
+                medKitEffects(heldItems.get(i));
+                break;
+            }
+        }
+    }
+
+
     /**
      * Stores power-ups picked up by a player/user. Tracked for cashing in on leave as well as
      * dropping items
@@ -286,6 +300,14 @@ public abstract class PlayerToken extends FieldEntity{
      */
     public void storePowerUp(Item newItem) {
         heldItems.add(newItem);
+    }
+
+    /**
+     * Stores power-ups picked up by a player/user. Tracked for cashing in on leave as well as
+     * dropping items
+     * @param newItem Item to add into "heldItems"
+     */
+    public void medKitEffects(Item newItem) {
 
         //Checking if medKit
         if (newItem.getItemType() == ItemTypes.REPAIR_KIT && getMedKitTimerCurrentSeconds() > 0) {
