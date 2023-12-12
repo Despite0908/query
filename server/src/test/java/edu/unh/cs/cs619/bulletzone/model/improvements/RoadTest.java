@@ -16,6 +16,8 @@ import java.time.Clock;
 import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
 import edu.unh.cs.cs619.bulletzone.model.entities.Builder;
+import edu.unh.cs.cs619.bulletzone.model.entities.Item;
+import edu.unh.cs.cs619.bulletzone.model.entities.ItemTypes;
 import edu.unh.cs.cs619.bulletzone.model.entities.Soldier;
 import edu.unh.cs.cs619.bulletzone.model.entities.Tank;
 import edu.unh.cs.cs619.bulletzone.repository.InMemoryGameRepository;
@@ -111,4 +113,55 @@ public class RoadTest {
         Assert.assertEquals(repo.move(soldier.getId(), Direction.Up), 0);
     }
 
+    //power up tests
+    @Test
+    public void move_soldierAntiGravMoves250msStep_returns1() throws Exception{
+        when(mockClock.millis()).thenReturn((long)250);
+        Tank tank = repo.join("", -1).getTank();
+
+        Soldier soldier = repo.eject(tank.getId());
+        Item i = new Item(100, ItemTypes.ANTI_GRAV, 0);
+        i.movedIntoBy(soldier);
+
+        FieldHolder next = soldier.getParent().getNeighbor(Direction.Up);
+        next.setImprovement(new Road());
+        next.getNeighbor(Direction.Up).setImprovement(new Road());
+        Assert.assertEquals(repo.move(soldier.getId(), Direction.Up), 1);
+        when(mockClock.millis()).thenReturn((long)500);
+        Assert.assertEquals(repo.move(soldier.getId(), Direction.Up), 1);
+    }
+
+    @Test
+    public void move_soldierFusionMovesTwiceFaster_returnsFalse() throws Exception{
+        when(mockClock.millis()).thenReturn((long)500);
+        Tank tank = repo.join("", -1).getTank();
+
+        Soldier soldier = repo.eject(tank.getId());
+        Item i = new Item(100, ItemTypes.FUSION_REACTOR, 0);
+        i.movedIntoBy(soldier);
+
+        FieldHolder next = soldier.getParent().getNeighbor(Direction.Up);
+        next.setImprovement(new Road());
+        next.getNeighbor(Direction.Up).setImprovement(new Road());
+        Assert.assertEquals(repo.move(soldier.getId(), Direction.Up), 1);
+        when(mockClock.millis()).thenReturn((long)1000);
+        Assert.assertEquals(repo.move(soldier.getId(), Direction.Up), 0);
+    }
+
+    @Test
+    public void move_soldierFusionMoves675msStep_returnsTrue() throws Exception{
+        when(mockClock.millis()).thenReturn((long)625);
+        Tank tank = repo.join("", -1).getTank();
+
+        Soldier soldier = repo.eject(tank.getId());
+        Item i = new Item(100, ItemTypes.FUSION_REACTOR, 0);
+        i.movedIntoBy(soldier);
+
+        FieldHolder next = soldier.getParent().getNeighbor(Direction.Up);
+        next.setImprovement(new Road());
+        next.getNeighbor(Direction.Up).setImprovement(new Road());
+        Assert.assertEquals(repo.move(soldier.getId(), Direction.Up), 1);
+        when(mockClock.millis()).thenReturn((long)1250);
+        Assert.assertEquals(repo.move(soldier.getId(), Direction.Up), 1);
+    }
 }

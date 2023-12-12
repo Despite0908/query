@@ -288,7 +288,7 @@ public class Builder extends PlayerToken {
     /**
      * Updates the users credits and starts the dismantle timer.
      */
-    public void startDismantle() {
+    public void startDismantle(boolean debugBuild) {
         //get holder behind builder
         FieldHolder behind = getParent().getNeighbor(Direction.opposite(getDirection()));
         Improvement i = behind.getImprovement();
@@ -301,23 +301,30 @@ public class Builder extends PlayerToken {
         if (behind.getTerrain() == Terrain.Normal || behind.getTerrain() == Terrain.Water) {
             time = 1;
         }
-        buildTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                //If still dismantling, clear improvement
-                if (isDismantling) {
-                    behind.clearImprovement();
-                    isDismantling = false;
-                }
+        if (debugBuild) {
+            if (isDismantling) {
+                behind.clearImprovement();
+                isDismantling = false;
             }
-        }, TimeUnit.SECONDS.toMillis(time));
+        } else {
+            buildTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    //If still dismantling, clear improvement
+                    if (isDismantling) {
+                        behind.clearImprovement();
+                        isDismantling = false;
+                    }
+                }
+            }, TimeUnit.SECONDS.toMillis(time));
+        }
     }
 
     /**
      * Updates the users credits, creates the new improvement, starts the build timer.
      * @param mapper An enum mapper to the improvement that will be built
      */
-    public void startBuilding(ImprovementMapper mapper) {
+    public void startBuilding(ImprovementMapper mapper, boolean debugBuild) {
         FieldHolder parent = getParent();
         //get holder behind builder
         FieldHolder behind = parent.getNeighbor(Direction.opposite(getDirection()));
@@ -332,14 +339,20 @@ public class Builder extends PlayerToken {
         if (behind.getTerrain() == Terrain.Normal || behind.getTerrain() == Terrain.Water) {
             time = 1;
         }
-        buildTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                //Place the improvement
-                behind.setImprovement(improvement);
-                isBuilding = false;
-            }
-        }, TimeUnit.SECONDS.toMillis(time));
+        if (debugBuild) {
+            //Place the improvement
+            behind.setImprovement(improvement);
+            isBuilding = false;
+        } else {
+            buildTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    //Place the improvement
+                    behind.setImprovement(improvement);
+                    isBuilding = false;
+                }
+            }, TimeUnit.SECONDS.toMillis(time));
+        }
         //TODO: ADD EVENT (Low priority, we're never finishing event system)
     }
 
