@@ -28,7 +28,7 @@ public class Item extends FieldEntity {
 
     @Override
     public int getIntValue() {
-        return (int) (40000000 + 10000 * getId() + 10 * getItemType().getValue());
+        return (int) (40000000 + 10000 * getId() + getItemType().getValue());
     }
 
     /**

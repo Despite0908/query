@@ -121,12 +121,6 @@ public class GridAdapter extends BaseAdapter {
 
         synchronized (monitor) {
             if (val > 0) {
-                if (val == 3131) {
-                    imageView.setImageResource(R.drawable.shield);
-                }
-                if (val == 3141) {
-                    imageView.setImageResource(R.drawable.medkit);
-                }
                 if (val == 1000 || (val > 1000 && val <= 2000)) {
                     imageView.setImageResource(R.drawable.crate_metal);
                 } else if (val >= 2000000 && val < 3000000) {
@@ -153,12 +147,17 @@ public class GridAdapter extends BaseAdapter {
                     // Set rotation based on direction
                     int byteDirection = val % 10;
                     imageView.setRotation(byteDirection * 45);
-                }else if (val >= 40000000 && val < 50000000) {
-                    val = val % 100;
-                    if (val == 30) {
+                } else if (val >= 40000000 && val < 50000000) {
+                    // val % 100 doesn't differentiate sufficiently.
+                    val = val % 10000;
+                    if (val == 2003) {
                         imageView.setImageResource(R.drawable.fusion_reactor);
-                    } else if (val == 20) {
+                    } else if (val == 2002) {
                         imageView.setImageResource(R.drawable.black_hole);
+                    } else if (val == 3131) {
+                        imageView.setImageResource(R.drawable.shield);
+                    } else if (val == 3141) {
+                        imageView.setImageResource(R.drawable.medkit);
                     } else {
                         imageView.setImageResource(R.drawable.gold_coin);
                     }
