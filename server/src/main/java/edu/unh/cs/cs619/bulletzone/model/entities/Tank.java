@@ -38,6 +38,7 @@ public class Tank extends PlayerToken {
         setLife(100);
         setAllowedNumberOfBullets(2);
         setAllowedMoveInterval(500);
+        setMaxLife(100);
         setAllowedFireInterval(500);
         setBulletTracker(new BulletTracker(this, 256));
     }

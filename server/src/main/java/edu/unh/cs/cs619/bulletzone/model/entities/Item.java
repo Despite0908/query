@@ -2,12 +2,14 @@ package edu.unh.cs.cs619.bulletzone.model.entities;
 
 import com.google.common.eventbus.EventBus;
 
+import java.util.Timer;
 import java.util.concurrent.ThreadLocalRandom;
 
 import edu.unh.cs.cs619.bulletzone.events.BusProvider;
 import edu.unh.cs.cs619.bulletzone.events.CustomEvent;
 import edu.unh.cs.cs619.bulletzone.events.CustomEventTypes;
 import edu.unh.cs.cs619.bulletzone.model.BankLinker;
+import edu.unh.cs.cs619.bulletzone.model.BulletTimer;
 import edu.unh.cs.cs619.bulletzone.model.Game;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
@@ -26,9 +28,11 @@ public class Item extends FieldEntity {
         this.setIsItem(true);
     }
 
+
+
     @Override
     public int getIntValue() {
-        return (int) (40000000 + 10000 * getId() + 10 * getItemType().getValue());
+        return (int) (40000000 + 10000 * getId() + getItemType().getValue());
     }
 
     /**
@@ -94,6 +98,17 @@ public class Item extends FieldEntity {
         } else if (getItemType() == ItemTypes.COIN) {
             int credits = ThreadLocalRandom.current().nextInt(10, 100 + 1);
             BankLinker.addCredits(other.getAccountID(), credits);
+        } else if (getItemType() == ItemTypes.DEFLECTOR_SHIELD) {
+            //Implement effects of Deflector Shield
+            Item addingItem = new Item(this.getId(), ItemTypes.DEFLECTOR_SHIELD, this.gridLocation);
+            other.storePowerUp(addingItem);
+
+
+        } else if (getItemType() == ItemTypes.REPAIR_KIT) {
+            //Implement effects of RepairKit
+
+            Item addingItem = new Item(this.getId(), ItemTypes.REPAIR_KIT, this.gridLocation);
+            other.storePowerUp(addingItem);
         }
         // this was working
         // eventBus.post(customEvent);
@@ -101,6 +116,7 @@ public class Item extends FieldEntity {
         eventBus.post(customEvent);
         return 1;
     }
+
 
 //    public boolean droppedBy(PlayerToken other) {
 //        if (!other.heldItems.contains(this)) {
