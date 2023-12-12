@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 
 import edu.unh.cs.cs619.bulletzone.model.BankLinker;
 import edu.unh.cs.cs619.bulletzone.model.BulletTracker;
@@ -21,14 +22,18 @@ public abstract class PlayerToken extends FieldEntity{
     private int  fireInterval;
     private int numberOfBullets;
     private int allowedNumberOfBullets;
-
+    private int maxLife;
     private int life;
     private BulletTracker bulletTracker;
-
+    private int medKitTimerCurrentSeconds;
+    private int medKitTimerMaxSeconds = 120;
+    private boolean isDeflectorShieldActive = false;
     private Direction direction;
     private Player player;
     private int accountID;
-
+    private final Timer medKitTimer = new Timer();
+    private final Timer deflectorShieldTimer = new Timer();
+    Object monitor;
     List<Item> heldItems;
 
 
@@ -173,8 +178,26 @@ public abstract class PlayerToken extends FieldEntity{
         this.fireInterval = allowedFireInterval;
     }
 
+    public int getMedKitTimerCurrentSeconds() {
+        return medKitTimerCurrentSeconds;
+    }
+
+
+    public void setMedKitTimerCurrentSeconds(int seconds) {
+        this.medKitTimerCurrentSeconds = seconds;
+    }
+
+
     public long getLastFireTime() {
         return lastFireTime;
+    }
+
+    public int getMaxLife() {
+        return maxLife;
+    }
+
+    public void setMaxLife(int maxLife) {
+        this.maxLife = maxLife;
     }
 
     public void setLastFireTime(long lastFireTime) {
@@ -251,6 +274,7 @@ public abstract class PlayerToken extends FieldEntity{
         setAllowedMoveInterval(allowedMoveInterval / 2);
     }
 
+
     public List<Item> getHeldItems() {
         return heldItems;
     }
@@ -262,6 +286,14 @@ public abstract class PlayerToken extends FieldEntity{
      */
     public void storePowerUp(Item newItem) {
         heldItems.add(newItem);
+
+        //Checking if medKit
+        if (medKitTimerCurrentSeconds > 0) {
+
+        } else {
+            setMedKitTimerCurrentSeconds(medKitTimerMaxSeconds);
+            medKitTimer.schedule(new medKitTimer(monitor, newItem, this), 0, 1000);
+        }
     }
 
     /**

@@ -39,6 +39,7 @@ public class Builder extends PlayerToken {
     public Builder(long id, Player player, String ip, int accountID) {
         super(id, player, ip, accountID);
         setLife(50);
+        setMaxLife(50);
         setAllowedNumberOfBullets(4);
         setAllowedMoveInterval(250);
         setAllowedFireInterval(500);

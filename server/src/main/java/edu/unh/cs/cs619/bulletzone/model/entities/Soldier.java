@@ -27,6 +27,7 @@ public class Soldier extends PlayerToken{
         setLife(25);
         setAllowedNumberOfBullets(6);
         setAllowedMoveInterval(1000);
+        setMaxLife(25);
         setAllowedFireInterval(250);
         setBulletTracker(new BulletTracker(this, 256));
     }
