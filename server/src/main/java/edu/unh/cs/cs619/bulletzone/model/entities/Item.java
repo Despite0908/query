@@ -102,7 +102,7 @@ public class Item extends FieldEntity {
             //Implement effects of Deflector Shield
             Item addingItem = new Item(this.getId(), ItemTypes.DEFLECTOR_SHIELD, this.gridLocation);
             other.storePowerUp(addingItem);
-
+            other.shieldEffects(addingItem);
 
         } else if (getItemType() == ItemTypes.REPAIR_KIT) {
             //Implement effects of RepairKit

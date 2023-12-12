@@ -282,7 +282,7 @@
 
                 <ProgressBar
                     android:id="@+id/tankHealthBar"
-                    android:layout_width="200dp"
+                    android:layout_width="100dp"
                     android:layout_height="28dp"
                     android:max="100"
                     android:progress="100"
@@ -321,7 +321,7 @@
 
                 <ProgressBar
                     android:id="@+id/shieldHealthBar"
-                    android:layout_width="150dp"
+                    android:layout_width="100dp"
                     android:layout_height="25dp"
                     android:max="50"
                     android:progress="0"
@@ -360,7 +360,7 @@
 
                 <ProgressBar
                     android:id="@+id/builderHealthBar"
-                    android:layout_width="150dp"
+                    android:layout_width="100dp"
                     android:layout_height="25dp"
                     android:max="50"
                     android:progress="50"

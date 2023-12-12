@@ -35,6 +35,7 @@ public abstract class PlayerToken extends FieldEntity{
     private final Timer deflectorShieldTimer = new Timer();
     private final Object monitor = new Object();
     private int shieldHealth = 0;
+    private int shieldMaxHealth = 50;
 
     List<Item> heldItems;
 
@@ -290,13 +291,26 @@ public abstract class PlayerToken extends FieldEntity{
     }
 
     public void processMedKitRemover(Item medKitRemoved) {
-        heldItems.remove(medKitRemoved);
+        removePowerUp(medKitRemoved);
 
         for (int i = 0; i < heldItems.size(); i++) {
             if (heldItems.get(i).getItemType() == ItemTypes.REPAIR_KIT) {
                 //Extra Repair Kit
                 setMedKitTimerCurrentSeconds(0);
                 medKitEffects(heldItems.get(i));
+                break;
+            }
+        }
+    }
+
+    public void processShieldRemover(Item shieldRemoved) {
+        removePowerUp(shieldRemoved);
+
+        for (int i = 0; i < heldItems.size(); i++) {
+            if (heldItems.get(i).getItemType() == ItemTypes.DEFLECTOR_SHIELD) {
+                //Extra Repair Kit
+                setShieldHealth(0);
+                shieldEffects(heldItems.get(i));
                 break;
             }
         }
@@ -325,6 +339,17 @@ public abstract class PlayerToken extends FieldEntity{
         } else if (newItem.getItemType() == ItemTypes.REPAIR_KIT) {
             setMedKitTimerCurrentSeconds(medKitTimerMaxSeconds);
             medKitTimer.schedule(new MedKitTimer(monitor, newItem, this), 0, 1000);
+        }
+    }
+
+    public void shieldEffects(Item newItem) {
+
+        //Checking if medKit
+        if (getShieldHealth() > 0) {
+
+        } else  {
+            setShieldHealth(shieldMaxHealth);
+            deflectorShieldTimer.schedule(new DeflectorShieldTimer(monitor, newItem, this), 0, 1000);
         }
     }
 

@@ -186,37 +186,62 @@ public class Builder extends PlayerToken {
      */
     @Override
     public boolean hit(int damage, Game game) {
-        EventHistory eventHistory = EventHistory.get_instance();
-        int life = getLife() - damage;
-        setLife(life);
 
-        if (life <= 0) {
-            //Remove Builder
-            getParent().clearField();
-            setParent(null);
-            game.removeBuilder(getId());
-            eventHistory.addEvent(new TokenLeaveEvent(getId(), getIntValue()));
+        boolean didShieldProtect = false;
+        for (int i = 0; i < this.heldItems.size(); i++) {
+            if (this.heldItems.get(i).getItemType() == ItemTypes.DEFLECTOR_SHIELD) {
+                didShieldProtect = true;
+                int shieldHealth = this.getShieldHealth();
+                if (shieldHealth - damage <= 0) {
+                    //Damage broke shield
+                    setShieldHealth(0);
+                } else {
+                    //Shield is damaged but not broken
+                    setShieldHealth(shieldHealth - damage);
+                }
+                break;
+            } else {
 
-            //Remove Soldier If exists
-            Soldier s = getPlayer().getSoldier();
-            if (s != null) {
-                s.getParent().clearField();
-                s.setParent(null);
-                game.removeSoldier(s.getId());
-                //Add soldier hit event
-                eventHistory.addEvent(new TokenLeaveEvent(s.getId(), s.getIntValue()));
             }
-
-            //Remove Tank
-            Tank t = getPlayer().getTank();
-            t.getParent().clearField();
-            t.setParent(null);
-            game.removeTank(t.getId());
-            //Add soldier hit event
-            eventHistory.addEvent(new TokenLeaveEvent(t.getId(), t.getIntValue()));
-            return true;
         }
-        return false;
+
+        if (didShieldProtect == false) {
+
+
+            EventHistory eventHistory = EventHistory.get_instance();
+            int life = getLife() - damage;
+            setLife(life);
+
+            if (life <= 0) {
+                //Remove Builder
+                getParent().clearField();
+                setParent(null);
+                game.removeBuilder(getId());
+                eventHistory.addEvent(new TokenLeaveEvent(getId(), getIntValue()));
+
+                //Remove Soldier If exists
+                Soldier s = getPlayer().getSoldier();
+                if (s != null) {
+                    s.getParent().clearField();
+                    s.setParent(null);
+                    game.removeSoldier(s.getId());
+                    //Add soldier hit event
+                    eventHistory.addEvent(new TokenLeaveEvent(s.getId(), s.getIntValue()));
+                }
+
+                //Remove Tank
+                Tank t = getPlayer().getTank();
+                t.getParent().clearField();
+                t.setParent(null);
+                game.removeTank(t.getId());
+                //Add soldier hit event
+                eventHistory.addEvent(new TokenLeaveEvent(t.getId(), t.getIntValue()));
+                return true;
+            }
+            return false;
+        } else {
+            return false;
+        }
     }
 
     /**
