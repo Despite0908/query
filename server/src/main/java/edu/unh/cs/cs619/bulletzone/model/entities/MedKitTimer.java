@@ -2,17 +2,9 @@ package edu.unh.cs.cs619.bulletzone.model.entities;
 
 import java.util.TimerTask;
 
-import edu.unh.cs.cs619.bulletzone.model.Direction;
-import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
 import edu.unh.cs.cs619.bulletzone.model.Game;
-import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BulletHitEvent;
-import edu.unh.cs.cs619.bulletzone.model.ServerEvents.BulletMoveEvent;
-import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
-import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
-import edu.unh.cs.cs619.bulletzone.model.Terrain;
-import edu.unh.cs.cs619.bulletzone.model.improvements.Improvement;
 
-public class medKitTimer extends TimerTask {
+public class MedKitTimer extends TimerTask {
     Object monitor;
     PlayerToken token;
     Item itemTimed;
@@ -24,7 +16,7 @@ public class medKitTimer extends TimerTask {
      * @param token Token bullet is fired from
      * @param itemPassed Bullet to move every step
      */
-    public medKitTimer(Object monitor, Item itemPassed, PlayerToken token) {
+    public MedKitTimer(Object monitor, Item itemPassed, PlayerToken token) {
         super();
         this.monitor = monitor;
         this.token = token;
