@@ -109,6 +109,7 @@ public class Item extends FieldEntity {
 
             Item addingItem = new Item(this.getId(), ItemTypes.REPAIR_KIT, this.gridLocation);
             other.storePowerUp(addingItem);
+            other.medKitEffects(addingItem);
         }
         // this was working
         // eventBus.post(customEvent);

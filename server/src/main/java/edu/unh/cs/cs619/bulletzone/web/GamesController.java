@@ -225,6 +225,16 @@ class GamesController {
         }
     }
 
+    @GetMapping("/tank/shieldHealth/{tankId}")
+    public ResponseEntity<Integer> getTankShieldHealth(@PathVariable long tankId) {
+        try {
+            int shieldHealth = gameRepository.getTankShieldHealth(tankId);
+            return new ResponseEntity<>(shieldHealth, HttpStatus.OK);
+        } catch (TokenDoesNotExistException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @GetMapping("/soldier/health/{soldierId}")
     public ResponseEntity<Integer> getSoldierHealth(@PathVariable long soldierId) {
         try {

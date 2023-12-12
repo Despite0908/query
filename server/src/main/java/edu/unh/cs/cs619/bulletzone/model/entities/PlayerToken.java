@@ -25,7 +25,7 @@ public abstract class PlayerToken extends FieldEntity{
     private int maxLife;
     private int life;
     private BulletTracker bulletTracker;
-    private int medKitTimerCurrentSeconds;
+    private int medKitTimerCurrentSeconds = 0;
     private int medKitTimerMaxSeconds = 120;
     private boolean isDeflectorShieldActive = false;
     private Direction direction;
@@ -33,7 +33,9 @@ public abstract class PlayerToken extends FieldEntity{
     private int accountID;
     private final Timer medKitTimer = new Timer();
     private final Timer deflectorShieldTimer = new Timer();
-    Object monitor;
+    private final Object monitor = new Object();
+    private int shieldHealth = 0;
+
     List<Item> heldItems;
 
 
@@ -200,6 +202,14 @@ public abstract class PlayerToken extends FieldEntity{
         this.maxLife = maxLife;
     }
 
+    public int getShieldHealth() {
+        return shieldHealth;
+    }
+
+    public void setShieldHealth(int shieldHealth) {
+        this.shieldHealth = shieldHealth;
+    }
+
     public void setLastFireTime(long lastFireTime) {
         this.lastFireTime = lastFireTime;
     }
@@ -279,6 +289,20 @@ public abstract class PlayerToken extends FieldEntity{
         return heldItems;
     }
 
+    public void processMedKitRemover(Item medKitRemoved) {
+        heldItems.remove(medKitRemoved);
+
+        for (int i = 0; i < heldItems.size(); i++) {
+            if (heldItems.get(i).getItemType() == ItemTypes.REPAIR_KIT) {
+                //Extra Repair Kit
+                setMedKitTimerCurrentSeconds(0);
+                medKitEffects(heldItems.get(i));
+                break;
+            }
+        }
+    }
+
+
     /**
      * Stores power-ups picked up by a player/user. Tracked for cashing in on leave as well as
      * dropping items
@@ -286,13 +310,21 @@ public abstract class PlayerToken extends FieldEntity{
      */
     public void storePowerUp(Item newItem) {
         heldItems.add(newItem);
+    }
+
+    /**
+     * Stores power-ups picked up by a player/user. Tracked for cashing in on leave as well as
+     * dropping items
+     * @param newItem Item to add into "heldItems"
+     */
+    public void medKitEffects(Item newItem) {
 
         //Checking if medKit
-        if (medKitTimerCurrentSeconds > 0) {
+        if (newItem.getItemType() == ItemTypes.REPAIR_KIT && getMedKitTimerCurrentSeconds() > 0) {
 
-        } else {
+        } else if (newItem.getItemType() == ItemTypes.REPAIR_KIT) {
             setMedKitTimerCurrentSeconds(medKitTimerMaxSeconds);
-            medKitTimer.schedule(new medKitTimer(monitor, newItem, this), 0, 1000);
+            medKitTimer.schedule(new MedKitTimer(monitor, newItem, this), 0, 1000);
         }
     }
 

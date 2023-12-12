@@ -19,7 +19,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
@@ -29,19 +28,12 @@ import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.NonConfigurationInstance;
 import org.androidannotations.annotations.ViewById;
-import org.androidannotations.rest.spring.annotations.Rest;
 import org.androidannotations.rest.spring.annotations.RestService;
-import org.androidannotations.rest.spring.api.RestClientHeaders;
 import org.androidannotations.api.BackgroundExecutor;
-import org.json.JSONException;
-import org.springframework.web.client.RestClientException;
-import org.w3c.dom.Text;
-import java.util.ArrayList;
+
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -108,6 +100,7 @@ public class ClientActivity extends Activity {
     private int tankHealth;
     private int soldierHealth;
     private int builderHealth;
+    private int shieldHealth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -449,7 +442,8 @@ public class ClientActivity extends Activity {
             tankHealth = event.getTankHealth();
             soldierHealth = event.getSoldierHealth();
             builderHealth = event.getBuilderHealth();
-            updateHealthUI(tankHealth, soldierHealth, builderHealth);
+            shieldHealth = event.getShieldHealth();
+            updateHealthUI(tankHealth, soldierHealth, builderHealth, shieldHealth);
         }
     };
 
@@ -459,7 +453,9 @@ public class ClientActivity extends Activity {
         outState.putInt("tankHealth", tankHealth);
         outState.putInt("soldierHealth", soldierHealth);
         outState.putInt("builderHealth", builderHealth);
+        outState.putInt("shieldHealth", shieldHealth);
     }
+
     //TO FIX HEALTH VALUES BEING INCORRECT AFTER ROTATION
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
@@ -468,16 +464,17 @@ public class ClientActivity extends Activity {
             tankHealth = savedInstanceState.getInt("tankHealth", -1);
             soldierHealth = savedInstanceState.getInt("soldierHealth", -1);
             builderHealth = savedInstanceState.getInt("builderHealth", -1);
+            shieldHealth = savedInstanceState.getInt("shieldHealth", -1);
 
             //update UI only if values were saved
-            if (tankHealth != -1 && soldierHealth != -1 && builderHealth != -1) {
-                updateHealthUI(tankHealth, soldierHealth, builderHealth);
+            if (tankHealth != -1 && soldierHealth != -1 && builderHealth != -1 && shieldHealth != -1) {
+                updateHealthUI(tankHealth, soldierHealth, builderHealth, shieldHealth);
             }
         }
     }
 
 
-    protected void updateHealthUI(final int tankHealth, final int soldierHealth, final int builderHealth) {
+    protected void updateHealthUI(final int tankHealth, final int soldierHealth, final int builderHealth, int shieldHealth) {
         runOnUiThread(new Runnable() {
             @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
             @Override
@@ -494,6 +491,15 @@ public class ClientActivity extends Activity {
                 // Update Tank Health
                 ProgressBar tankHealthBar = findViewById(R.id.tankHealthBar);
                 TextView tankHealthTextView = findViewById(R.id.tankHealthValue);
+
+                // Update Shield Health
+                ProgressBar shieldHealthBar = findViewById(R.id.shieldHealthBar);
+                TextView shieldHealthTextView = findViewById(R.id.shieldHealthValue);
+
+                shieldHealthBar.setMax(50);
+                shieldHealthTextView.setText(shieldHealth + "|" + "50");
+                updateHealthBarColor(shieldHealth, shieldHealthBar, 50);
+
 
                 tankHealthBar.setMax(100);
                 tankHealthTextView.setText(tankHealth + "|" + "100");
