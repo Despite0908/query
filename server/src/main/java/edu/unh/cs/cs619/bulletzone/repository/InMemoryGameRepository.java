@@ -569,7 +569,7 @@ public class InMemoryGameRepository implements GameRepository {
      * Checks constraints and builds the requested improvement.
      * @param builderId The ID of the builder unit that is building the improvement.
      * @param improvementType The type of improvement that is being built.
-     * @return Whether the improvement was successfully built.
+     * @return Whether the building was successfully started.
      */
     public boolean build(long builderId, byte improvementType) {
         synchronized (monitor) {
@@ -583,6 +583,27 @@ public class InMemoryGameRepository implements GameRepository {
                 return false;
             }
             token.startBuilding(ImprovementMapper.fromByte(improvementType));
+            return true;
+        }
+    }
+
+    /**
+     * Checks constraints and destroys improvement if present.
+     * @param builderId The ID of the builder unit that is dismantling the improvement.
+     * @return Whether the dismantling was successfully started.
+     */
+    public boolean dismantle(long builderId) {
+        synchronized (monitor) {
+            // Find builder
+            Builder token = game.getBuilders().get(builderId);
+            if (token == null) {
+                return false;
+            }
+            //constraints
+            if (!token.canDismantle()) {
+                return false;
+            }
+            token.startDismantle();
             return true;
         }
     }

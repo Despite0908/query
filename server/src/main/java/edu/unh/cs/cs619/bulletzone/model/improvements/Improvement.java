@@ -43,4 +43,6 @@ public abstract class Improvement {
      * @return Returns false if not enough credits in account. Returns true otherwise.
      */
     public abstract boolean buyImprovement(int accountId);
+
+    public abstract boolean sellImprovement(int accountId);
 }

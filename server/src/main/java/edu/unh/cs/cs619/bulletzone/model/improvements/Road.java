@@ -45,4 +45,9 @@ public class Road extends Improvement{
     public boolean buyImprovement(int accountId) {
         return BankLinker.spendCredits(accountId, 40);
     }
+
+    @Override
+    public boolean sellImprovement(int accountId) {
+        return BankLinker.addCredits(accountId, 40);
+    }
 }

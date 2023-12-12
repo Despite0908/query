@@ -173,6 +173,14 @@ class GamesController {
         return new ResponseEntity<>(new BooleanWrapper(result), HttpStatus.OK);
     }
 
+    @RequestMapping(method = RequestMethod.PUT, value = "{builderId}/dismantle", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    ResponseEntity<BooleanWrapper> dismantle(@PathVariable long builderId)
+            throws TokenDoesNotExistException, LimitExceededException, IllegalTransitionException {
+        boolean result = gameRepository.dismantle(builderId);
+        return new ResponseEntity<>(new BooleanWrapper(result), HttpStatus.OK);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     String handleBadRequests(Exception e) {
