@@ -241,6 +241,10 @@ public class TankController {
         restClient.build(getCurrentUnitId(), improvementType);
     }
 
+    public void dismantle() {
+        restClient.dismantle(getCurrentUnitId());
+    }
+
     /**
      * Interacts with the RestClient to fire a bullet from the tank that the user is currently
      * controlling.

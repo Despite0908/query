@@ -31,6 +31,11 @@ public class Road extends Improvement{
         return true;
     }
 
+    @Override
+    public long mutateTime(long millis, long interval) {
+        return millis + (interval / 2);
+    }
+
     /**
      * {@inheritDoc}
      * @param accountId ID of the account that will buy the improvement.
@@ -39,5 +44,10 @@ public class Road extends Improvement{
     @Override
     public boolean buyImprovement(int accountId) {
         return BankLinker.spendCredits(accountId, 40);
+    }
+
+    @Override
+    public boolean sellImprovement(int accountId) {
+        return BankLinker.addCredits(accountId, 40);
     }
 }

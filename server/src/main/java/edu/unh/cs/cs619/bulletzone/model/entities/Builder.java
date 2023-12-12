@@ -25,7 +25,7 @@ import edu.unh.cs.cs619.bulletzone.model.improvements.Wall;
  */
 public class Builder extends PlayerToken {
 
-    private boolean isBuilding;
+    private boolean isBuilding, isDismantling;
 
     private Timer buildTimer;
 
@@ -45,6 +45,7 @@ public class Builder extends PlayerToken {
         setAllowedFireInterval(500);
         setBulletTracker(new BulletTracker(this, 256));
         isBuilding = false;
+        isDismantling = false;
         buildTimer = new Timer();
     }
 
@@ -63,12 +64,24 @@ public class Builder extends PlayerToken {
         }
         //Can enter forest
         //Entering hilly terrain takes 50% longer, water takes 100% longer
-        Terrain nextTerrain = getParent().getNeighbor(direction).getTerrain();
+        FieldHolder nextField = getParent().getNeighbor(direction);
+        Terrain nextTerrain = nextField.getTerrain();
+        Improvement i = null;
+        if (nextField.isImproved()) {
+            i = nextField.getImprovement();
+            millis = i.mutateTime(millis, getAllowedMoveInterval());
+        }
         long lastMoveTime = getLastMoveTime();
         if (nextTerrain == Terrain.Hilly) {
             millis = millis - (getAllowedMoveInterval() / 2);
         } else if (nextTerrain == Terrain.Water) {
-            millis = millis - (getAllowedMoveInterval());
+            if (i != null) {
+                if (!i.isDock()) {
+                    millis = millis - (getAllowedMoveInterval());
+                }
+            } else {
+                millis = millis - (getAllowedMoveInterval());
+            }
         }
         System.out.printf("System: %d, Against: %d\n", millis, lastMoveTime);
         if (millis < getLastMoveTime()) {
@@ -80,6 +93,13 @@ public class Builder extends PlayerToken {
         } else {
             return direction == Direction.Right || direction == Direction.Left;
         }
+    }
+
+    @Override
+    public int move(long millis, Direction direction) {
+        int result = super.move(millis, direction);
+        isDismantling = false;
+        return result;
     }
 
     /**
@@ -130,6 +150,7 @@ public class Builder extends PlayerToken {
     public void turn(long millis, Direction direction) {
         setLastMoveTime(millis + getAllowedMoveInterval());
         setDirection(direction);
+        isDismantling = false;
     }
 
     @Override
@@ -198,6 +219,11 @@ public class Builder extends PlayerToken {
         return false;
     }
 
+    /**
+     * Checks whether the builder can build the selected improvement.
+     * @param mapper An enum mapper to the improvement that will be built
+     * @return Whether the improvement can be built or not
+     */
     public boolean canBuild(ImprovementMapper mapper) {
         //If already building
         if (isBuilding) {
@@ -219,16 +245,63 @@ public class Builder extends PlayerToken {
         return true;
     }
 
+    /**
+     * Checks whether the builder can dismantle the improvement behind them.
+     * @return Whether the improvement can be dismantled or not
+     */
+    public boolean canDismantle() {
+        //If already building or destroying
+        if (isBuilding || isDismantling) {
+            return false;
+        }
+        //get holder behind builder & improvement
+        FieldHolder behind = parent.getNeighbor(Direction.opposite(getDirection()));
+        //Is there an improvement
+        return behind.isImproved();
+    }
+
+    /**
+     * Updates the users credits and starts the dismantle timer.
+     */
+    public void startDismantle() {
+        //get holder behind builder
+        FieldHolder behind = getParent().getNeighbor(Direction.opposite(getDirection()));
+        Improvement i = behind.getImprovement();
+        if (!i.sellImprovement(getAccountID())) {
+            return;
+        }
+        isDismantling = true;
+        //set timer for dismantling
+        byte time = 2;
+        if (behind.getTerrain() == Terrain.Normal || behind.getTerrain() == Terrain.Water) {
+            time = 1;
+        }
+        buildTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                //If still dismantling, clear improvement
+                if (isDismantling) {
+                    behind.clearImprovement();
+                    isDismantling = false;
+                }
+            }
+        }, TimeUnit.SECONDS.toMillis(time));
+    }
+
+    /**
+     * Updates the users credits, creates the new improvement, starts the build timer.
+     * @param mapper An enum mapper to the improvement that will be built
+     */
     public void startBuilding(ImprovementMapper mapper) {
         FieldHolder parent = getParent();
         //get holder behind builder
         FieldHolder behind = parent.getNeighbor(Direction.opposite(getDirection()));
-        isBuilding = true;
         //Create improvement & spend credits
         Improvement improvement = mapImprovement(mapper);
         if (!improvement.buyImprovement(getAccountID())) {
             return;
         }
+        isBuilding = true;
         //set timer for building
         byte time = 2;
         if (behind.getTerrain() == Terrain.Normal || behind.getTerrain() == Terrain.Water) {

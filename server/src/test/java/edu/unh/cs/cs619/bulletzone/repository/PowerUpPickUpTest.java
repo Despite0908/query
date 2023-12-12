@@ -83,7 +83,7 @@ public class PowerUpPickUpTest {
     @Test
     public void pickupMultipleAntiGravTestMovementModifierTest() throws Exception {
         when(mockClock.millis()).thenReturn((long)500);
-        Tank tank = repo.join("");
+        Tank tank = repo.join("", -1).getTank();
         Assert.assertNotNull(tank);
         long thisMillis = mockClock.millis();
         Assert.assertEquals(1, repo.move(tank.getId(), Direction.Up));
@@ -112,7 +112,7 @@ public class PowerUpPickUpTest {
     @Test
     public void pickupMultipleAntiGravTestMovementModifierTest2() throws Exception {
         when(mockClock.millis()).thenReturn((long)500);
-        Tank tank = repo.join("");
+        Tank tank = repo.join("", -1).getTank();
         Assert.assertNotNull(tank);
         long thisMillis = mockClock.millis();
         Assert.assertEquals(1, repo.move(tank.getId(), Direction.Up));

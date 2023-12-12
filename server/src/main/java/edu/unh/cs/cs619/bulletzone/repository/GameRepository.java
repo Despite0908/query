@@ -27,6 +27,8 @@ public interface GameRepository {
 
     public boolean build(long builderId, byte improvementType);
 
+    public boolean dismantle(long builderId);
+
     public void leave(long tankId)
             throws TokenDoesNotExistException;
 

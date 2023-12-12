@@ -2,11 +2,13 @@ package edu.unh.cs.cs619.bulletzone.model.entities;
 
 import edu.unh.cs.cs619.bulletzone.model.BulletTracker;
 import edu.unh.cs.cs619.bulletzone.model.Direction;
+import edu.unh.cs.cs619.bulletzone.model.FieldHolder;
 import edu.unh.cs.cs619.bulletzone.model.Game;
 import edu.unh.cs.cs619.bulletzone.model.Player;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
 import edu.unh.cs.cs619.bulletzone.model.Terrain;
+import edu.unh.cs.cs619.bulletzone.model.improvements.Improvement;
 
 /**
  * Soldier token. Can be token actions such as move, fire, and turn. Can also re-enter a
@@ -61,11 +63,23 @@ public class Soldier extends PlayerToken{
     public boolean canMove(long millis, Direction direction) {
         //Entering rocky terrain takes 50% longer
         //Cannot enter water
-        Terrain nextTerrain = getParent().getNeighbor(direction).getTerrain();
+        FieldHolder nextField = getParent().getNeighbor(direction);
+        Terrain nextTerrain = nextField.getTerrain();
+        Improvement i = null;
+        if (nextField.isImproved()) {
+            i = nextField.getImprovement();
+            millis = i.mutateTime(millis, getAllowedMoveInterval());
+        }
         if (nextTerrain == Terrain.Rocky) {
             millis = millis - (getAllowedMoveInterval() / 2);
         } else if (nextTerrain == Terrain.Water) {
-            return false;
+            if (i != null) {
+                if (!i.isDock()) {
+                    return false;
+                }
+            }else {
+                return false;
+            }
         }
         return millis >= getLastMoveTime();
     }

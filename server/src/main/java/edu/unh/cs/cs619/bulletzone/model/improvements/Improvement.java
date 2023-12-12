@@ -15,7 +15,7 @@ public abstract class Improvement {
      * @param millis The "base" timestamp
      * @return The changed timestamp
      */
-    public long mutateTime(long millis) {
+    public long mutateTime(long millis, long interval) {
         return millis;
     }
 
@@ -43,4 +43,6 @@ public abstract class Improvement {
      * @return Returns false if not enough credits in account. Returns true otherwise.
      */
     public abstract boolean buyImprovement(int accountId);
+
+    public abstract boolean sellImprovement(int accountId);
 }

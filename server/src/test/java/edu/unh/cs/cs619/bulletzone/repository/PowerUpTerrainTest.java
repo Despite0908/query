@@ -53,7 +53,7 @@ public class PowerUpTerrainTest {
     @Test
     public void pickupAntiGravTestMovementModifierTest() throws Exception {
         //when(mockClock.millis()).thenReturn((long)500);
-        Tank tank = repo.join("");
+        Tank tank = repo.join("", -1).getTank();
         Assert.assertNotNull(tank);
         Assert.assertEquals(repo.move(tank.getId(), Direction.Up), 1);
         long newMovementInterval = tank.getAllowedMoveInterval();
@@ -68,7 +68,7 @@ public class PowerUpTerrainTest {
     @Test
     public void pickupAntiGravTestMovementInHillsTest() throws Exception {
         when(mockClock.millis()).thenReturn((long)500);
-        Tank tank = repo.join("");
+        Tank tank = repo.join("", -1).getTank();
         Assert.assertNotNull(tank);
         Assert.assertEquals(repo.move(tank.getId(), Direction.Up), 1);
         when(mockClock.millis()).thenReturn((long)1000);
@@ -83,7 +83,7 @@ public class PowerUpTerrainTest {
     @Test
     public void pickupAntiGravTestMovementInRockyTest() throws Exception {
         when(mockClock.millis()).thenReturn((long)500);
-        Tank tank = repo.join("");
+        Tank tank = repo.join("", -1).getTank();
         Soldier soldier = repo.eject(tank.getId());
         Assert.assertNotNull(tank);
         Assert.assertEquals(repo.move(tank.getId(), Direction.Up), 1);
@@ -104,7 +104,7 @@ public class PowerUpTerrainTest {
     @Test
     public void pickupAntiGravTestFiringModifierTest() throws Exception {
         //when(mockClock.millis()).thenReturn((long)1000);
-        Tank tank = repo.join("");
+        Tank tank = repo.join("", -1).getTank();
         Assert.assertNotNull(tank);
         Assert.assertEquals(repo.move(tank.getId(), Direction.Up), 1);
         long newFiringInterval = tank.getAllowedFireInterval();
@@ -119,7 +119,7 @@ public class PowerUpTerrainTest {
     @Test
     public void pickupMultipleAntiGravTestMovementModifierTest() throws Exception {
         when(mockClock.millis()).thenReturn((long)500);
-        Tank tank = repo.join("");
+        Tank tank = repo.join("", -1).getTank();
         Assert.assertNotNull(tank);
         long thisMillis = mockClock.millis();
         Assert.assertEquals(1, repo.move(tank.getId(), Direction.Up));
@@ -148,7 +148,7 @@ public class PowerUpTerrainTest {
     @Test
     public void pickupMultipleAntiGravTestMovementModifierTest2() throws Exception {
         when(mockClock.millis()).thenReturn((long)500);
-        Tank tank = repo.join("");
+        Tank tank = repo.join("", -1).getTank();
         Assert.assertNotNull(tank);
         long thisMillis = mockClock.millis();
         Assert.assertEquals(1, repo.move(tank.getId(), Direction.Up));

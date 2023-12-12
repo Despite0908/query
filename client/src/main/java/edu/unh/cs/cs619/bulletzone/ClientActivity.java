@@ -391,6 +391,12 @@ public class ClientActivity extends Activity {
         tankControl.build((byte) 2);
     }
 
+    @Click(R.id.buttonDismantle)
+    @Background
+    public void onButtonDismantle() {
+        tankControl.dismantle();
+    }
+
     @Click(R.id.buttonLeave)
     @Background
     void leaveGame() {

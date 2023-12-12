@@ -36,4 +36,9 @@ public class Deck extends Improvement{
     public boolean buyImprovement(int accountId) {
         return BankLinker.spendCredits(accountId, 80);
     }
+
+    @Override
+    public boolean sellImprovement(int accountId) {
+        return BankLinker.addCredits(accountId, 80);
+    }
 }
