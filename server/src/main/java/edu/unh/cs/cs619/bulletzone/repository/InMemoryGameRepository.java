@@ -502,6 +502,24 @@ public class InMemoryGameRepository implements GameRepository {
         }
 
     }
+
+    /**
+     *
+     * @param tankId tank to get health value from
+     * @return the tanks life
+     * @throws TokenDoesNotExistException if tank is not found
+     */
+    public int getTankShieldHealth(long tankId) throws TokenDoesNotExistException {
+        Tank tank = game.getTanks().get(tankId);
+        if (tank == null) {
+            throw new TokenDoesNotExistException(tankId);
+        } else {
+            return tank.getShieldHealth();
+        }
+
+    }
+
+
     /**
      *
      * @param soldierId soldier to get health value from

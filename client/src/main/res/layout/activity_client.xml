@@ -313,6 +313,45 @@
 
 
                 <ImageView
+                    android:id="@+id/shieldHealthIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/shield" />
+
+
+                <ProgressBar
+                    android:id="@+id/shieldHealthBar"
+                    android:layout_width="150dp"
+                    android:layout_height="25dp"
+                    android:max="50"
+                    android:progress="0"
+                    android:indeterminate="false"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:progressDrawable="@drawable/health_bar"
+                    android:layout_toRightOf="@id/shieldHealthIcon" />
+
+
+                <TextView
+                    android:id="@+id/shieldHealthValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignStart="@id/shieldHealthBar"
+                    android:layout_alignTop="@id/shieldHealthBar"
+                    android:text="0|50"
+                    android:textColor="@color/text_color"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp"
+                    android:gravity="center_vertical" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+
+                <ImageView
                     android:id="@+id/builderHealthIcon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

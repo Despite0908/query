@@ -34,6 +34,8 @@ public abstract class PlayerToken extends FieldEntity{
     private final Timer medKitTimer = new Timer();
     private final Timer deflectorShieldTimer = new Timer();
     private final Object monitor = new Object();
+    private int shieldHealth = 0;
+
     List<Item> heldItems;
 
 
@@ -198,6 +200,14 @@ public abstract class PlayerToken extends FieldEntity{
 
     public void setMaxLife(int maxLife) {
         this.maxLife = maxLife;
+    }
+
+    public int getShieldHealth() {
+        return shieldHealth;
+    }
+
+    public void setShieldHealth(int shieldHealth) {
+        this.shieldHealth = shieldHealth;
     }
 
     public void setLastFireTime(long lastFireTime) {

@@ -65,6 +65,7 @@ public class HealthPollerTask {
         try {
 
             int tankHealth = restClient.getTankHealth(tankId);
+            int shieldHealth = restClient.getShieldHealth(tankId);
             int builderHealth = restClient.getBuilderHealth(builderId);
             if(shouldPollSoldierHealth) {
                 if (soldierId != -1) {
@@ -79,7 +80,7 @@ public class HealthPollerTask {
 
 
 
-            onHealthUpdate(new HealthUpdateEvent(tankHealth, soldierHealth, builderHealth));
+            onHealthUpdate(new HealthUpdateEvent(tankHealth, soldierHealth, builderHealth, shieldHealth));
         } catch (Exception e) {
             Log.e(TAG, "Error fetching health data: " + e.getMessage());
         }
