@@ -207,7 +207,8 @@ public class Builder extends PlayerToken {
 
         if (didShieldProtect == false) {
 
-
+            this.getDeflectorShieldTimer().cancel();
+            this.getMedKitTimer().cancel();
             EventHistory eventHistory = EventHistory.get_instance();
             int life = getLife() - damage;
             setLife(life);

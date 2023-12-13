@@ -18,6 +18,9 @@ public abstract class PlayerToken extends FieldEntity{
     private long lastMoveTime;
     private int allowedMoveInterval;
 
+    private long lastBuildTime;
+    private int allowedBuildInterval;
+
     private long lastFireTime;
     private int  fireInterval;
     private int numberOfBullets;
@@ -161,8 +164,28 @@ public abstract class PlayerToken extends FieldEntity{
         return lastMoveTime;
     }
 
+    public Timer getDeflectorShieldTimer() {
+        return deflectorShieldTimer;
+    }
+
+    public Timer getMedKitTimer() {
+        return medKitTimer;
+    }
+
     public void setLastMoveTime(long lastMoveTime) {
         this.lastMoveTime = lastMoveTime;
+    }
+
+    public long getLastBuildTime() {
+        return lastBuildTime;
+    }
+
+    public int getAllowedBuildInterval() {
+        return allowedBuildInterval;
+    }
+
+    public void setAllowedBuildInterval(int allowedBuildInterval) {
+        this.allowedBuildInterval = allowedBuildInterval;
     }
 
     public long getAllowedMoveInterval() {
@@ -305,7 +328,8 @@ public abstract class PlayerToken extends FieldEntity{
 
     public void processShieldRemover(Item shieldRemoved) {
         removePowerUp(shieldRemoved);
-
+        setAllowedFireInterval(fireInterval * 2);
+        setAllowedBuildInterval(allowedBuildInterval * 2);
         for (int i = 0; i < heldItems.size(); i++) {
             if (heldItems.get(i).getItemType() == ItemTypes.DEFLECTOR_SHIELD) {
                 //Extra Repair Kit
@@ -348,6 +372,8 @@ public abstract class PlayerToken extends FieldEntity{
         if (getShieldHealth() > 0) {
 
         } else  {
+            setAllowedFireInterval(fireInterval / 2);
+            setAllowedBuildInterval(allowedBuildInterval / 2);
             setShieldHealth(shieldMaxHealth);
             deflectorShieldTimer.schedule(new DeflectorShieldTimer(monitor, newItem, this), 0, 1000);
         }

@@ -184,6 +184,8 @@ public class Tank extends PlayerToken {
 
             if (life <= 0) {
                 //Remove Tank
+                this.getDeflectorShieldTimer().cancel();
+                this.getMedKitTimer().cancel();
                 getParent().clearField();
                 setParent(null);
                 game.removeTank(getId());
