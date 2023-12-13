@@ -219,6 +219,7 @@ public class Item extends FieldEntity {
         int randomAvailableLocation = rand.nextInt(numAvailableDropLocations);
         this.setGridLocation(availableDropLocations[randomAvailableLocation]);
         game.getHolderGrid().get(availableDropLocations[randomAvailableLocation]).setFieldEntity(this);
+        other.removePowerUp(this);
 
         return true;
     }
