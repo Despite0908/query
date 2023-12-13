@@ -2,6 +2,7 @@ package edu.unh.cs.cs619.bulletzone.model.entities;
 
 import com.google.common.eventbus.EventBus;
 
+import java.util.Random;
 import java.util.Timer;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -10,15 +11,19 @@ import edu.unh.cs.cs619.bulletzone.events.CustomEvent;
 import edu.unh.cs.cs619.bulletzone.events.CustomEventTypes;
 import edu.unh.cs.cs619.bulletzone.model.BankLinker;
 import edu.unh.cs.cs619.bulletzone.model.BulletTimer;
+import edu.unh.cs.cs619.bulletzone.model.Direction;
 import edu.unh.cs.cs619.bulletzone.model.Game;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.EventHistory;
 import edu.unh.cs.cs619.bulletzone.model.ServerEvents.TokenLeaveEvent;
+import java.util.Random;
 
 public class Item extends FieldEntity {
 
 
     private ItemTypes itemType;
     private int gridLocation;
+
+    private Game game;
 
     //public Item(long id, int itemType, int location) {
     public Item(long id, ItemTypes theItemType, int location) {
@@ -119,9 +124,102 @@ public class Item extends FieldEntity {
     }
 
 
-//    public boolean droppedBy(PlayerToken other) {
-//        if (!other.heldItems.contains(this)) {
-//            return false;
-//        }
-//    }
+    /**
+     * Drops an item held by a PlayerToken onto an adjacent free cell. The cell in which it is dropped
+     * to is random, and if there are no locations available, then the item is not dropped.
+     * @param other PlayerToken that is dropping the item from their inventory
+     * @return True or false depending on whether or not dropping an item is plausible
+     */
+    public boolean droppedBy(PlayerToken other) {
+        if (!other.heldItems.contains(this)) {
+            return false;
+        }
+        int[] availableDropLocations = new int[9];
+        int numAvailableDropLocations = 0;
+        if (!other.getParent().getNeighbor(Direction.Up).isPresent()) {
+            int location = gridLocation - 16;
+            if (location < 0) {
+                location += 256;
+            }
+            availableDropLocations[numAvailableDropLocations] = location;
+            numAvailableDropLocations++;
+            if (!other.getParent().getNeighbor(Direction.Up).getNeighbor(Direction.Left).isPresent()) {
+                location = gridLocation - 16;
+                if (location < 0) {
+                    location += 256;
+                }
+                if (location % 16 == 0) {
+                    location += 15;
+                }
+                availableDropLocations[numAvailableDropLocations] = location;
+                numAvailableDropLocations++;
+            }
+            if (!other.getParent().getNeighbor(Direction.Up).getNeighbor(Direction.Right).isPresent()) {
+                location = gridLocation - 16;
+                if (location < 0) {
+                    location += 256;
+                }
+                if (location % 16 == 15) {
+                    location -= 15;
+                }
+                availableDropLocations[numAvailableDropLocations] = location;
+                numAvailableDropLocations++;
+            }
+        }
+        if (!other.getParent().getNeighbor(Direction.Left).isPresent()) {
+            int location = gridLocation - 1;
+            if (gridLocation % 16 == 0) {
+                location = gridLocation + 15;
+            }
+            availableDropLocations[numAvailableDropLocations] = location;
+            numAvailableDropLocations++;
+        }
+        if (!other.getParent().getNeighbor(Direction.Right).isPresent()) {
+            int location = gridLocation + 1;
+            if (gridLocation % 16 == 15) {
+                location = gridLocation - 1;
+            }
+            availableDropLocations[numAvailableDropLocations] = location;
+            numAvailableDropLocations++;
+        }
+        if (!other.getParent().getNeighbor(Direction.Down).isPresent()) {
+            int location = gridLocation + 16;
+            if (location > 255) {
+                location -= 256;
+            }
+            availableDropLocations[numAvailableDropLocations] = location;
+            numAvailableDropLocations++;
+            if (!other.getParent().getNeighbor(Direction.Down).getNeighbor(Direction.Left).isPresent()) {
+                location = gridLocation + 16;
+                if (location > 255) {
+                    location -= 256;
+                }
+                if (location % 16 == 0) {
+                    location += 15;
+                }
+                availableDropLocations[numAvailableDropLocations] = location;
+                numAvailableDropLocations++;
+            }
+            if (!other.getParent().getNeighbor(Direction.Down).getNeighbor(Direction.Right).isPresent()) {
+                location = gridLocation - 16;
+                if (location > 255) {
+                    location -= 256;
+                }
+                if (location % 16 == 15) {
+                    location -= 15;
+                }
+                availableDropLocations[numAvailableDropLocations] = location;
+                numAvailableDropLocations++;
+            }
+        }
+        if (numAvailableDropLocations == 0) {
+            return false;
+        }
+        Random rand = new Random();
+        int randomAvailableLocation = rand.nextInt(numAvailableDropLocations);
+        this.setGridLocation(availableDropLocations[randomAvailableLocation]);
+        game.getHolderGrid().get(availableDropLocations[randomAvailableLocation]).setFieldEntity(this);
+
+        return true;
+    }
 }

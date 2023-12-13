@@ -395,10 +395,12 @@ public abstract class PlayerToken extends FieldEntity{
     public void cashInPowerUps() {
         for (int i = 0; i < heldItems.size(); i++) {
             ItemTypes type = heldItems.get(i).getItemType();
-            if (type == ItemTypes.ANTI_GRAV) {
+            if (type == ItemTypes.ANTI_GRAV || type == ItemTypes.DEFLECTOR_SHIELD) {
                 BankLinker.addCredits(accountID, 300);
             } else if (type == ItemTypes.FUSION_REACTOR) {
                 BankLinker.addCredits(accountID, 400);
+            } else if (type == ItemTypes.DEFLECTOR_SHIELD) {
+                BankLinker.addCredits(accountID, 200);
             }
         }
         heldItems.clear();
